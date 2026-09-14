@@ -1,56 +1,54 @@
-# Welcome to your Expo app 👋
+# Ok-Calendar
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+**English summary:** Ok-Calendar is an open-source Expo (React Native) calendar app with Google Calendar–style views (month, year, day, agenda), local SQLite storage synced with device calendars, local notifications, and UI in **English (default/fallback)** and **French**. Licensed under **EUPL-1.2**. See [`docs/`](docs/README.md) for full specifications.
 
-## Get started
+---
 
-1. Install dependencies
+## Présentation
 
-   ```bash
-   npm install
-   ```
+Ok-Calendar est une application calendrier **open source** (Expo SDK 57, React Native) visant une expérience proche de Google Calendar :
 
-2. Start the app
+- Vues **mois / année / jour / planning**
+- CRUD d’événements (titre, journée entière, horaires, récurrence, description, lieu, URL, rappels)
+- Connexion aux **calendriers du device** (lecture + écriture si autorisé)
+- Stockage **local SQLite** + sync device
+- **Notifications locales**
+- UI **gluestack-ui** ; i18n **EN** (défaut) + **FR**
 
-   ```bash
-   npx expo start
-   ```
+## Documentation
 
-In the output, you'll find options to open the app in a
+| Doc | Contenu |
+|-----|---------|
+| [docs/README.md](docs/README.md) | Index de la documentation |
+| [docs/SPECS.md](docs/SPECS.md) | Spécification produit & technique (contrat d’implémentation) |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Architecture |
+| [docs/adr/](docs/adr/README.md) | Architecture Decision Records |
+| [AGENTS.md](AGENTS.md) | Instructions pour agents d’implémentation |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | Contribution |
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## Prérequis
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+- Node.js LTS
+- Expo CLI / `npx expo`
+- **Development build** (`expo-dev-client`) — `expo-calendar` (API class SDK 57) n’est **pas** supporté dans Expo Go
+- Device réel recommandé pour calendrier OS et notifications
 
-## Get a fresh project
-
-When you're ready, run:
+## Quick start (développement)
 
 ```bash
-npm run reset-project
+cd Ok-Calendar
+npm install
+npx expo install   # aligner les packages natifs sur le SDK
+# Configurer expo-dev-client + plugins (voir docs/DEVELOPMENT.md)
+npx expo start --dev-client
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Détails : [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md).
 
-### Other setup steps
+## Licence
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+[European Union Public Licence v1.2 (EUPL-1.2)](LICENSE).
 
-## Learn more
+## Statut
 
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+La **spécification et la documentation OSS** sont en place. L’implémentation applicative suit [docs/SPECS.md](docs/SPECS.md) et [docs/ROADMAP.md](docs/ROADMAP.md).

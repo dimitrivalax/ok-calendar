@@ -8,7 +8,12 @@
     "scheme": "okcalendar",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "icon": "./assets/expo.icon",
+      "infoPlist": {
+        "NSCalendarsFullAccessUsageDescription": "Ok-Calendar needs access to show and edit your calendars.",
+        "NSCalendarsUsageDescription": "Ok-Calendar needs access to show and edit your calendars.",
+        "NSRemindersUsageDescription": "Ok-Calendar can use reminders for event alerts."
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -17,14 +22,47 @@
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "permissions": [
+        "READ_CALENDAR",
+        "WRITE_CALENDAR",
+        "POST_NOTIFICATIONS",
+        "android.permission.READ_CALENDAR",
+        "android.permission.WRITE_CALENDAR"
+      ],
+      "predictiveBackGestureEnabled": false,
+      "package": "com.anonymous.OkCalendar"
     },
     "web": {
-      "output": "static",
+      "bundler": "metro",
+      "output": "single",
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
-      "expo-router",
+      [
+        "expo-router",
+        {
+          "headers": {
+            "Cross-Origin-Embedder-Policy": "credentialless",
+            "Cross-Origin-Opener-Policy": "same-origin"
+          }
+        }
+      ],
+      "expo-dev-client",
+      [
+        "expo-calendar",
+        {
+          "calendarPermission": "Allow Ok-Calendar to access your calendars."
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/icon.png",
+          "color": "#208AEF"
+        }
+      ],
+      "expo-sqlite",
+      "expo-localization",
       [
         "expo-splash-screen",
         {

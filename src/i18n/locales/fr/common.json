@@ -1,0 +1,12 @@
+{
+  "appName": "Ok-Calendar",
+  "today": "Aujourd’hui",
+  "save": "Enregistrer",
+  "cancel": "Annuler",
+  "delete": "Supprimer",
+  "edit": "Modifier",
+  "back": "Retour",
+  "loading": "Chargement…",
+  "error": "Une erreur est survenue",
+  "localOnlyBanner": "Permission calendrier refusée — mode local uniquement"
+}

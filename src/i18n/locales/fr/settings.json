@@ -1,0 +1,12 @@
+{
+  "title": "Réglages",
+  "language": "Langue",
+  "languageEn": "Anglais",
+  "languageFr": "Français",
+  "permissions": "Permissions",
+  "calendarPermission": "Calendriers du device",
+  "notificationPermission": "Notifications",
+  "sync": "Synchronisation",
+  "granted": "Accordée",
+  "denied": "Refusée"
+}

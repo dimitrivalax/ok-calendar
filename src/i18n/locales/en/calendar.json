@@ -1,0 +1,12 @@
+{
+  "month": "Month",
+  "year": "Year",
+  "day": "Day",
+  "agenda": "Schedule",
+  "calendars": "Calendars",
+  "settings": "Settings",
+  "newEvent": "New event",
+  "noEvents": "No events",
+  "syncNow": "Sync now",
+  "visible": "Visible"
+}

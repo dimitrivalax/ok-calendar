@@ -1,0 +1,12 @@
+{
+  "appName": "Ok-Calendar",
+  "today": "Today",
+  "save": "Save",
+  "cancel": "Cancel",
+  "delete": "Delete",
+  "edit": "Edit",
+  "back": "Back",
+  "loading": "Loading…",
+  "error": "Something went wrong",
+  "localOnlyBanner": "Calendar permission denied — local-only mode"
+}
