@@ -203,6 +203,28 @@ export async function openWebDatabase(): Promise<WebDatabase> {
         return { changes: 1, lastInsertRowId: 0 };
       }
 
+      if (/^UPDATE calendars SET is_primary = 0/i.test(text)) {
+        const [updatedAt] = values;
+        tables.calendars = tables.calendars.map((c) => ({
+          ...c,
+          is_primary: 0,
+          updated_at: updatedAt,
+        }));
+        await persist();
+        return { changes: tables.calendars.length, lastInsertRowId: 0 };
+      }
+
+      if (/^UPDATE calendars SET is_primary = 1/i.test(text)) {
+        const [updatedAt, id] = values;
+        tables.calendars = tables.calendars.map((c) =>
+          c.id === id
+            ? { ...c, is_primary: 1, updated_at: updatedAt }
+            : c,
+        );
+        await persist();
+        return { changes: 1, lastInsertRowId: 0 };
+      }
+
       if (/^UPDATE calendars SET title/i.test(text)) {
         const [title, color, allows, updatedAt, id] = values;
         tables.calendars = tables.calendars.map((c) =>

@@ -1,21 +1,41 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { ScrollView } from 'react-native';
 import { addHours } from 'date-fns';
+import { ChevronDown } from 'lucide-react-native';
 
+import { DateTimeField } from '@/components/event/DateTimeField';
 import { Box } from '@/components/ui/box';
 import { Button, ButtonText } from '@/components/ui/button';
 import { Input, InputField } from '@/components/ui/input';
+import {
+  Select,
+  SelectBackdrop,
+  SelectContent,
+  SelectDragIndicator,
+  SelectDragIndicatorWrapper,
+  SelectIcon,
+  SelectItem,
+  SelectPortal,
+  SelectTrigger,
+} from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Text } from '@/components/ui/text';
 import { Textarea, TextareaInput } from '@/components/ui/textarea';
 import { VStack } from '@/components/ui/vstack';
 import { HStack } from '@/components/ui/hstack';
-import type { CalendarEvent, Recurrence, ReminderType } from '@/domain/types';
+import type {
+  Calendar,
+  CalendarEvent,
+  Recurrence,
+  ReminderType,
+} from '@/domain/types';
 import { isValidOptionalUrl } from '@/domain/url';
+import { EventRepository } from '@/services/eventRepository';
 
 export type EventFormValues = {
+  calendarId: string;
   title: string;
   allDay: boolean;
   startAt: string;
@@ -42,11 +62,32 @@ const RECURRENCES: Recurrence[] = [
   'yearly',
 ];
 
+const REMINDER_TYPES: ReminderType[] = [
+  'at_event',
+  'minutes_before',
+  'hours_before',
+  'days_before',
+];
+
+const REMINDER_TYPE_LABELS: Record<
+  ReminderType,
+  | 'reminderAtEvent'
+  | 'reminderMinutesBefore'
+  | 'reminderHoursBefore'
+  | 'reminderDaysBefore'
+> = {
+  at_event: 'reminderAtEvent',
+  minutes_before: 'reminderMinutesBefore',
+  hours_before: 'reminderHoursBefore',
+  days_before: 'reminderDaysBefore',
+};
+
 export function EventForm({ initial, onSubmit, submitLabel }: Props) {
   const { t } = useTranslation('event');
   const defaultStart = initial?.startAt ?? new Date().toISOString();
   const defaultEnd =
     initial?.endAt ?? addHours(new Date(defaultStart), 1).toISOString();
+  const [calendars, setCalendars] = useState<Calendar[]>([]);
 
   const {
     control,
@@ -56,6 +97,7 @@ export function EventForm({ initial, onSubmit, submitLabel }: Props) {
     formState: { errors, isSubmitting },
   } = useForm<EventFormValues>({
     defaultValues: {
+      calendarId: initial?.calendarId ?? '',
       title: initial?.title ?? '',
       allDay: initial?.allDay ?? false,
       startAt: defaultStart,
@@ -70,14 +112,98 @@ export function EventForm({ initial, onSubmit, submitLabel }: Props) {
   });
 
   const recurrence = watch('recurrence');
+  const allDay = watch('allDay');
+  const calendarId = watch('calendarId');
+  const selectedCalendar = calendars.find((c) => c.id === calendarId);
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      const all = await EventRepository.listCalendars();
+      const writable = all.filter((c) => c.allowsModifications);
+      if (cancelled) return;
+      setCalendars(writable);
+      const preferred =
+        (initial?.calendarId &&
+          writable.find((c) => c.id === initial.calendarId)?.id) ||
+        writable.find((c) => c.isPrimary)?.id ||
+        writable[0]?.id ||
+        '';
+      if (preferred) {
+        setValue('calendarId', preferred);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [initial?.calendarId, setValue]);
 
   useEffect(() => {
     // keep form controlled
   }, [recurrence]);
 
+  const selectCalendar = (id: string, onChange: (id: string) => void) => {
+    onChange(id);
+    void EventRepository.setPrimaryCalendar(id);
+  };
+
   return (
     <ScrollView testID="event-form" className="flex-1">
       <VStack className="p-4 gap-4">
+        <VStack className="gap-1">
+          <Text>{t('calendar')}</Text>
+          <Controller
+            control={control}
+            name="calendarId"
+            rules={{ required: t('calendarRequired') }}
+            render={({ field: { onChange, value } }) => (
+              <Select
+                selectedValue={value || undefined}
+                selectedLabel={selectedCalendar?.title}
+                onValueChange={(id) => selectCalendar(id, onChange)}
+              >
+                <SelectTrigger
+                  variant="outline"
+                  size="md"
+                  testID="event-calendar-select"
+                  className="gap-2 px-3"
+                >
+                  {selectedCalendar && (
+                    <Box
+                      className="w-3 h-3 rounded-full"
+                      style={{ backgroundColor: selectedCalendar.color }}
+                    />
+                  )}
+                  <Text className="flex-1 text-foreground" numberOfLines={1}>
+                    {selectedCalendar?.title ?? t('calendar')}
+                  </Text>
+                  <SelectIcon as={ChevronDown} className="mr-1" />
+                </SelectTrigger>
+                <SelectPortal>
+                  <SelectBackdrop />
+                  <SelectContent>
+                    <SelectDragIndicatorWrapper>
+                      <SelectDragIndicator />
+                    </SelectDragIndicatorWrapper>
+                    {calendars.map((cal) => (
+                      <SelectItem
+                        key={cal.id}
+                        label={cal.title}
+                        value={cal.id}
+                      />
+                    ))}
+                  </SelectContent>
+                </SelectPortal>
+              </Select>
+            )}
+          />
+          {errors.calendarId && (
+            <Text size="sm" className="text-error-500">
+              {errors.calendarId.message}
+            </Text>
+          )}
+        </VStack>
+
         <VStack className="gap-1">
           <Text>{t('title')}</Text>
           <Controller
@@ -117,40 +243,42 @@ export function EventForm({ initial, onSubmit, submitLabel }: Props) {
           />
         </HStack>
 
-        <VStack className="gap-1">
-          <Text>{t('start')} (ISO)</Text>
-          <Controller
-            control={control}
-            name="startAt"
-            render={({ field: { onChange, value } }) => (
-              <Input>
-                <InputField value={value} onChangeText={onChange} />
-              </Input>
-            )}
-          />
-        </VStack>
-
-        <VStack className="gap-1">
-          <Text>{t('end')} (ISO)</Text>
-          <Controller
-            control={control}
-            name="endAt"
-            rules={{
-              validate: (end, values) =>
-                new Date(end) > new Date(values.startAt) || t('invalidRange'),
-            }}
-            render={({ field: { onChange, value } }) => (
-              <Input>
-                <InputField value={value} onChangeText={onChange} />
-              </Input>
-            )}
-          />
-          {errors.endAt && (
-            <Text size="sm" className="text-error-500">
-              {errors.endAt.message}
-            </Text>
+        <Controller
+          control={control}
+          name="startAt"
+          render={({ field: { onChange, value } }) => (
+            <DateTimeField
+              testID="event-start-at"
+              label={t('start')}
+              value={value}
+              onChange={onChange}
+              allDay={allDay}
+            />
           )}
-        </VStack>
+        />
+
+        <Controller
+          control={control}
+          name="endAt"
+          rules={{
+            validate: (end, values) =>
+              new Date(end) > new Date(values.startAt) || t('invalidRange'),
+          }}
+          render={({ field: { onChange, value } }) => (
+            <DateTimeField
+              testID="event-end-at"
+              label={t('end')}
+              value={value}
+              onChange={onChange}
+              allDay={allDay}
+            />
+          )}
+        />
+        {errors.endAt && (
+          <Text size="sm" className="text-error-500">
+            {errors.endAt.message}
+          </Text>
+        )}
 
         <VStack className="gap-2">
           <Text>{t('recurrence')}</Text>
@@ -236,21 +364,14 @@ export function EventForm({ initial, onSubmit, submitLabel }: Props) {
             name="reminderType"
             render={({ field: { value, onChange } }) => (
               <HStack className="flex-wrap gap-2">
-                {(
-                  [
-                    'at_event',
-                    'minutes_before',
-                    'hours_before',
-                    'days_before',
-                  ] as ReminderType[]
-                ).map((type) => (
+                {REMINDER_TYPES.map((type) => (
                   <Button
                     key={type}
                     size="sm"
                     variant={value === type ? 'default' : 'outline'}
                     onPress={() => onChange(type)}
                   >
-                    <ButtonText>{type}</ButtonText>
+                    <ButtonText>{t(REMINDER_TYPE_LABELS[type])}</ButtonText>
                   </Button>
                 ))}
               </HStack>

@@ -33,6 +33,7 @@ export default function EditEventScreen() {
     try {
       const reminderValue = Number(values.reminderValue) || 0;
       await EventRepository.update(event.id, {
+        calendarId: values.calendarId,
         title: values.title,
         allDay: values.allDay,
         startAt: new Date(values.startAt).toISOString(),

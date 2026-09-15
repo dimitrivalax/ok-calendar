@@ -162,6 +162,17 @@ export const EventRepository = {
     );
   },
 
+  async setPrimaryCalendar(id: string) {
+    const db = await getDb();
+    const now = new Date().toISOString();
+    await db.runAsync(`UPDATE calendars SET is_primary = 0, updated_at = ?`, now);
+    await db.runAsync(
+      `UPDATE calendars SET is_primary = 1, updated_at = ? WHERE id = ?`,
+      now,
+      id,
+    );
+  },
+
   async create(input: CreateEventInput): Promise<CalendarEvent> {
     const title = validateInput(input);
     const db = await getDb();

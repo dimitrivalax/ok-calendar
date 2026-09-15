@@ -67,12 +67,13 @@ const StyledIcon = styled(UIIcon, {
 });
 const StyledSectionList = styled(SectionList, { className: 'style' });
 const StyledSectionHeaderText = styled(H4, { className: 'style' });
+const StyledText = styled(Text, { className: 'style' });
 
 export const UIActionsheet = createActionsheet({
   Root: View,
   Content: withStyleContext(StyledMotionView),
   Item: withStyleContext(Pressable),
-  ItemText: Text,
+  ItemText: StyledText,
   DragIndicator: View,
   IndicatorWrapper: View,
   Backdrop: StyledAnimatedPressable,
@@ -97,7 +98,7 @@ const actionsheetItemStyle = tva({
 });
 
 const actionsheetItemTextStyle = tva({
-  base: 'text-foreground/70 font-normal font-body tracking-md text-left mx-2',
+  base: 'text-foreground font-normal font-body tracking-md text-left mx-2',
   variants: {
     isTruncated: {
       true: '',

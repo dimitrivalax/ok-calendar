@@ -15,12 +15,9 @@ export default function NewEventScreen() {
 
   const onSubmit = async (values: EventFormValues) => {
     try {
-      const calendar = await EventRepository.getPrimaryCalendar();
-      if (!calendar) throw new Error('No calendar');
-
       const reminderValue = Number(values.reminderValue) || 0;
       const created = await EventRepository.create({
-        calendarId: calendar.id,
+        calendarId: values.calendarId,
         title: values.title,
         allDay: values.allDay,
         startAt: new Date(values.startAt).toISOString(),

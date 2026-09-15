@@ -72,7 +72,7 @@ const selectTriggerStyle = tva({
 });
 
 const selectInputStyle = tva({
-  base: 'px-3 placeholder:text-foreground/50 web:w-full h-full text-foreground/90 pointer-events-none web:outline-none ios:leading-[0px] py-0',
+  base: 'px-3 placeholder:text-muted-foreground web:w-full h-full text-foreground pointer-events-none web:outline-none ios:leading-[0px] py-0',
   parentVariants: {
     size: {
       xl: 'text-xl',
@@ -94,11 +94,13 @@ const StyledIcon = styled(UIIcon, {
   },
 });
 
+const StyledTextInput = styled(TextInput, { className: 'style' });
+
 const UISelect = createSelect(
   {
     Root: View,
     Trigger: withStyleContext(SelectTriggerWrapper),
-    Input: TextInput,
+    Input: StyledTextInput,
     Icon: StyledIcon,
   },
   {
