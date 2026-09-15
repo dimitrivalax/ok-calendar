@@ -1,4 +1,4 @@
-import { format } from 'date-fns';
+import { addDays, endOfWeek, format, startOfWeek } from 'date-fns';
 import { enUS, fr } from 'date-fns/locale';
 import { Stack, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -7,10 +7,9 @@ import { AgendaView } from '@/components/calendar/AgendaView';
 import { DayView } from '@/components/calendar/DayView';
 import { MonthView } from '@/components/calendar/MonthView';
 import { ViewTabBar } from '@/components/calendar/ViewTabBar';
-import { YearView } from '@/components/calendar/YearView';
+import { WeekView } from '@/components/calendar/WeekView';
 import { Box } from '@/components/ui/box';
 import { Button, ButtonText } from '@/components/ui/button';
-import { Fab, FabLabel } from '@/components/ui/fab';
 import { HStack } from '@/components/ui/hstack';
 import { Text } from '@/components/ui/text';
 import { VStack } from '@/components/ui/vstack';
@@ -32,10 +31,21 @@ export default function CalendarScreen() {
   const router = useRouter();
   const dfLocale = locale === 'fr' ? fr : enUS;
 
-  const title =
-    viewMode === 'year'
-      ? format(cursorDate, 'yyyy')
-      : format(cursorDate, 'MMMM yyyy', { locale: dfLocale });
+  const title = (() => {
+    if (viewMode === 'day') {
+      return format(cursorDate, 'EEEE d MMMM yyyy', { locale: dfLocale });
+    }
+    if (viewMode === 'week') {
+      const start = startOfWeek(cursorDate, { weekStartsOn: 1 });
+      const end = endOfWeek(cursorDate, { weekStartsOn: 1 });
+      return `${format(start, 'd MMM', { locale: dfLocale })} – ${format(end, 'd MMM yyyy', { locale: dfLocale })}`;
+    }
+    if (viewMode === 'agenda') {
+      const end = addDays(cursorDate, 60);
+      return `${format(cursorDate, 'd MMM', { locale: dfLocale })} – ${format(end, 'd MMM yyyy', { locale: dfLocale })}`;
+    }
+    return format(cursorDate, 'MMMM yyyy', { locale: dfLocale });
+  })();
 
   return (
     <>
@@ -83,7 +93,7 @@ export default function CalendarScreen() {
           </Button>
         </HStack>
 
-        <Box className="relative flex-1">
+        <Box className="flex-1">
           {viewMode === 'month' && (
             <MonthView
               onSelectDay={(day) => {
@@ -92,24 +102,16 @@ export default function CalendarScreen() {
               }}
             />
           )}
-          {viewMode === 'year' && (
-            <YearView
-              onSelectMonth={(month) => {
-                setCursorDate(month);
-                setViewMode('month');
+          {viewMode === 'week' && (
+            <WeekView
+              onSelectDay={(day) => {
+                setCursorDate(day);
+                setViewMode('day');
               }}
             />
           )}
           {viewMode === 'day' && <DayView />}
           {viewMode === 'agenda' && <AgendaView />}
-
-          <Fab
-            placement="bottom right"
-            onPress={() => router.push(href('/event/new'))}
-            testID="fab-new-event"
-          >
-            <FabLabel>+</FabLabel>
-          </Fab>
         </Box>
 
         <ViewTabBar />

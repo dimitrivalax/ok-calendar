@@ -2,7 +2,7 @@ export type Recurrence = 'none' | 'daily' | 'weekly' | 'monthly' | 'yearly';
 export type EventOrigin = 'app' | 'device';
 export type SyncStatus = 'synced' | 'pending' | 'error';
 export type ReminderType = 'at_event' | 'minutes_before' | 'hours_before' | 'days_before';
-export type ViewMode = 'month' | 'year' | 'day' | 'agenda';
+export type ViewMode = 'month' | 'week' | 'day' | 'agenda';
 export type CalendarSource = 'local' | 'device';
 
 export type Calendar = {

@@ -8,16 +8,16 @@ test.describe('views.navigation', () => {
     });
 
     await page.getByTestId('view-month').click();
-    await expect(page.getByTestId('view-month')).toBeVisible();
+    await expect(page.getByTestId('panel-month')).toBeVisible();
 
-    await page.getByTestId('view-year').click();
-    await expect(page.getByTestId('view-year')).toBeVisible();
+    await page.getByTestId('view-week').click();
+    await expect(page.getByTestId('panel-week')).toBeVisible();
 
     await page.getByTestId('view-day').click();
-    await expect(page.getByTestId('view-day')).toBeVisible();
+    await expect(page.getByTestId('panel-day')).toBeVisible();
 
     await page.getByTestId('view-agenda').click();
-    await expect(page.getByTestId('view-agenda')).toBeVisible();
+    await expect(page.getByTestId('panel-agenda')).toBeVisible();
 
     await page.getByTestId('btn-today').click();
   });

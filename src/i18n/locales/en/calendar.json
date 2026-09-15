@@ -1,8 +1,8 @@
 {
   "month": "Month",
-  "year": "Year",
+  "week": "Week",
   "day": "Day",
-  "agenda": "Schedule",
+  "agenda": "Agenda",
   "calendars": "Calendars",
   "settings": "Settings",
   "newEvent": "New event",

@@ -6,7 +6,17 @@ import {
   type ReactNode,
 } from 'react';
 import { AppState } from 'react-native';
-import { addMonths, startOfMonth, endOfMonth, startOfDay, endOfDay, addDays } from 'date-fns';
+import {
+  addDays,
+  addMonths,
+  addWeeks,
+  endOfDay,
+  endOfMonth,
+  endOfWeek,
+  startOfDay,
+  startOfMonth,
+  startOfWeek,
+} from 'date-fns';
 
 import type { EventOccurrence, ViewMode } from '@/domain/types';
 import { expandOccurrences } from '@/domain/recurrence';
@@ -33,18 +43,19 @@ type CalendarContextValue = {
 
 const CalendarContext = createContext<CalendarContextValue | null>(null);
 
+const WEEK_OPTIONS = { weekStartsOn: 1 as const };
+
 function rangeForView(mode: ViewMode, cursor: Date): { start: string; end: string } {
-  if (mode === 'year') {
-    const y = cursor.getFullYear();
-    return {
-      start: new Date(y, 0, 1).toISOString(),
-      end: new Date(y, 11, 31, 23, 59, 59).toISOString(),
-    };
-  }
   if (mode === 'day') {
     return {
       start: startOfDay(cursor).toISOString(),
       end: endOfDay(cursor).toISOString(),
+    };
+  }
+  if (mode === 'week') {
+    return {
+      start: startOfWeek(cursor, WEEK_OPTIONS).toISOString(),
+      end: endOfWeek(cursor, WEEK_OPTIONS).toISOString(),
     };
   }
   if (mode === 'agenda') {
@@ -115,11 +126,14 @@ export function CalendarProvider({ children }: { children: ReactNode }) {
 
   const shiftPeriod = (delta: number) => {
     setCursorDate((current) => {
-      if (viewMode === 'year') {
-        return new Date(current.getFullYear() + delta, current.getMonth(), 1);
-      }
-      if (viewMode === 'day' || viewMode === 'agenda') {
+      if (viewMode === 'day') {
         return addDays(current, delta);
+      }
+      if (viewMode === 'week') {
+        return addWeeks(current, delta);
+      }
+      if (viewMode === 'agenda') {
+        return addWeeks(current, delta);
       }
       return addMonths(current, delta);
     });

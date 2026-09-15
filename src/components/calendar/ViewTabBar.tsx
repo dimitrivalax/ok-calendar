@@ -1,3 +1,5 @@
+import { useRouter } from 'expo-router';
+import { Plus } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { Pressable } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -6,13 +8,15 @@ import { HStack } from '@/components/ui/hstack';
 import { Text } from '@/components/ui/text';
 import type { ViewMode } from '@/domain/types';
 import { useCalendar } from '@/hooks/useCalendarContext';
+import { href } from '@/navigation/href';
 
-const MODES: ViewMode[] = ['month', 'year', 'day', 'agenda'];
+const MODES: ViewMode[] = ['month', 'week', 'day', 'agenda'];
 
 export function ViewTabBar() {
   const { viewMode, setViewMode } = useCalendar();
   const { t } = useTranslation('calendar');
   const insets = useSafeAreaInsets();
+  const router = useRouter();
 
   return (
     <HStack
@@ -43,6 +47,15 @@ export function ViewTabBar() {
           </Pressable>
         );
       })}
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={t('newEvent')}
+        className="flex-1 items-center justify-center py-3"
+        onPress={() => router.push(href('/event/new'))}
+        testID="fab-new-event"
+      >
+        <Plus size={22} color="#208AEF" strokeWidth={2.5} />
+      </Pressable>
     </HStack>
   );
 }
