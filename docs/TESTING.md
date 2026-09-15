@@ -63,7 +63,7 @@ Voir [../e2e/README.md](../e2e/README.md).
 
 Workflow GitHub Actions : [`.github/workflows/ci.yml`](../.github/workflows/ci.yml).
 
-- **Quality** : `npm ci` → `lint` → `typecheck` → `test` (Vitest)
-- **E2E** : `npx playwright install --with-deps chromium` → `npm run test:e2e` (Expo web via `webServer`)
+- **Quality** : `pnpm install --frozen-lockfile` → `lint` → `typecheck` → `test` (Vitest)
+- **E2E** : `pnpm exec playwright install --with-deps chromium` → `pnpm test:e2e` (Expo web via `webServer`)
 
 Triggers : push/PR sur `main` et `develop`. Builds natifs EAS hors scope (optionnel via skill `eas-workflows`).

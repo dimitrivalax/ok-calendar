@@ -1,3 +1,6 @@
+allowBuilds:
+  unrs-resolver: true
+
 minimumReleaseAgeExclude:
   - lucide-react-native@1.46.0
 
