@@ -2,6 +2,7 @@ import { addDays, endOfWeek, format, startOfWeek } from 'date-fns';
 import { enUS, fr } from 'date-fns/locale';
 import { Stack, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AgendaView } from '@/components/calendar/AgendaView';
 import { DayView } from '@/components/calendar/DayView';
@@ -29,6 +30,7 @@ export default function CalendarScreen() {
   } = useCalendar();
   const { t } = useTranslation(['calendar', 'common']);
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const dfLocale = locale === 'fr' ? fr : enUS;
 
   const title = (() => {
@@ -50,7 +52,7 @@ export default function CalendarScreen() {
   return (
     <>
       <Stack.Screen options={{ title: t('common:appName'), headerShown: false }} />
-      <VStack className="flex-1 bg-background">
+      <VStack className="flex-1 bg-background" style={{ paddingTop: insets.top }}>
         {isLocalOnly && (
           <Box className="bg-warning/30 px-3 py-2">
             <Text size="sm">{t('common:localOnlyBanner')}</Text>
