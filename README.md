@@ -1,12 +1,12 @@
-# Ok-Calendar
+# Ok! Calendar
 
-**English summary:** Ok-Calendar is an open-source Expo (React Native) calendar app with month, week, day, agenda views, local SQLite storage synced with device calendars, local notifications, and UI in **English (default/fallback)** and **French**. Licensed under **EUPL-1.2**. See [`docs/`](docs/README.md) for full specifications.
+**English summary:** Ok! Calendar is an open-source Expo (React Native) calendar app with month, week, day, agenda views, local SQLite storage synced with device calendars, local notifications, and UI in **English (default/fallback)** and **French**. Licensed under **EUPL-1.2**. See [`docs/`](docs/README.md) for full specifications.
 
 ---
 
 ## Présentation
 
-Ok-Calendar est une application calendrier **open source** (Expo SDK 57, React Native) visant une expérience proche de Google Calendar :
+Ok! Calendar est une application calendrier **open source** (Expo SDK 57, React Native) visant une expérience proche de Google Calendar :
 
 - Vues **mois / année / jour / planning**
 - CRUD d’événements (titre, journée entière, horaires, récurrence, description, lieu, URL, rappels)

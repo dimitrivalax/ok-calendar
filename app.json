@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Ok-Calendar",
+    "name": "Ok! Calendar",
     "slug": "Ok-Calendar",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -10,9 +10,9 @@
     "ios": {
       "icon": "./assets/expo.icon",
       "infoPlist": {
-        "NSCalendarsFullAccessUsageDescription": "Ok-Calendar needs access to show and edit your calendars.",
-        "NSCalendarsUsageDescription": "Ok-Calendar needs access to show and edit your calendars.",
-        "NSRemindersUsageDescription": "Ok-Calendar can use reminders for event alerts."
+        "NSCalendarsFullAccessUsageDescription": "Ok! Calendar needs access to show and edit your calendars.",
+        "NSCalendarsUsageDescription": "Ok! Calendar needs access to show and edit your calendars.",
+        "NSRemindersUsageDescription": "Ok! Calendar can use reminders for event alerts."
       }
     },
     "android": {
@@ -51,7 +51,7 @@
       [
         "expo-calendar",
         {
-          "calendarPermission": "Allow Ok-Calendar to access your calendars."
+          "calendarPermission": "Allow Ok! Calendar to access your calendars."
         }
       ],
       [
@@ -66,9 +66,9 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#208AEF",
+          "backgroundColor": "#39AFEA",
           "image": "./assets/images/splash-icon.png",
-          "imageWidth": 76
+          "imageWidth": 180
         }
       ],
       "expo-image",
