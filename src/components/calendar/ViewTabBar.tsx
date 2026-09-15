@@ -20,7 +20,7 @@ export function ViewTabBar() {
 
   return (
     <HStack
-      className="border-t border-border bg-background-0"
+      className="border-t border-border bg-background"
       style={{ paddingBottom: Math.max(insets.bottom, 8) }}
       testID="view-switcher"
     >
@@ -40,7 +40,7 @@ export function ViewTabBar() {
             <Text
               size="sm"
               bold={active}
-              className={active ? 'text-primary' : 'text-typography-500'}
+              className={active ? 'text-primary' : 'text-muted-foreground'}
             >
               {t(mode)}
             </Text>
@@ -54,7 +54,7 @@ export function ViewTabBar() {
         onPress={() => router.push(href('/event/new'))}
         testID="fab-new-event"
       >
-        <Plus size={22} color="var(--color-primary)" strokeWidth={2.5} />
+        <Plus size={22} color="#39AFEA" strokeWidth={2.5} />
       </Pressable>
     </HStack>
   );

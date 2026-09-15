@@ -69,8 +69,8 @@ export function DayView() {
               key={`${event.id}-${event.occurrenceStart}`}
               onPress={() => router.push(href(`/event/${event.id}`))}
             >
-              <Box className="rounded-md bg-primary-500 px-3 py-2">
-                <Text className="text-typography-0">{event.title}</Text>
+              <Box className="rounded-md bg-primary px-3 py-2">
+                <Text className="text-primary-foreground">{event.title}</Text>
               </Box>
             </Pressable>
           ))}
@@ -80,10 +80,10 @@ export function DayView() {
           {Array.from({ length: 24 }, (_, hour) => (
             <Box
               key={hour}
-              className="border-b border-outline-100"
+              className="border-b border-border"
               style={{ height: HOUR_HEIGHT }}
             >
-              <Text size="xs" className="text-typography-400 mb-1">
+              <Text size="xs" className="text-muted-foreground mb-1">
                 {`${hour.toString().padStart(2, '0')}:00`}
               </Text>
               {timed
@@ -93,8 +93,8 @@ export function DayView() {
                     key={`${event.id}-${event.occurrenceStart}`}
                     onPress={() => router.push(href(`/event/${event.id}`))}
                   >
-                    <Box className="rounded-md bg-primary-400/80 px-2 py-1 mb-1">
-                      <Text size="sm" className="text-typography-0">
+                    <Box className="rounded-md bg-primary/80 px-2 py-1 mb-1">
+                      <Text size="sm" className="text-primary-foreground">
                         {format(parseISO(event.occurrenceStart), 'HH:mm')}{' '}
                         {event.title}
                       </Text>
@@ -118,7 +118,7 @@ export function DayView() {
         </Box>
 
         {dayEvents.length === 0 && (
-          <Text className="text-typography-500 mt-2">{t('noEvents')}</Text>
+          <Text className="text-muted-foreground mt-2">{t('noEvents')}</Text>
         )}
       </VStack>
     </ScrollView>

@@ -27,7 +27,7 @@ export default function CalendarsScreen() {
   }, []);
 
   return (
-    <VStack className="flex-1 p-4" testID="calendar-list">
+    <VStack className="flex-1 bg-background p-4" testID="calendar-list">
       <Text size="xl" bold className="mb-3">
         {t('calendars')}
       </Text>
@@ -35,7 +35,7 @@ export default function CalendarsScreen() {
         data={calendars}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <HStack className="items-center justify-between py-3 border-b border-outline-100">
+          <HStack className="items-center justify-between py-3 border-b border-border">
             <HStack className="items-center gap-2 flex-1">
               <Box
                 className="w-3 h-3 rounded-full"
@@ -43,7 +43,7 @@ export default function CalendarsScreen() {
               />
               <VStack className="flex-1">
                 <Text>{item.title}</Text>
-                <Text size="xs" className="text-typography-500">
+                <Text size="xs" className="text-muted-foreground">
                   {item.source}
                   {!item.allowsModifications ? ' · read-only' : ''}
                 </Text>

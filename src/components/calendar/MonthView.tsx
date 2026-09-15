@@ -60,7 +60,7 @@ export function MonthView({ onSelectDay }: Props) {
       <HStack className="mb-1">
         {weekDays.map((label) => (
           <Box key={label} className="flex-1 items-center py-1">
-            <Text size="xs" className="text-typography-500">
+            <Text size="xs" className="text-muted-foreground">
               {label}
             </Text>
           </Box>
@@ -86,12 +86,12 @@ export function MonthView({ onSelectDay }: Props) {
                   className={`flex-1 m-0.5 rounded-md items-center pt-1 ${
                     isToday
                       ? 'bg-primary/20 border-2 border-primary'
-                      : 'bg-background-50'
+                      : 'bg-muted'
                   }`}
                 >
                   <Text
                     className={
-                      inMonth ? 'text-typography-900' : 'text-typography-300'
+                      inMonth ? 'text-foreground' : 'text-muted-foreground'
                     }
                     bold={isToday}
                   >

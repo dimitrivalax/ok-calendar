@@ -32,7 +32,7 @@ export function AgendaView() {
     <ScrollView testID="panel-agenda" className="flex-1">
       <VStack className="pb-4">
         {sections.length === 0 && (
-          <Text className="p-4 text-typography-500">{t('calendar:noEvents')}</Text>
+          <Text className="p-4 text-muted-foreground">{t('calendar:noEvents')}</Text>
         )}
         {sections.map((item) => (
           <VStack key={item.day} className="px-3 py-2 gap-2">
@@ -45,9 +45,9 @@ export function AgendaView() {
                 onPress={() => router.push(href(`/event/${event.id}`))}
                 testID={`agenda-event-${event.id}`}
               >
-                <Box className="rounded-lg bg-background-50 p-3 border border-outline-100">
+                <Box className="rounded-lg bg-muted p-3 border border-border">
                   <Text bold>{event.title}</Text>
-                  <Text size="sm" className="text-typography-500">
+                  <Text size="sm" className="text-muted-foreground">
                     {event.allDay
                       ? t('event:allDay')
                       : `${format(parseISO(event.occurrenceStart), 'HH:mm')} – ${format(parseISO(event.occurrenceEnd), 'HH:mm')}`}

@@ -15,7 +15,7 @@ export default function SettingsScreen() {
   const { locale, changeLocale, refresh, isLocalOnly } = useCalendar();
 
   return (
-    <VStack className="flex-1 p-4 gap-6">
+    <VStack className="flex-1 bg-background p-4 gap-6">
       <Text size="xl" bold>
         {t('settings:title')}
       </Text>

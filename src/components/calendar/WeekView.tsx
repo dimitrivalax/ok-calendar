@@ -65,10 +65,10 @@ export function WeekView({ onSelectDay }: Props) {
               >
                 <Box
                   className={`items-center rounded-md py-2 ${
-                    isToday ? 'bg-primary-500/20' : 'bg-background-50'
+                    isToday ? 'bg-primary/20' : 'bg-muted'
                   }`}
                 >
-                  <Text size="xs" className="text-typography-500">
+                  <Text size="xs" className="text-muted-foreground">
                     {format(day, 'EE', { locale: dfLocale })}
                   </Text>
                   <Text bold={isToday}>{format(day, 'd')}</Text>
@@ -81,8 +81,8 @@ export function WeekView({ onSelectDay }: Props) {
                     key={`${event.id}-${event.occurrenceStart}`}
                     onPress={() => router.push(href(`/event/${event.id}`))}
                   >
-                    <Box className="rounded-md bg-primary-500 px-1 py-1">
-                      <Text size="xs" className="text-typography-0" numberOfLines={2}>
+                    <Box className="rounded-md bg-primary px-1 py-1">
+                      <Text size="xs" className="text-primary-foreground" numberOfLines={2}>
                         {event.title}
                       </Text>
                     </Box>
@@ -93,18 +93,18 @@ export function WeekView({ onSelectDay }: Props) {
                     key={`${event.id}-${event.occurrenceStart}`}
                     onPress={() => router.push(href(`/event/${event.id}`))}
                   >
-                    <Box className="rounded-md bg-primary-400/80 px-1 py-1">
-                      <Text size="xs" className="text-typography-0" numberOfLines={1}>
+                    <Box className="rounded-md bg-primary/80 px-1 py-1">
+                      <Text size="xs" className="text-primary-foreground" numberOfLines={1}>
                         {format(parseISO(event.occurrenceStart), 'HH:mm')}
                       </Text>
-                      <Text size="xs" className="text-typography-0" numberOfLines={2}>
+                      <Text size="xs" className="text-primary-foreground" numberOfLines={2}>
                         {event.title}
                       </Text>
                     </Box>
                   </Pressable>
                 ))}
                 {dayEvents.length === 0 && (
-                  <Text size="xs" className="text-typography-300 text-center mt-2">
+                  <Text size="xs" className="text-muted-foreground text-center mt-2">
                     {t('noEvents')}
                   </Text>
                 )}

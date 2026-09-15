@@ -1,2 +1,7 @@
 minimumReleaseAgeExclude:
   - lucide-react-native@1.46.0
+
+# Pin lightningcss: >=1.30.2 breaks react-native-css / NativeWind
+# (deserialize Specifier error). See parcel-bundler/lightningcss#1081
+overrides:
+  lightningcss: 1.30.1
