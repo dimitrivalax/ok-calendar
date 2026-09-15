@@ -23,6 +23,7 @@ export default function CalendarsScreen() {
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch calendars on mount
     void load();
   }, []);
 

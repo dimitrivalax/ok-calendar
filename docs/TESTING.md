@@ -59,6 +59,11 @@ Scripts cibles (à l’implémentation) : `test`, `test:watch`.
 
 Voir [../e2e/README.md](../e2e/README.md).
 
-## CI (à brancher à l’implémentation)
+## CI
 
-Job GitHub Actions : install → start Expo web → `npx playwright install --with-deps chromium` → `npm run test:e2e`. EAS workflows optionnel (skill `eas-workflows`) — Playwright web peut rester sur GHA.
+Workflow GitHub Actions : [`.github/workflows/ci.yml`](../.github/workflows/ci.yml).
+
+- **Quality** : `npm ci` → `lint` → `typecheck` → `test` (Vitest)
+- **E2E** : `npx playwright install --with-deps chromium` → `npm run test:e2e` (Expo web via `webServer`)
+
+Triggers : push/PR sur `main` et `develop`. Builds natifs EAS hors scope (optionnel via skill `eas-workflows`).

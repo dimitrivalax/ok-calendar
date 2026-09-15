@@ -111,6 +111,7 @@ export function CalendarProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!isReady) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- sync view window
     void refresh();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [viewMode, cursorDate, isReady]);
