@@ -2,7 +2,7 @@ module.exports = function (api) {
   api.cache(true);
 
   return {
-    presets: [['babel-preset-expo'], 'nativewind/babel'],
+    presets: ['babel-preset-expo'],
     plugins: [
       [
         'module-resolver',
@@ -14,6 +14,8 @@ module.exports = function (api) {
           },
         },
       ],
+      // Same as nativewind/babel, but skips react-native-web (avoids FlatList cycle).
+      './babel-plugin-nativewind-import-safe',
       'react-native-worklets/plugin',
     ],
   };

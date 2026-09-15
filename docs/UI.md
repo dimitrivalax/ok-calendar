@@ -31,6 +31,8 @@ Le Calendar gluestack = sélecteur de date, **pas** multi-vues Google Calendar.
 
 Composer avec primitives : `MonthView`, `YearView`, `DayView`, `AgendaView` dans `src/components/calendar/`.
 
+Sélecteur de vue : barre d’onglets bas (`ViewTabBar`) — pas de boutons en header.
+
 - **Month** : grille 6×7, pastilles couleur
 - **Year** : 12 mini-mois
 - **Day** : timeline 0–24h + bande all-day ; chevauchements en colonnes
@@ -40,7 +42,7 @@ Composer avec primitives : `MonthView`, `YearView`, `DayView`, `AgendaView` dans
 
 Attributs stables, **indépendants de la langue**, pour E2E :
 
-Exemples : `view-switcher`, `view-month`, `view-year`, `view-day`, `view-agenda`, `fab-new-event`, `event-form`, `event-title-input`, `btn-save-event`, `calendar-list`, `settings-locale`.
+Exemples : `view-switcher`, `view-month`, `view-year`, `view-day`, `view-agenda` (onglets), `panel-month` / `panel-year` / `panel-day` / `panel-agenda` (contenu), `fab-new-event`, `event-form`, `event-title-input`, `btn-save-event`, `calendar-list`, `settings-locale`.
 
 Unit RTL : préférer role/label ; `testID` en dernier recours (rules testing).
 

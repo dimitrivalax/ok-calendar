@@ -1,9 +1,10 @@
 import React from 'react';
 import type { VariantProps } from '@gluestack-ui/utils/nativewind-utils';
 import { hstackStyle } from './styles';
+import { withWebTestId } from '../utils/web-props';
 
 type IHStackProps = React.ComponentPropsWithoutRef<'div'> &
-  VariantProps<typeof hstackStyle>;
+  VariantProps<typeof hstackStyle> & { testID?: string };
 
 const HStack = React.forwardRef<React.ComponentRef<'div'>, IHStackProps>(
   function HStack({ className, space, reversed, ...props }, ref) {
@@ -14,7 +15,7 @@ const HStack = React.forwardRef<React.ComponentRef<'div'>, IHStackProps>(
           reversed: reversed as boolean,
           class: className,
         })}
-        {...props}
+        {...withWebTestId(props)}
         ref={ref}
       />
     );

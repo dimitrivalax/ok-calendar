@@ -56,7 +56,7 @@ export function MonthView({ onSelectDay }: Props) {
   );
 
   return (
-    <VStack className="flex-1 p-2" testID="view-month">
+    <VStack className="flex-1 p-2" testID="panel-month">
       <HStack className="mb-1">
         {weekDays.map((label) => (
           <Box key={label} className="flex-1 items-center py-1">

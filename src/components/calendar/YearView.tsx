@@ -20,7 +20,7 @@ export function YearView({ onSelectMonth }: Props) {
   const months = Array.from({ length: 12 }, (_, i) => new Date(year, i, 1));
 
   return (
-    <VStack className="flex-1 p-3 gap-2" testID="view-year">
+    <VStack className="flex-1 p-3 gap-2" testID="panel-year">
       <HStack className="flex-wrap">
         {months.map((month) => (
           <Pressable

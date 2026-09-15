@@ -22,7 +22,7 @@ export function DayView() {
   const timed = dayEvents.filter((e) => !e.allDay);
 
   return (
-    <ScrollView testID="view-day" className="flex-1">
+    <ScrollView testID="panel-day" className="flex-1">
       <VStack className="p-3 gap-2">
         {allDay.length > 0 && (
           <VStack className="gap-1 mb-2">

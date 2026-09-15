@@ -3,21 +3,19 @@ import { enUS, fr } from 'date-fns/locale';
 import { Stack, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 
-import { MonthView } from '@/components/calendar/MonthView';
-import { YearView } from '@/components/calendar/YearView';
-import { DayView } from '@/components/calendar/DayView';
 import { AgendaView } from '@/components/calendar/AgendaView';
+import { DayView } from '@/components/calendar/DayView';
+import { MonthView } from '@/components/calendar/MonthView';
+import { ViewTabBar } from '@/components/calendar/ViewTabBar';
+import { YearView } from '@/components/calendar/YearView';
 import { Box } from '@/components/ui/box';
 import { Button, ButtonText } from '@/components/ui/button';
 import { Fab, FabLabel } from '@/components/ui/fab';
 import { HStack } from '@/components/ui/hstack';
 import { Text } from '@/components/ui/text';
 import { VStack } from '@/components/ui/vstack';
-import type { ViewMode } from '@/domain/types';
 import { useCalendar } from '@/hooks/useCalendarContext';
 import { href } from '@/navigation/href';
-
-const MODES: ViewMode[] = ['month', 'year', 'day', 'agenda'];
 
 export default function CalendarScreen() {
   const {
@@ -66,23 +64,6 @@ export default function CalendarScreen() {
           </Button>
         </HStack>
 
-        <HStack
-          className="px-2 pb-2 gap-1 flex-wrap justify-center"
-          testID="view-switcher"
-        >
-          {MODES.map((mode) => (
-            <Button
-              key={mode}
-              size="sm"
-              variant={viewMode === mode ? 'default' : 'outline'}
-              onPress={() => setViewMode(mode)}
-              testID={`view-${mode}`}
-            >
-              <ButtonText>{t(`calendar:${mode}`)}</ButtonText>
-            </Button>
-          ))}
-        </HStack>
-
         <HStack className="px-3 pb-2 gap-2 justify-end">
           <Button
             size="sm"
@@ -102,7 +83,7 @@ export default function CalendarScreen() {
           </Button>
         </HStack>
 
-        <Box className="flex-1">
+        <Box className="relative flex-1">
           {viewMode === 'month' && (
             <MonthView
               onSelectDay={(day) => {
@@ -121,15 +102,17 @@ export default function CalendarScreen() {
           )}
           {viewMode === 'day' && <DayView />}
           {viewMode === 'agenda' && <AgendaView />}
+
+          <Fab
+            placement="bottom right"
+            onPress={() => router.push(href('/event/new'))}
+            testID="fab-new-event"
+          >
+            <FabLabel>+</FabLabel>
+          </Fab>
         </Box>
 
-        <Fab
-          placement="bottom right"
-          onPress={() => router.push(href('/event/new'))}
-          testID="fab-new-event"
-        >
-          <FabLabel>+</FabLabel>
-        </Fab>
+        <ViewTabBar />
       </VStack>
     </>
   );

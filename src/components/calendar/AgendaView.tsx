@@ -30,7 +30,7 @@ export function AgendaView() {
 
   return (
     <FlatList
-      testID="view-agenda"
+      testID="panel-agenda"
       className="flex-1"
       data={sections}
       keyExtractor={(item) => item.day}
