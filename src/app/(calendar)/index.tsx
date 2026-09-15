@@ -1,6 +1,7 @@
 import { addDays, endOfWeek, format, startOfWeek } from 'date-fns';
 import { enUS, fr } from 'date-fns/locale';
 import { Stack, useRouter } from 'expo-router';
+import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -10,7 +11,7 @@ import { MonthView } from '@/components/calendar/MonthView';
 import { ViewTabBar } from '@/components/calendar/ViewTabBar';
 import { WeekView } from '@/components/calendar/WeekView';
 import { Box } from '@/components/ui/box';
-import { Button, ButtonText } from '@/components/ui/button';
+import { Button, ButtonIcon, ButtonText } from '@/components/ui/button';
 import { HStack } from '@/components/ui/hstack';
 import { Text } from '@/components/ui/text';
 import { VStack } from '@/components/ui/vstack';
@@ -61,7 +62,7 @@ export default function CalendarScreen() {
 
         <HStack className="items-center justify-between px-3 py-2">
           <Button size="sm" variant="outline" onPress={() => shiftPeriod(-1)}>
-            <ButtonText>‹</ButtonText>
+            <ButtonIcon as={ChevronLeft} />
           </Button>
           <VStack className="items-center">
             <Text bold size="lg">
@@ -72,7 +73,7 @@ export default function CalendarScreen() {
             </Button>
           </VStack>
           <Button size="sm" variant="outline" onPress={() => shiftPeriod(1)}>
-            <ButtonText>›</ButtonText>
+            <ButtonIcon as={ChevronRight} />
           </Button>
         </HStack>
 
