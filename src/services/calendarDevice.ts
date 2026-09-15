@@ -65,7 +65,7 @@ export const CalendarService = {
         id: `device:${cal.id}`,
         deviceCalendarId: cal.id,
         title: cal.title,
-        color: cal.color ?? '#208AEF',
+        color: cal.color ?? '#39AFEA',
         source: 'device' as const,
         allowsModifications: !!cal.allowsModifications,
         isVisible: true,

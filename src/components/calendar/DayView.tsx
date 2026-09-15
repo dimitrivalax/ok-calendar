@@ -11,7 +11,6 @@ import { useCalendar } from '@/hooks/useCalendarContext';
 import { href } from '@/navigation/href';
 
 const HOUR_HEIGHT = 56;
-const NOW_COLOR = '#208AEF';
 
 export function DayView() {
   const { occurrences, cursorDate } = useCalendar();
@@ -109,32 +108,11 @@ export function DayView() {
             <View
               pointerEvents="none"
               testID="now-indicator"
-              style={{
-                position: 'absolute',
-                top: nowOffset,
-                left: 0,
-                right: 0,
-                zIndex: 10,
-                flexDirection: 'row',
-                alignItems: 'center',
-              }}
+              className="absolute left-0 right-0 z-10 flex-row items-center"
+              style={{ top: nowOffset }}
             >
-              <View
-                style={{
-                  width: 10,
-                  height: 10,
-                  borderRadius: 5,
-                  backgroundColor: NOW_COLOR,
-                  marginLeft: 2,
-                }}
-              />
-              <View
-                style={{
-                  flex: 1,
-                  height: 2,
-                  backgroundColor: NOW_COLOR,
-                }}
-              />
+              <Box className="ml-0.5 h-2.5 w-2.5 rounded-full bg-primary" />
+              <Box className="h-0.5 flex-1 bg-primary" />
             </View>
           )}
         </Box>

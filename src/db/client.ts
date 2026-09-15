@@ -44,7 +44,7 @@ async function ensureDefaultCalendar(db: AppDatabase) {
     ) VALUES (?, NULL, ?, ?, 'local', 1, 1, 1, 1, ?, ?)`,
     createId(),
     'OK Calendar',
-    '#208AEF',
+    '#39AFEA',
     now,
     now,
   );

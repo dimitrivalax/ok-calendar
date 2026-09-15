@@ -54,7 +54,7 @@ export function ViewTabBar() {
         onPress={() => router.push(href('/event/new'))}
         testID="fab-new-event"
       >
-        <Plus size={22} color="#208AEF" strokeWidth={2.5} />
+        <Plus size={22} color="var(--color-primary)" strokeWidth={2.5} />
       </Pressable>
     </HStack>
   );

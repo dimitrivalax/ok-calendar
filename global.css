@@ -3,52 +3,71 @@
 @import "tailwindcss/utilities.css";
 @import "nativewind/theme";
 
-/* ─── Theme: design tokens (light / dark) ─────────────────────────
+/* ─── Theme: Ionic-inspired palette ───────────────────────────────
+   Source: --ion-color-primary #39AFEA, secondary #F4F4FB, etc.
    1. :root              — light defaults (all platforms)
-   2. @media dark :root  — dark defaults; nativewind maps this to
-                           Appearance.getColorScheme() on native.
+   2. @media dark :root  — dark defaults derived from ion-color-dark
    Manual web class overrides (:root.dark / :root.light) live in
    global.web.css — react-native-css rejects class-qualified :root. */
 @layer theme {
   :root {
-    --primary: 23 23 23;
-    --primary-foreground: 250 250 250;
-    --card: 255 255 255;
-    --secondary: 245 245 245;
-    --secondary-foreground: 23 23 23;
+    /* primary #39AFEA · contrast #000000 */
+    --primary: 57 175 234;
+    --primary-foreground: 0 0 0;
+    /* secondary #F4F4FB */
+    --secondary: 244 244 251;
+    --secondary-foreground: 0 0 0;
+    /* backgrounds / surfaces */
     --background: 255 255 255;
+    --card: 255 255 255;
     --popover: 255 255 255;
-    --popover-foreground: 10 10 10;
-    --muted: 245 245 245;
-    --muted-foreground: 115 115 115;
-    --destructive: 231 0 11;
-    --foreground: 10 10 10;
-    --border: 229 229 229;
-    --input: 229 229 229;
-    --ring: 212 212 212;
-    --accent: 247 247 247;
-    --accent-foreground: 52 52 52;
+    /* text #1a1919 */
+    --foreground: 26 25 25;
+    --popover-foreground: 26 25 25;
+    /* light #f6f8fc · medium #5f5f5f */
+    --muted: 246 248 252;
+    --muted-foreground: 95 95 95;
+    /* accent ≈ light */
+    --accent: 246 248 252;
+    --accent-foreground: 47 47 47;
+    /* danger #e25561 */
+    --destructive: 226 85 97;
+    /* borders from light-shade #d8dade */
+    --border: 216 218 222;
+    --input: 216 218 222;
+    /* ring = primary-tint #4db7ec */
+    --ring: 77 183 236;
+    /* optional semantic */
+    --success: 123 229 151;
+    --warning: 230 199 96;
+    --tertiary: 94 105 238;
   }
 
   @media (prefers-color-scheme: dark) {
     :root {
-      --primary: 255 245 245;
-      --primary-foreground: 23 23 23;
-      --card: 23 23 23;
-      --secondary: 38 38 38;
-      --secondary-foreground: 250 250 250;
-      --background: 10 10 10;
-      --popover: 23 23 23;
-      --popover-foreground: 250 250 250;
-      --muted: 38 38 38;
-      --muted-foreground: 161 161 161;
-      --destructive: 255 100 103;
-      --foreground: 250 250 250;
-      --border: 46 46 46;
-      --input: 46 46 46;
-      --accent: 38 38 38;
-      --accent-foreground: 250 250 250;
-      --ring: 115 115 115;
+      /* keep brand blue; slightly tinted for dark surfaces */
+      --primary: 77 183 236;
+      --primary-foreground: 0 0 0;
+      /* dark #2f2f2f family */
+      --background: 26 25 25;
+      --card: 47 47 47;
+      --popover: 47 47 47;
+      --secondary: 68 68 68;
+      --secondary-foreground: 246 248 252;
+      --foreground: 246 248 252;
+      --popover-foreground: 246 248 252;
+      --muted: 68 68 68;
+      --muted-foreground: 184 184 184;
+      --accent: 68 68 68;
+      --accent-foreground: 246 248 252;
+      /* danger-tint #e56671 */
+      --destructive: 229 102 113;
+      --border: 84 84 84;
+      --input: 84 84 84;
+      --ring: 57 175 234;
+      --success: 136 232 161;
+      --warning: 233 205 112;
+      --tertiary: 110 120 240;
     }
   }
 }
@@ -71,4 +90,7 @@
   --color-ring: rgb(var(--ring));
   --color-accent: rgb(var(--accent));
   --color-accent-foreground: rgb(var(--accent-foreground));
+  --color-success: rgb(var(--success));
+  --color-warning: rgb(var(--warning));
+  --color-tertiary: rgb(var(--tertiary));
 }

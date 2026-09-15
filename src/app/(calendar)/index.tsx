@@ -52,7 +52,7 @@ export default function CalendarScreen() {
       <Stack.Screen options={{ title: t('common:appName'), headerShown: false }} />
       <VStack className="flex-1 bg-background-0">
         {isLocalOnly && (
-          <Box className="bg-warning-100 px-3 py-2">
+          <Box className="bg-warning/30 px-3 py-2">
             <Text size="sm">{t('common:localOnlyBanner')}</Text>
           </Box>
         )}

@@ -43,7 +43,7 @@ export function MonthView({ onSelectDay }: Props) {
     for (const occ of occurrences) {
       const key = format(new Date(occ.occurrenceStart), 'yyyy-MM-dd');
       const colors = map.get(key) ?? [];
-      if (colors.length < 3) colors.push('#208AEF');
+      if (colors.length < 3) colors.push('#39AFEA');
       map.set(key, colors);
     }
     return map;
@@ -84,7 +84,9 @@ export function MonthView({ onSelectDay }: Props) {
               >
                 <Box
                   className={`flex-1 m-0.5 rounded-md items-center pt-1 ${
-                    isToday ? 'bg-primary-500/20' : 'bg-background-50'
+                    isToday
+                      ? 'bg-primary/20 border-2 border-primary'
+                      : 'bg-background-50'
                   }`}
                 >
                   <Text
