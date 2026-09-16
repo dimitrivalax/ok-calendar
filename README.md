@@ -8,7 +8,7 @@
 
 Ok! Calendar est une application calendrier **open source** (Expo SDK 57, React Native) visant une expérience proche de Google Calendar :
 
-- Vues **mois / année / jour / planning**
+- Vues **mois / semaine / jour / planning**
 - CRUD d’événements (titre, journée entière, horaires, récurrence, description, lieu, URL, rappels)
 - Connexion aux **calendriers du device** (lecture + écriture si autorisé)
 - Stockage **local SQLite** + sync device
