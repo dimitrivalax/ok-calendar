@@ -5,7 +5,15 @@ import {
   Stack,
   useRouter,
 } from 'expo-router';
+import {
+  PlusJakartaSans_400Regular,
+  PlusJakartaSans_500Medium,
+  PlusJakartaSans_600SemiBold,
+  PlusJakartaSans_700Bold,
+  useFonts,
+} from '@expo-google-fonts/plus-jakarta-sans';
 import { I18nextProvider } from 'react-i18next';
+import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { useColorScheme } from 'react-native';
@@ -16,6 +24,8 @@ import i18n from '@/i18n';
 import { href } from '@/navigation/href';
 import { attachNotificationResponseListener } from '@/services/notificationService';
 import '../../global.css';
+
+SplashScreen.preventAutoHideAsync();
 
 const lightTheme = {
   ...DefaultTheme,
@@ -57,6 +67,22 @@ function NotificationBridge() {
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
+  const [fontsLoaded, fontError] = useFonts({
+    PlusJakartaSans_400Regular,
+    PlusJakartaSans_500Medium,
+    PlusJakartaSans_600SemiBold,
+    PlusJakartaSans_700Bold,
+  });
+
+  useEffect(() => {
+    if (fontsLoaded || fontError) {
+      SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded, fontError]);
+
+  if (!fontsLoaded && !fontError) {
+    return null;
+  }
 
   return (
     <GluestackUIProvider mode="system">

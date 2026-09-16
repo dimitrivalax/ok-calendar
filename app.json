@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Ok! Calendar",
-    "slug": "Ok-Calendar",
+    "slug": "ok-calendar",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -30,7 +30,7 @@
         "android.permission.WRITE_CALENDAR"
       ],
       "predictiveBackGestureEnabled": false,
-      "package": "com.anonymous.OkCalendar"
+      "package": "com.ok.calendar"
     },
     "web": {
       "bundler": "metro",
@@ -78,6 +78,18 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {
+        "headers": {
+          "Cross-Origin-Embedder-Policy": "credentialless",
+          "Cross-Origin-Opener-Policy": "same-origin"
+        }
+      },
+      "eas": {
+        "projectId": "f744f5fc-6923-411c-81ed-f8e5b3d5a999"
+      }
+    },
+    "owner": "dimitri-valax"
   }
 }

@@ -73,6 +73,10 @@
 }
 
 @theme inline {
+  --font-sans: PlusJakartaSans_400Regular;
+  --font-body: PlusJakartaSans_400Regular;
+  --font-heading: PlusJakartaSans_700Bold;
+
   --color-primary: rgb(var(--primary));
   --color-primary-foreground: rgb(var(--primary-foreground));
   --color-card: rgb(var(--card));
@@ -93,4 +97,22 @@
   --color-success: rgb(var(--success));
   --color-warning: rgb(var(--warning));
   --color-tertiary: rgb(var(--tertiary));
+}
+
+/* RN needs a distinct fontFamily per weight (font-bold alone is not enough). */
+@utility font-medium {
+  font-family: PlusJakartaSans_500Medium;
+  font-weight: 500;
+}
+@utility font-semibold {
+  font-family: PlusJakartaSans_600SemiBold;
+  font-weight: 600;
+}
+@utility font-bold {
+  font-family: PlusJakartaSans_700Bold;
+  font-weight: 700;
+}
+@utility font-extrabold {
+  font-family: PlusJakartaSans_700Bold;
+  font-weight: 800;
 }
