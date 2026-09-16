@@ -36,6 +36,9 @@ const Text = React.forwardRef<React.ComponentRef<typeof RNText>, ITextProps>(
           highlight: highlight as boolean,
           class: className,
         })}
+        numberOfLines={
+          props.numberOfLines ?? (isTruncated ? 1 : undefined)
+        }
         {...props}
         ref={ref}
       />

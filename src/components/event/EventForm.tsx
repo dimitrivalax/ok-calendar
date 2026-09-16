@@ -63,7 +63,7 @@ const RECURRENCES: Recurrence[] = [
 ];
 
 const REMINDER_TYPES: ReminderType[] = [
-  'at_event',
+  // 'at_event',
   'minutes_before',
   'hours_before',
   'days_before',
@@ -106,8 +106,8 @@ export function EventForm({ initial, onSubmit, submitLabel }: Props) {
       description: initial?.description ?? '',
       location: initial?.location ?? '',
       url: initial?.url ?? '',
-      reminderType: initial?.notifications?.[0]?.type ?? 'at_event',
-      reminderValue: String(initial?.notifications?.[0]?.value ?? 10),
+      reminderType: initial?.notifications?.[0]?.type ?? 'minutes_before',
+      reminderValue: String(initial?.notifications?.[0]?.value ?? 5),
     },
   });
 
@@ -174,7 +174,7 @@ export function EventForm({ initial, onSubmit, submitLabel }: Props) {
                       style={{ backgroundColor: selectedCalendar.color }}
                     />
                   )}
-                  <Text className="flex-1 text-foreground" numberOfLines={1}>
+                  <Text className="flex-1 text-foreground" isTruncated>
                     {selectedCalendar?.title ?? t('calendar')}
                   </Text>
                   <SelectIcon as={ChevronDown} className="mr-1" />
@@ -293,11 +293,11 @@ export function EventForm({ initial, onSubmit, submitLabel }: Props) {
                 <ButtonText>
                   {t(
                     `recurrence${item.charAt(0).toUpperCase()}${item.slice(1)}` as
-                      | 'recurrenceNone'
-                      | 'recurrenceDaily'
-                      | 'recurrenceWeekly'
-                      | 'recurrenceMonthly'
-                      | 'recurrenceYearly',
+                    | 'recurrenceNone'
+                    | 'recurrenceDaily'
+                    | 'recurrenceWeekly'
+                    | 'recurrenceMonthly'
+                    | 'recurrenceYearly',
                   )}
                 </ButtonText>
               </Button>
@@ -361,6 +361,19 @@ export function EventForm({ initial, onSubmit, submitLabel }: Props) {
           <Text bold>{t('reminders')}</Text>
           <Controller
             control={control}
+            name="reminderValue"
+            render={({ field: { onChange, value } }) => (
+              <Input>
+                <InputField
+                  value={value}
+                  onChangeText={onChange}
+                  keyboardType="number-pad"
+                />
+              </Input>
+            )}
+          />
+          <Controller
+            control={control}
             name="reminderType"
             render={({ field: { value, onChange } }) => (
               <HStack className="flex-wrap gap-2">
@@ -375,19 +388,6 @@ export function EventForm({ initial, onSubmit, submitLabel }: Props) {
                   </Button>
                 ))}
               </HStack>
-            )}
-          />
-          <Controller
-            control={control}
-            name="reminderValue"
-            render={({ field: { onChange, value } }) => (
-              <Input>
-                <InputField
-                  value={value}
-                  onChangeText={onChange}
-                  keyboardType="number-pad"
-                />
-              </Input>
             )}
           />
         </Box>

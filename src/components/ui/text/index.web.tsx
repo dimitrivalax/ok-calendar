@@ -16,6 +16,8 @@ const Text = React.forwardRef<React.ComponentRef<'span'>, ITextProps>(
       sub,
       italic,
       highlight,
+      numberOfLines: _numberOfLines,
+      ellipsizeMode: _ellipsizeMode,
       ...props
     }: { className?: string } & ITextProps,
     ref
