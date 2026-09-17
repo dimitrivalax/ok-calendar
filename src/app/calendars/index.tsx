@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FlatList } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Box } from '@/components/ui/box';
 import { HStack } from '@/components/ui/hstack';
@@ -15,6 +16,7 @@ import { useCalendar } from '@/hooks/useCalendarContext';
 export default function CalendarsScreen() {
   const { t } = useTranslation('calendar');
   const { refresh } = useCalendar();
+  const insets = useSafeAreaInsets();
   const [calendars, setCalendars] = useState<Calendar[]>([]);
 
   const load = async () => {
@@ -35,6 +37,7 @@ export default function CalendarsScreen() {
       <FlatList
         data={calendars}
         keyExtractor={(item) => item.id}
+        contentContainerStyle={{ paddingBottom: Math.max(insets.bottom, 8) }}
         renderItem={({ item }) => (
           <HStack className="items-center justify-between py-3 border-b border-border">
             <HStack className="items-center gap-2 flex-1">

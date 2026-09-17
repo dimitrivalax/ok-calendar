@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Button, ButtonText } from '@/components/ui/button';
 import { HStack } from '@/components/ui/hstack';
@@ -13,9 +14,13 @@ import type { AppLocale } from '@/i18n';
 export default function SettingsScreen() {
   const { t } = useTranslation(['settings', 'calendar', 'common']);
   const { locale, changeLocale, refresh, isLocalOnly } = useCalendar();
+  const insets = useSafeAreaInsets();
 
   return (
-    <VStack className="flex-1 bg-background p-4 gap-6">
+    <VStack
+      className="flex-1 bg-background p-4 gap-6"
+      style={{ paddingBottom: Math.max(insets.bottom, 16) }}
+    >
       <Text size="xl" bold>
         {t('settings:title')}
       </Text>

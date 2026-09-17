@@ -2,6 +2,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Alert, Linking, ScrollView } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { format, parseISO } from 'date-fns';
 
 import { Box } from '@/components/ui/box';
@@ -19,6 +20,7 @@ export default function EventDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { t } = useTranslation(['event', 'common']);
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { refresh } = useCalendar();
   const [event, setEvent] = useState<CalendarEvent | null>(null);
 
@@ -57,7 +59,11 @@ export default function EventDetailScreen() {
   };
 
   return (
-    <ScrollView className="flex-1" testID="event-detail">
+    <ScrollView
+      className="flex-1"
+      testID="event-detail"
+      contentContainerStyle={{ paddingBottom: Math.max(insets.bottom, 16) }}
+    >
       <VStack className="p-4 gap-3">
         <Text size="2xl" bold>
           {event.title}

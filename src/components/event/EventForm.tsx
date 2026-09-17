@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { ScrollView } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { addHours } from 'date-fns';
 import { ChevronDown } from 'lucide-react-native';
 
@@ -84,6 +85,7 @@ const REMINDER_TYPE_LABELS: Record<
 
 export function EventForm({ initial, onSubmit, submitLabel }: Props) {
   const { t } = useTranslation('event');
+  const insets = useSafeAreaInsets();
   const defaultStart = initial?.startAt ?? new Date().toISOString();
   const defaultEnd =
     initial?.endAt ?? addHours(new Date(defaultStart), 1).toISOString();
@@ -148,7 +150,11 @@ export function EventForm({ initial, onSubmit, submitLabel }: Props) {
   };
 
   return (
-    <ScrollView testID="event-form" className="flex-1">
+    <ScrollView
+      testID="event-form"
+      className="flex-1"
+      contentContainerStyle={{ paddingBottom: Math.max(insets.bottom, 16) }}
+    >
       <VStack className="p-4 gap-4">
         <VStack className="gap-1">
           <Text>{t('calendar')}</Text>
