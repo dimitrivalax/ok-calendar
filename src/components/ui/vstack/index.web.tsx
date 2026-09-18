@@ -2,13 +2,21 @@ import React from 'react';
 import type { VariantProps } from '@gluestack-ui/utils/nativewind-utils';
 
 import { vstackStyle } from './styles';
-import { withWebTestId } from '../utils/web-props';
+import {
+  useWebOnLayout,
+  withWebTestId,
+  type WebOnLayout,
+} from '../utils/web-props';
 
 type IVStackProps = React.ComponentProps<'div'> &
-  VariantProps<typeof vstackStyle> & { testID?: string };
+  VariantProps<typeof vstackStyle> & {
+    testID?: string;
+    onLayout?: WebOnLayout;
+  };
 
 const VStack = React.forwardRef<React.ComponentRef<'div'>, IVStackProps>(
-  function VStack({ className, space, reversed, ...props }, ref) {
+  function VStack({ className, space, reversed, onLayout, ...props }, ref) {
+    const setRef = useWebOnLayout(onLayout, ref);
     return (
       <div
         className={vstackStyle({
@@ -17,7 +25,7 @@ const VStack = React.forwardRef<React.ComponentRef<'div'>, IVStackProps>(
           class: className,
         })}
         {...withWebTestId(props)}
-        ref={ref}
+        ref={setRef}
       />
     );
   }

@@ -1,13 +1,21 @@
 import React from 'react';
 import type { VariantProps } from '@gluestack-ui/utils/nativewind-utils';
 import { hstackStyle } from './styles';
-import { withWebTestId } from '../utils/web-props';
+import {
+  useWebOnLayout,
+  withWebTestId,
+  type WebOnLayout,
+} from '../utils/web-props';
 
 type IHStackProps = React.ComponentPropsWithoutRef<'div'> &
-  VariantProps<typeof hstackStyle> & { testID?: string };
+  VariantProps<typeof hstackStyle> & {
+    testID?: string;
+    onLayout?: WebOnLayout;
+  };
 
 const HStack = React.forwardRef<React.ComponentRef<'div'>, IHStackProps>(
-  function HStack({ className, space, reversed, ...props }, ref) {
+  function HStack({ className, space, reversed, onLayout, ...props }, ref) {
+    const setRef = useWebOnLayout(onLayout, ref);
     return (
       <div
         className={hstackStyle({
@@ -16,7 +24,7 @@ const HStack = React.forwardRef<React.ComponentRef<'div'>, IHStackProps>(
           class: className,
         })}
         {...withWebTestId(props)}
-        ref={ref}
+        ref={setRef}
       />
     );
   }
