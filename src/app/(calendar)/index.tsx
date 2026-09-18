@@ -1,7 +1,7 @@
 import { addDays, endOfWeek, format, startOfWeek } from 'date-fns';
 import { enUS, fr } from 'date-fns/locale';
 import { Stack, useRouter } from 'expo-router';
-import { ChevronLeft, ChevronRight } from 'lucide-react-native';
+import { ChevronLeft, ChevronRight, Settings } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -66,7 +66,7 @@ export default function CalendarScreen() {
           <Button size="sm" variant="outline" onPress={() => shiftPeriod(-1)}>
             <ButtonIcon as={ChevronLeft} />
           </Button>
-          <VStack className="items-center">
+          <VStack className="items-center flex-1 px-2">
             <Text bold size="lg">
               {title}
             </Text>
@@ -74,28 +74,20 @@ export default function CalendarScreen() {
               <ButtonText>{t('common:today')}</ButtonText>
             </Button>
           </VStack>
-          <Button size="sm" variant="outline" onPress={() => shiftPeriod(1)}>
-            <ButtonIcon as={ChevronRight} />
-          </Button>
-        </HStack>
-
-        <HStack className="px-3 pb-2 gap-2 justify-end">
-          <Button
-            size="sm"
-            variant="outline"
-            onPress={() => router.push(href('/calendars'))}
-            testID="btn-calendars"
-          >
-            <ButtonText>{t('calendar:calendars')}</ButtonText>
-          </Button>
-          <Button
-            size="sm"
-            variant="outline"
-            onPress={() => router.push(href('/settings'))}
-            testID="btn-settings"
-          >
-            <ButtonText>{t('calendar:settings')}</ButtonText>
-          </Button>
+          <HStack className="items-center gap-2">
+            <Button size="sm" variant="outline" onPress={() => shiftPeriod(1)}>
+              <ButtonIcon as={ChevronRight} />
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onPress={() => router.push(href('/settings'))}
+              testID="btn-settings"
+              accessibilityLabel={t('calendar:settings')}
+            >
+              <ButtonIcon as={Settings} />
+            </Button>
+          </HStack>
         </HStack>
 
         <Box className="flex-1">

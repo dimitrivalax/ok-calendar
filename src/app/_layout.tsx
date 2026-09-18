@@ -84,7 +84,6 @@ function RootLayoutNav() {
               <Stack.Screen name="event/new" options={{ presentation: 'modal', title: 'New' }} />
               <Stack.Screen name="event/[id]" options={{ title: 'Event' }} />
               <Stack.Screen name="event/edit/[id]" options={{ presentation: 'modal', title: 'Edit' }} />
-              <Stack.Screen name="calendars/index" options={{ title: 'Calendars' }} />
               <Stack.Screen name="settings/index" options={{ title: 'Settings' }} />
             </Stack>
           </CalendarProvider>

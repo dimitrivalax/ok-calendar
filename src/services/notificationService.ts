@@ -2,7 +2,7 @@ import { Platform } from 'react-native';
 import Constants, { ExecutionEnvironment } from 'expo-constants';
 import { addDays, addHours, addMinutes, parseISO, isBefore } from 'date-fns';
 
-import type { CalendarEvent, EventReminder } from '@/domain/types';
+import type { EventReminder } from '@/domain/types';
 import { expandOccurrences } from '@/domain/recurrence';
 import { EventRepository } from '@/services/eventRepository';
 import i18n from '@/i18n';
@@ -10,6 +10,8 @@ import i18n from '@/i18n';
 type NotificationsModule = typeof import('expo-notifications');
 
 type Subscription = { remove: () => void };
+
+const REMINDER_CHANNEL_ID = 'event-reminders';
 
 const isExpoGo =
   Constants.executionEnvironment === ExecutionEnvironment.StoreClient;
@@ -20,6 +22,7 @@ function notificationsSupported(): boolean {
 
 let notificationsPromise: Promise<NotificationsModule | null> | null = null;
 let handlerConfigured = false;
+let reminderChannelReady = false;
 
 async function getNotifications(): Promise<NotificationsModule | null> {
   if (!notificationsSupported()) return null;
@@ -35,6 +38,7 @@ async function getNotifications(): Promise<NotificationsModule | null> {
               shouldPlaySound: true,
               shouldSetBadge: false,
               shouldShowAlert: true,
+              priority: mod.AndroidNotificationPriority.MAX,
             }),
           });
         }
@@ -46,6 +50,21 @@ async function getNotifications(): Promise<NotificationsModule | null> {
       });
   }
   return notificationsPromise;
+}
+
+async function ensureReminderChannel(
+  Notifications: NotificationsModule,
+): Promise<void> {
+  if (Platform.OS !== 'android' || reminderChannelReady) return;
+  await Notifications.setNotificationChannelAsync(REMINDER_CHANNEL_ID, {
+    name: i18n.t('notifications:channelName'),
+    importance: Notifications.AndroidImportance.MAX,
+    vibrationPattern: [0, 250, 250, 250],
+    lockscreenVisibility:
+      Notifications.AndroidNotificationVisibility.PUBLIC,
+    bypassDnd: false,
+  });
+  reminderChannelReady = true;
 }
 
 function reminderFireAt(
@@ -107,6 +126,8 @@ export const NotificationService = {
     const granted = await this.requestPermissions();
     if (!granted) return;
 
+    await ensureReminderChannel(Notifications);
+
     const now = new Date();
     const windowEnd = addDays(now, 90).toISOString();
     const occurrences = expandOccurrences([event], now.toISOString(), windowEnd);
@@ -123,11 +144,15 @@ export const NotificationService = {
             title: i18n.t('notifications:reminderTitle'),
             body: i18n.t('notifications:reminderBody', { title: event.title }),
             data: { eventId: event.id, url: `okcalendar://event/${event.id}` },
+            sound: true,
+            priority: Notifications.AndroidNotificationPriority.MAX,
+            interruptionLevel: 'timeSensitive',
           },
           trigger: {
-            type: 'date',
+            type: Notifications.SchedulableTriggerInputTypes.DATE,
             date: fireAt,
-          } as import('expo-notifications').NotificationTriggerInput,
+            channelId: REMINDER_CHANNEL_ID,
+          },
         });
       }
     }

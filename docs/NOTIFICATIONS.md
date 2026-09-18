@@ -13,6 +13,8 @@ Les deux coexistent : pas l’un ou l’autre exclusif.
 
 Demander au premier rappel ou depuis Settings. Refus → CRUD OK ; message Settings.
 
+Android : `USE_EXACT_ALARM` (app calendrier) pour `setExactAndAllowWhileIdle` — sans ça, Doze retarde les rappels locaux vs alarms OS. Canal `event-reminders` en importance MAX. iOS : `interruptionLevel: timeSensitive` + entitlement associé.
+
 ## Identifiants stables
 
 ```

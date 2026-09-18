@@ -12,8 +12,13 @@
       "infoPlist": {
         "NSCalendarsFullAccessUsageDescription": "Ok! Calendar needs access to show and edit your calendars.",
         "NSCalendarsUsageDescription": "Ok! Calendar needs access to show and edit your calendars.",
-        "NSRemindersUsageDescription": "Ok! Calendar can use reminders for event alerts."
-      }
+        "NSRemindersUsageDescription": "Ok! Calendar can use reminders for event alerts.",
+        "ITSAppUsesNonExemptEncryption": false
+      },
+      "entitlements": {
+        "com.apple.developer.usernotifications.time-sensitive": true
+      },
+      "bundleIdentifier": "com.ok.calendar"
     },
     "android": {
       "adaptiveIcon": {
@@ -27,7 +32,8 @@
         "WRITE_CALENDAR",
         "POST_NOTIFICATIONS",
         "android.permission.READ_CALENDAR",
-        "android.permission.WRITE_CALENDAR"
+        "android.permission.WRITE_CALENDAR",
+        "android.permission.USE_EXACT_ALARM"
       ],
       "predictiveBackGestureEnabled": false,
       "package": "com.ok.calendar"

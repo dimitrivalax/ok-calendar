@@ -1,4 +1,5 @@
 {
+  "channelName": "Rappels d'événements",
   "reminderTitle": "Événement à venir",
   "reminderBody": "{{title}}"
 }
