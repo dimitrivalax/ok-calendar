@@ -85,7 +85,7 @@ export function MonthView({ onSelectDay }: Props) {
                 <Box
                   className={`flex-1 m-0.5 rounded-md items-center pt-1 ${
                     isToday
-                      ? 'bg-primary/20 border-2 border-primary'
+                      ? 'bg-muted border-2 border-primary'
                       : 'bg-muted'
                   }`}
                 >

@@ -6,14 +6,21 @@ import { HStack } from '@/components/ui/hstack';
 import { Text } from '@/components/ui/text';
 import { VStack } from '@/components/ui/vstack';
 import { useCalendar } from '@/hooks/useCalendarContext';
+import {
+  useThemePreference,
+  type ThemePreference,
+} from '@/hooks/useThemePreference';
 import { SyncEngine } from '@/services/syncEngine';
 import { CalendarService } from '@/services/calendarDevice';
 import { NotificationService } from '@/services/notificationService';
 import type { AppLocale } from '@/i18n';
 
+const THEME_OPTIONS: ThemePreference[] = ['system', 'light', 'dark'];
+
 export default function SettingsScreen() {
   const { t } = useTranslation(['settings', 'calendar', 'common']);
   const { locale, changeLocale, refresh, isLocalOnly } = useCalendar();
+  const { preference, setPreference } = useThemePreference();
   const insets = useSafeAreaInsets();
 
   return (
@@ -39,6 +46,28 @@ export default function SettingsScreen() {
                 {code === 'en'
                   ? t('settings:languageEn')
                   : t('settings:languageFr')}
+              </ButtonText>
+            </Button>
+          ))}
+        </HStack>
+      </VStack>
+
+      <VStack className="gap-2">
+        <Text bold>{t('settings:theme')}</Text>
+        <HStack className="gap-2 flex-wrap" testID="settings-theme">
+          {THEME_OPTIONS.map((mode) => (
+            <Button
+              key={mode}
+              variant={preference === mode ? 'default' : 'outline'}
+              onPress={() => setPreference(mode)}
+              testID={`theme-${mode}`}
+            >
+              <ButtonText>
+                {mode === 'system'
+                  ? t('settings:themeSystem')
+                  : mode === 'light'
+                    ? t('settings:themeLight')
+                    : t('settings:themeDark')}
               </ButtonText>
             </Button>
           ))}

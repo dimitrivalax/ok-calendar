@@ -16,10 +16,13 @@ import { I18nextProvider } from 'react-i18next';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
-import { useColorScheme } from 'react-native';
 
 import { GluestackUIProvider } from '@/components/ui/gluestack-ui-provider';
 import { CalendarProvider } from '@/hooks/useCalendarContext';
+import {
+  ThemePreferenceProvider,
+  useThemePreference,
+} from '@/hooks/useThemePreference';
 import i18n from '@/i18n';
 import { href } from '@/navigation/href';
 import { attachNotificationResponseListener } from '@/services/notificationService';
@@ -64,28 +67,12 @@ function NotificationBridge() {
   return null;
 }
 
-export default function RootLayout() {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
-  const [fontsLoaded, fontError] = useFonts({
-    PlusJakartaSans_400Regular,
-    PlusJakartaSans_500Medium,
-    PlusJakartaSans_600SemiBold,
-    PlusJakartaSans_700Bold,
-  });
-
-  useEffect(() => {
-    if (fontsLoaded || fontError) {
-      SplashScreen.hideAsync();
-    }
-  }, [fontsLoaded, fontError]);
-
-  if (!fontsLoaded && !fontError) {
-    return null;
-  }
+function RootLayoutNav() {
+  const { preference, resolvedScheme } = useThemePreference();
+  const isDark = resolvedScheme === 'dark';
 
   return (
-    <GluestackUIProvider mode="system">
+    <GluestackUIProvider mode={preference}>
       <ThemeProvider value={isDark ? darkTheme : lightTheme}>
         <I18nextProvider i18n={i18n}>
           <CalendarProvider>
@@ -104,5 +91,30 @@ export default function RootLayout() {
         </I18nextProvider>
       </ThemeProvider>
     </GluestackUIProvider>
+  );
+}
+
+export default function RootLayout() {
+  const [fontsLoaded, fontError] = useFonts({
+    PlusJakartaSans_400Regular,
+    PlusJakartaSans_500Medium,
+    PlusJakartaSans_600SemiBold,
+    PlusJakartaSans_700Bold,
+  });
+
+  useEffect(() => {
+    if (fontsLoaded || fontError) {
+      SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded, fontError]);
+
+  if (!fontsLoaded && !fontError) {
+    return null;
+  }
+
+  return (
+    <ThemePreferenceProvider>
+      <RootLayoutNav />
+    </ThemePreferenceProvider>
   );
 }

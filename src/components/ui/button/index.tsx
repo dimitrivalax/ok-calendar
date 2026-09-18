@@ -29,7 +29,7 @@ const buttonStyle = tva({
       default:
         'bg-primary data-[hover=true]:bg-primary/90 data-[active=true]:bg-primary/90',
       destructive:
-        'bg-destructive data-[hover=true]:bg-destructive/90 data-[active=true]:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60',
+        'bg-destructive data-[hover=true]:bg-destructive/90 data-[active=true]:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40',
       outline:
         'border border-border bg-background shadow-xs data-[hover=true]:bg-accent data-[active=true]:bg-accent dark:bg-input/[0.045] dark:border-border/90 dark:data-[hover=true]:bg-input/[0.075] dark:data-[active=true]:bg-input/[0.075]',
       secondary:

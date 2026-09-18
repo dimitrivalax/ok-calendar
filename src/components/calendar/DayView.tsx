@@ -93,7 +93,7 @@ export function DayView() {
                     key={`${event.id}-${event.occurrenceStart}`}
                     onPress={() => router.push(href(`/event/${event.id}`))}
                   >
-                    <Box className="rounded-md bg-primary/80 px-2 py-1 mb-1">
+                    <Box className="rounded-md bg-primary px-2 py-1 mb-1">
                       <Text size="sm" className="text-primary-foreground">
                         {format(parseISO(event.occurrenceStart), 'HH:mm')}{' '}
                         {event.title}

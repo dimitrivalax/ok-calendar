@@ -65,7 +65,9 @@ export function WeekView({ onSelectDay }: Props) {
               >
                 <Box
                   className={`items-center rounded-md py-2 ${
-                    isToday ? 'bg-primary/20' : 'bg-muted'
+                    isToday
+                      ? 'bg-muted border-2 border-primary'
+                      : 'bg-muted'
                   }`}
                 >
                   <Text size="xs" className="text-muted-foreground">
@@ -93,7 +95,7 @@ export function WeekView({ onSelectDay }: Props) {
                     key={`${event.id}-${event.occurrenceStart}`}
                     onPress={() => router.push(href(`/event/${event.id}`))}
                   >
-                    <Box className="rounded-md bg-primary/80 px-1 py-1">
+                    <Box className="rounded-md bg-primary px-1 py-1">
                       <Text size="xs" className="text-primary-foreground" numberOfLines={1}>
                         {format(parseISO(event.occurrenceStart), 'HH:mm')}
                       </Text>

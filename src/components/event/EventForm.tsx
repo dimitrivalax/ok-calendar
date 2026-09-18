@@ -150,254 +150,257 @@ export function EventForm({ initial, onSubmit, submitLabel }: Props) {
   };
 
   return (
-    <ScrollView
-      testID="event-form"
-      className="flex-1"
-      contentContainerStyle={{ paddingBottom: Math.max(insets.bottom, 16) }}
-    >
-      <VStack className="p-4 gap-4">
-        <VStack className="gap-1">
-          <Text>{t('calendar')}</Text>
-          <Controller
-            control={control}
-            name="calendarId"
-            rules={{ required: t('calendarRequired') }}
-            render={({ field: { onChange, value } }) => (
-              <Select
-                selectedValue={value || undefined}
-                selectedLabel={selectedCalendar?.title}
-                onValueChange={(id) => selectCalendar(id, onChange)}
-              >
-                <SelectTrigger
-                  variant="outline"
-                  size="md"
-                  testID="event-calendar-select"
-                  className="gap-2 px-3"
+    <Box testID="event-form" className="flex-1 bg-background">
+      <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 16 }}>
+        <VStack className="p-4 gap-4">
+          <VStack className="gap-1">
+            <Text>{t('calendar')}</Text>
+            <Controller
+              control={control}
+              name="calendarId"
+              rules={{ required: t('calendarRequired') }}
+              render={({ field: { onChange, value } }) => (
+                <Select
+                  selectedValue={value || undefined}
+                  selectedLabel={selectedCalendar?.title}
+                  onValueChange={(id) => selectCalendar(id, onChange)}
                 >
-                  {selectedCalendar && (
-                    <Box
-                      className="w-3 h-3 rounded-full"
-                      style={{ backgroundColor: selectedCalendar.color }}
-                    />
-                  )}
-                  <Text className="flex-1 text-foreground" isTruncated>
-                    {selectedCalendar?.title ?? t('calendar')}
-                  </Text>
-                  <SelectIcon as={ChevronDown} className="mr-1" />
-                </SelectTrigger>
-                <SelectPortal>
-                  <SelectBackdrop />
-                  <SelectContent>
-                    <SelectDragIndicatorWrapper>
-                      <SelectDragIndicator />
-                    </SelectDragIndicatorWrapper>
-                    {calendars.map((cal) => (
-                      <SelectItem
-                        key={cal.id}
-                        label={cal.title}
-                        value={cal.id}
-                      />
-                    ))}
-                  </SelectContent>
-                </SelectPortal>
-              </Select>
-            )}
-          />
-          {errors.calendarId && (
-            <Text size="sm" className="text-error-500">
-              {errors.calendarId.message}
-            </Text>
-          )}
-        </VStack>
-
-        <VStack className="gap-1">
-          <Text>{t('title')}</Text>
-          <Controller
-            control={control}
-            name="title"
-            rules={{
-              required: t('titleRequired'),
-              maxLength: 200,
-            }}
-            render={({ field: { onChange, onBlur, value } }) => (
-              <Input>
-                <InputField
-                  testID="event-title-input"
-                  value={value}
-                  onBlur={onBlur}
-                  onChangeText={onChange}
-                  placeholder={t('title')}
-                />
-              </Input>
-            )}
-          />
-          {errors.title && (
-            <Text size="sm" className="text-error-500">
-              {errors.title.message}
-            </Text>
-          )}
-        </VStack>
-
-        <HStack className="items-center justify-between">
-          <Text>{t('allDay')}</Text>
-          <Controller
-            control={control}
-            name="allDay"
-            render={({ field: { value, onChange } }) => (
-              <Switch value={value} onValueChange={onChange} />
-            )}
-          />
-        </HStack>
-
-        <Controller
-          control={control}
-          name="startAt"
-          render={({ field: { onChange, value } }) => (
-            <DateTimeField
-              testID="event-start-at"
-              label={t('start')}
-              value={value}
-              onChange={onChange}
-              allDay={allDay}
-            />
-          )}
-        />
-
-        <Controller
-          control={control}
-          name="endAt"
-          rules={{
-            validate: (end, values) =>
-              new Date(end) > new Date(values.startAt) || t('invalidRange'),
-          }}
-          render={({ field: { onChange, value } }) => (
-            <DateTimeField
-              testID="event-end-at"
-              label={t('end')}
-              value={value}
-              onChange={onChange}
-              allDay={allDay}
-            />
-          )}
-        />
-        {errors.endAt && (
-          <Text size="sm" className="text-error-500">
-            {errors.endAt.message}
-          </Text>
-        )}
-
-        <VStack className="gap-2">
-          <Text>{t('recurrence')}</Text>
-          <HStack className="flex-wrap gap-2">
-            {RECURRENCES.map((item) => (
-              <Button
-                key={item}
-                size="sm"
-                variant={recurrence === item ? 'default' : 'outline'}
-                onPress={() => setValue('recurrence', item)}
-              >
-                <ButtonText>
-                  {t(
-                    `recurrence${item.charAt(0).toUpperCase()}${item.slice(1)}` as
-                    | 'recurrenceNone'
-                    | 'recurrenceDaily'
-                    | 'recurrenceWeekly'
-                    | 'recurrenceMonthly'
-                    | 'recurrenceYearly',
-                  )}
-                </ButtonText>
-              </Button>
-            ))}
-          </HStack>
-        </VStack>
-
-        <VStack className="gap-1">
-          <Text>{t('description')}</Text>
-          <Controller
-            control={control}
-            name="description"
-            render={({ field: { onChange, value } }) => (
-              <Textarea>
-                <TextareaInput value={value} onChangeText={onChange} />
-              </Textarea>
-            )}
-          />
-        </VStack>
-
-        <VStack className="gap-1">
-          <Text>{t('location')}</Text>
-          <Controller
-            control={control}
-            name="location"
-            render={({ field: { onChange, value } }) => (
-              <Input>
-                <InputField value={value} onChangeText={onChange} />
-              </Input>
-            )}
-          />
-        </VStack>
-
-        <VStack className="gap-1">
-          <Text>{t('url')}</Text>
-          <Controller
-            control={control}
-            name="url"
-            rules={{
-              validate: (v) => isValidOptionalUrl(v) || t('invalidUrl'),
-            }}
-            render={({ field: { onChange, value } }) => (
-              <Input>
-                <InputField
-                  value={value}
-                  onChangeText={onChange}
-                  autoCapitalize="none"
-                  keyboardType="url"
-                />
-              </Input>
-            )}
-          />
-          {errors.url && (
-            <Text size="sm" className="text-error-500">
-              {errors.url.message}
-            </Text>
-          )}
-        </VStack>
-
-        <Box className="gap-2">
-          <Text bold>{t('reminders')}</Text>
-          <Controller
-            control={control}
-            name="reminderValue"
-            render={({ field: { onChange, value } }) => (
-              <Input>
-                <InputField
-                  value={value}
-                  onChangeText={onChange}
-                  keyboardType="number-pad"
-                />
-              </Input>
-            )}
-          />
-          <Controller
-            control={control}
-            name="reminderType"
-            render={({ field: { value, onChange } }) => (
-              <HStack className="flex-wrap gap-2">
-                {REMINDER_TYPES.map((type) => (
-                  <Button
-                    key={type}
-                    size="sm"
-                    variant={value === type ? 'default' : 'outline'}
-                    onPress={() => onChange(type)}
+                  <SelectTrigger
+                    variant="outline"
+                    size="md"
+                    testID="event-calendar-select"
+                    className="gap-2 px-3"
                   >
-                    <ButtonText>{t(REMINDER_TYPE_LABELS[type])}</ButtonText>
-                  </Button>
-                ))}
-              </HStack>
+                    {selectedCalendar && (
+                      <Box
+                        className="w-3 h-3 rounded-full"
+                        style={{ backgroundColor: selectedCalendar.color }}
+                      />
+                    )}
+                    <Text className="flex-1 text-foreground" isTruncated>
+                      {selectedCalendar?.title ?? t('calendar')}
+                    </Text>
+                    <SelectIcon as={ChevronDown} className="mr-1" />
+                  </SelectTrigger>
+                  <SelectPortal>
+                    <SelectBackdrop />
+                    <SelectContent>
+                      <SelectDragIndicatorWrapper>
+                        <SelectDragIndicator />
+                      </SelectDragIndicatorWrapper>
+                      {calendars.map((cal) => (
+                        <SelectItem
+                          key={cal.id}
+                          label={cal.title}
+                          value={cal.id}
+                        />
+                      ))}
+                    </SelectContent>
+                  </SelectPortal>
+                </Select>
+              )}
+            />
+            {errors.calendarId && (
+              <Text size="sm" className="text-error-500">
+                {errors.calendarId.message}
+              </Text>
+            )}
+          </VStack>
+
+          <VStack className="gap-1">
+            <Text>{t('title')}</Text>
+            <Controller
+              control={control}
+              name="title"
+              rules={{
+                required: t('titleRequired'),
+                maxLength: 200,
+              }}
+              render={({ field: { onChange, onBlur, value } }) => (
+                <Input>
+                  <InputField
+                    testID="event-title-input"
+                    value={value}
+                    onBlur={onBlur}
+                    onChangeText={onChange}
+                    placeholder={t('title')}
+                  />
+                </Input>
+              )}
+            />
+            {errors.title && (
+              <Text size="sm" className="text-error-500">
+                {errors.title.message}
+              </Text>
+            )}
+          </VStack>
+
+          <HStack className="items-center justify-between">
+            <Text>{t('allDay')}</Text>
+            <Controller
+              control={control}
+              name="allDay"
+              render={({ field: { value, onChange } }) => (
+                <Switch value={value} onValueChange={onChange} />
+              )}
+            />
+          </HStack>
+
+          <Controller
+            control={control}
+            name="startAt"
+            render={({ field: { onChange, value } }) => (
+              <DateTimeField
+                testID="event-start-at"
+                label={t('start')}
+                value={value}
+                onChange={onChange}
+                allDay={allDay}
+              />
             )}
           />
-        </Box>
 
+          <Controller
+            control={control}
+            name="endAt"
+            rules={{
+              validate: (end, values) =>
+                new Date(end) > new Date(values.startAt) || t('invalidRange'),
+            }}
+            render={({ field: { onChange, value } }) => (
+              <DateTimeField
+                testID="event-end-at"
+                label={t('end')}
+                value={value}
+                onChange={onChange}
+                allDay={allDay}
+              />
+            )}
+          />
+          {errors.endAt && (
+            <Text size="sm" className="text-error-500">
+              {errors.endAt.message}
+            </Text>
+          )}
+
+          <VStack className="gap-2">
+            <Text>{t('recurrence')}</Text>
+            <HStack className="flex-wrap gap-2">
+              {RECURRENCES.map((item) => (
+                <Button
+                  key={item}
+                  size="sm"
+                  variant={recurrence === item ? 'default' : 'outline'}
+                  onPress={() => setValue('recurrence', item)}
+                >
+                  <ButtonText>
+                    {t(
+                      `recurrence${item.charAt(0).toUpperCase()}${item.slice(1)}` as
+                      | 'recurrenceNone'
+                      | 'recurrenceDaily'
+                      | 'recurrenceWeekly'
+                      | 'recurrenceMonthly'
+                      | 'recurrenceYearly',
+                    )}
+                  </ButtonText>
+                </Button>
+              ))}
+            </HStack>
+          </VStack>
+
+          <VStack className="gap-1">
+            <Text>{t('description')}</Text>
+            <Controller
+              control={control}
+              name="description"
+              render={({ field: { onChange, value } }) => (
+                <Textarea>
+                  <TextareaInput value={value} onChangeText={onChange} />
+                </Textarea>
+              )}
+            />
+          </VStack>
+
+          <VStack className="gap-1">
+            <Text>{t('location')}</Text>
+            <Controller
+              control={control}
+              name="location"
+              render={({ field: { onChange, value } }) => (
+                <Input>
+                  <InputField value={value} onChangeText={onChange} />
+                </Input>
+              )}
+            />
+          </VStack>
+
+          <VStack className="gap-1">
+            <Text>{t('url')}</Text>
+            <Controller
+              control={control}
+              name="url"
+              rules={{
+                validate: (v) => isValidOptionalUrl(v) || t('invalidUrl'),
+              }}
+              render={({ field: { onChange, value } }) => (
+                <Input>
+                  <InputField
+                    value={value}
+                    onChangeText={onChange}
+                    autoCapitalize="none"
+                    keyboardType="url"
+                  />
+                </Input>
+              )}
+            />
+            {errors.url && (
+              <Text size="sm" className="text-error-500">
+                {errors.url.message}
+              </Text>
+            )}
+          </VStack>
+
+          <Box className="gap-2">
+            <Text bold>{t('reminders')}</Text>
+            <Controller
+              control={control}
+              name="reminderValue"
+              render={({ field: { onChange, value } }) => (
+                <Input>
+                  <InputField
+                    value={value}
+                    onChangeText={onChange}
+                    keyboardType="number-pad"
+                  />
+                </Input>
+              )}
+            />
+            <Controller
+              control={control}
+              name="reminderType"
+              render={({ field: { value, onChange } }) => (
+                <HStack className="flex-wrap gap-2">
+                  {REMINDER_TYPES.map((type) => (
+                    <Button
+                      key={type}
+                      size="sm"
+                      variant={value === type ? 'default' : 'outline'}
+                      onPress={() => onChange(type)}
+                    >
+                      <ButtonText>{t(REMINDER_TYPE_LABELS[type])}</ButtonText>
+                    </Button>
+                  ))}
+                </HStack>
+              )}
+            />
+          </Box>
+        </VStack>
+      </ScrollView>
+
+      <Box
+        className="border-t border-border bg-background px-4 pt-3"
+        style={{ paddingBottom: Math.max(insets.bottom, 12) }}
+      >
         <Button
           testID="btn-save-event"
           onPress={handleSubmit(onSubmit)}
@@ -405,7 +408,7 @@ export function EventForm({ initial, onSubmit, submitLabel }: Props) {
         >
           <ButtonText>{submitLabel}</ButtonText>
         </Button>
-      </VStack>
-    </ScrollView>
+      </Box>
+    </Box>
   );
 }

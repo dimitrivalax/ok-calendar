@@ -15,8 +15,7 @@ const badgeStyle = tva({
     variant: {
       default: 'bg-primary',
       secondary: 'bg-secondary',
-      destructive:
-        'bg-destructive dark:bg-destructive/60',
+      destructive: 'bg-destructive',
       outline: 'border border-border dark:border-border/90 bg-transparent',
     },
   },

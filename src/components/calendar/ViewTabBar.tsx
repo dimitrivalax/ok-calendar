@@ -31,9 +31,7 @@ export function ViewTabBar() {
             key={mode}
             accessibilityRole="tab"
             accessibilityState={{ selected: active }}
-            className={`flex-1 items-center justify-center py-3 ${
-              active ? 'bg-primary/10' : ''
-            }`}
+            className="flex-1 items-center justify-center py-3"
             onPress={() => setViewMode(mode)}
             testID={`view-${mode}`}
           >

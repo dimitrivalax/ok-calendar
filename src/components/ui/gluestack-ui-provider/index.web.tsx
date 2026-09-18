@@ -22,24 +22,15 @@ export function GluestackUIProvider({
   }, []);
 
   useSafeLayoutEffect(() => {
-    if (mode !== 'system') {
-      const documentElement = document.documentElement;
-      if (documentElement) {
-        documentElement.classList.add(mode);
-        documentElement.classList.remove(mode === 'light' ? 'dark' : 'light');
-        documentElement.style.colorScheme = mode;
-      }
-    }
+    script(mode);
   }, [mode]);
 
   useSafeLayoutEffect(() => {
     if (mode !== 'system') return;
     const media = window.matchMedia('(prefers-color-scheme: dark)');
-
-    media.addListener(handleMediaQuery);
-
-    return () => media.removeListener(handleMediaQuery);
-  }, [handleMediaQuery]);
+    media.addEventListener('change', handleMediaQuery);
+    return () => media.removeEventListener('change', handleMediaQuery);
+  }, [mode, handleMediaQuery]);
 
   return (
     <>
