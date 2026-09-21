@@ -3,6 +3,7 @@ import {
   DefaultTheme,
   ThemeProvider,
   Stack,
+  useRootNavigationState,
   useRouter,
 } from 'expo-router';
 import {
@@ -58,12 +59,28 @@ const darkTheme = {
 
 function NotificationBridge() {
   const router = useRouter();
+  const navigationState = useRootNavigationState();
+
   useEffect(() => {
+    if (!navigationState?.key) return;
+
+    const pendingTimers = new Set<ReturnType<typeof setTimeout>>();
+
     const sub = attachNotificationResponseListener((eventId) => {
-      router.push(href(`/event/${eventId}`));
+      // Defer so index → calendar redirect can settle on cold start.
+      const timer = setTimeout(() => {
+        pendingTimers.delete(timer);
+        router.push(href(`/event/${eventId}`));
+      }, 0);
+      pendingTimers.add(timer);
     });
-    return () => sub.remove();
-  }, [router]);
+
+    return () => {
+      sub.remove();
+      for (const timer of pendingTimers) clearTimeout(timer);
+      pendingTimers.clear();
+    };
+  }, [router, navigationState?.key]);
   return null;
 }
 

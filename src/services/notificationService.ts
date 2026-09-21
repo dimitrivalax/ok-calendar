@@ -143,7 +143,10 @@ export const NotificationService = {
           content: {
             title: i18n.t('notifications:reminderTitle'),
             body: i18n.t('notifications:reminderBody', { title: event.title }),
-            data: { eventId: event.id, url: `okcalendar://event/${event.id}` },
+            data: {
+              eventId: event.id,
+              url: `/event/${event.id}`,
+            },
             sound: true,
             priority: Notifications.AndroidNotificationPriority.MAX,
             interruptionLevel: 'timeSensitive',
@@ -171,6 +174,21 @@ export const NotificationService = {
   },
 };
 
+function eventIdFromNotificationData(
+  data: Record<string, unknown> | undefined,
+): string | null {
+  if (!data) return null;
+  const eventId = data.eventId;
+  if (typeof eventId === 'string' && eventId.length > 0) return eventId;
+
+  const url = data.url;
+  if (typeof url === 'string') {
+    const match = url.match(/\/event\/([^/?#]+)/);
+    if (match?.[1]) return match[1];
+  }
+  return null;
+}
+
 export function attachNotificationResponseListener(
   onEvent: (eventId: string) => void,
 ): Subscription {
@@ -180,12 +198,46 @@ export function attachNotificationResponseListener(
 
   let active: Subscription | null = null;
   let cancelled = false;
+  let handledRequestId: string | null = null;
+
+  const deliver = (
+    Notifications: NotificationsModule,
+    response: {
+      notification: {
+        request: {
+          identifier: string;
+          content: { data?: Record<string, unknown> };
+        };
+      };
+    },
+  ) => {
+    const requestId = response.notification.request.identifier;
+    if (handledRequestId === requestId) return;
+    const eventId = eventIdFromNotificationData(
+      response.notification.request.content.data,
+    );
+    if (!eventId) return;
+    handledRequestId = requestId;
+    onEvent(eventId);
+    try {
+      Notifications.clearLastNotificationResponse();
+    } catch {
+      // Native module may omit clear on some platforms.
+    }
+  };
 
   void getNotifications().then((Notifications) => {
     if (!Notifications || cancelled) return;
+
+    try {
+      const last = Notifications.getLastNotificationResponse();
+      if (last) deliver(Notifications, last);
+    } catch {
+      // getLastNotificationResponse unavailable — listener still covers warm taps.
+    }
+
     active = Notifications.addNotificationResponseReceivedListener((response) => {
-      const eventId = response.notification.request.content.data?.eventId;
-      if (typeof eventId === 'string') onEvent(eventId);
+      deliver(Notifications, response);
     });
   });
 

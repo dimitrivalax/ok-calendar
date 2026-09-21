@@ -44,7 +44,7 @@ Titre / corps via i18n namespace `notifications` (locale courante). Ne pas hardc
 
 ## Deep link
 
-Tap → `okcalendar://event/{localEventId}` (scheme `okcalendar` déjà dans `app.json`).
+Tap → ouvre `/event/{localEventId}` (payload `data.eventId` + `data.url`). Géré au cold start via `getLastNotificationResponse` et à chaud via le listener de réponse.
 
 ## API
 
