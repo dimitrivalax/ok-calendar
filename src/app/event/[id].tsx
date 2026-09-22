@@ -7,9 +7,10 @@ import { format, parseISO } from 'date-fns';
 
 import { Box } from '@/components/ui/box';
 import { Button, ButtonText } from '@/components/ui/button';
+import { HStack } from '@/components/ui/hstack';
 import { Text } from '@/components/ui/text';
 import { VStack } from '@/components/ui/vstack';
-import type { CalendarEvent } from '@/domain/types';
+import type { Calendar, CalendarEvent } from '@/domain/types';
 import { safeUrl } from '@/domain/url';
 import { EventRepository } from '@/services/eventRepository';
 import { SyncEngine } from '@/services/syncEngine';
@@ -23,9 +24,19 @@ export default function EventDetailScreen() {
   const insets = useSafeAreaInsets();
   const { refresh } = useCalendar();
   const [event, setEvent] = useState<CalendarEvent | null>(null);
+  const [calendar, setCalendar] = useState<Calendar | null>(null);
 
   useEffect(() => {
-    void EventRepository.getById(id).then(setEvent);
+    void (async () => {
+      const next = await EventRepository.getById(id);
+      setEvent(next);
+      if (!next) {
+        setCalendar(null);
+        return;
+      }
+      const calendars = await EventRepository.listCalendars();
+      setCalendar(calendars.find((c) => c.id === next.calendarId) ?? null);
+    })();
   }, [id]);
 
   if (!event) {
@@ -68,6 +79,17 @@ export default function EventDetailScreen() {
         <Text size="2xl" bold>
           {event.title}
         </Text>
+        {calendar ? (
+          <HStack className="items-center gap-2" testID="event-detail-calendar">
+            <Box
+              className="w-3 h-3 rounded-full"
+              style={{ backgroundColor: calendar.color }}
+            />
+            <Text>
+              {t('event:calendar')}: {calendar.title}
+            </Text>
+          </HStack>
+        ) : null}
         <Text>
           {event.allDay
             ? format(parseISO(event.startAt), 'PPP')

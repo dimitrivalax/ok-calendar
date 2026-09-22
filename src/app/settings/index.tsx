@@ -25,7 +25,8 @@ const THEME_OPTIONS: ThemePreference[] = ['system', 'light', 'dark'];
 
 export default function SettingsScreen() {
   const { t } = useTranslation(['settings', 'calendar', 'common']);
-  const { locale, changeLocale, refresh, isLocalOnly } = useCalendar();
+  const { locale, changeLocale, refresh, syncFromDevice, isLocalOnly } =
+    useCalendar();
   const { preference, setPreference } = useThemePreference();
   const insets = useSafeAreaInsets();
   const [calendars, setCalendars] = useState<Calendar[]>([]);
@@ -104,8 +105,9 @@ export default function SettingsScreen() {
           <Button
             variant="outline"
             onPress={async () => {
-              await CalendarService.requestPermissions();
+              await syncFromDevice();
               await NotificationService.requestPermissions();
+              await loadCalendars();
             }}
           >
             <ButtonText>{t('settings:permissions')}</ButtonText>
@@ -116,9 +118,9 @@ export default function SettingsScreen() {
           <Text bold>{t('settings:sync')}</Text>
           <Button
             onPress={async () => {
-              await SyncEngine.pull();
+              await syncFromDevice();
               await SyncEngine.pushAllPending();
-              await refresh();
+              await loadCalendars();
             }}
             testID="btn-sync-now"
           >

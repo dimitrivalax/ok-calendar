@@ -1,7 +1,9 @@
 import {
   createContext,
+  useCallback,
   useContext,
   useEffect,
+  useRef,
   useState,
   type ReactNode,
 } from 'react';
@@ -36,6 +38,7 @@ type CalendarContextValue = {
   shiftPeriod: (delta: number) => void;
   occurrences: EventOccurrence[];
   refresh: () => Promise<void>;
+  syncFromDevice: () => Promise<void>;
   isLocalOnly: boolean;
   locale: AppLocale;
   changeLocale: (locale: AppLocale) => Promise<void>;
@@ -78,13 +81,27 @@ export function CalendarProvider({ children }: { children: ReactNode }) {
   const [isLocalOnly, setIsLocalOnly] = useState(false);
   const [locale, setLocale] = useState<AppLocale>('en');
 
-  const refresh = async () => {
+  const refresh = useCallback(async () => {
     const calendars = await EventRepository.listCalendars();
     const visibleIds = calendars.filter((c) => c.isVisible).map((c) => c.id);
     const { start, end } = rangeForView(viewMode, cursorDate);
     const events = await EventRepository.listInRange(start, end, visibleIds);
     setOccurrences(expandOccurrences(events, start, end));
-  };
+  }, [viewMode, cursorDate]);
+
+  const syncFromDevice = useCallback(async () => {
+    const perm = await CalendarService.requestPermissions();
+    setIsLocalOnly(perm === 'denied');
+    if (perm === 'granted') {
+      await SyncEngine.pull();
+    }
+    await refresh();
+  }, [refresh]);
+
+  const refreshRef = useRef(refresh);
+  refreshRef.current = refresh;
+  const syncRef = useRef(syncFromDevice);
+  syncRef.current = syncFromDevice;
 
   useEffect(() => {
     let cancelled = false;
@@ -100,26 +117,24 @@ export function CalendarProvider({ children }: { children: ReactNode }) {
       if (perm === 'granted') {
         await SyncEngine.pull();
       }
-      await refresh();
+      await refreshRef.current();
       if (!cancelled) setIsReady(true);
     })();
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- bootstrap once
   }, []);
 
   useEffect(() => {
     if (!isReady) return;
     // eslint-disable-next-line react-hooks/set-state-in-effect -- sync view window
     void refresh();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [viewMode, cursorDate, isReady]);
+  }, [refresh, isReady]);
 
   useEffect(() => {
     const sub = AppState.addEventListener('change', (state) => {
       if (state === 'active' && isReady) {
-        void SyncEngine.pull().then(refresh);
+        void syncRef.current();
       }
     });
     return () => sub.remove();
@@ -158,6 +173,7 @@ export function CalendarProvider({ children }: { children: ReactNode }) {
         shiftPeriod,
         occurrences,
         refresh,
+        syncFromDevice,
         isLocalOnly,
         locale,
         changeLocale,

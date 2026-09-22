@@ -6,8 +6,8 @@
     {
       "layers" : [
         {
-          "image-name" : "calendar-logo.png",
-          "name" : "calendar-logo",
+          "image-name" : "calendar-full.png",
+          "name" : "calendar-full",
           "position" : {
             "scale" : 1,
             "translation-in-points" : [

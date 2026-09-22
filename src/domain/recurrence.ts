@@ -3,7 +3,7 @@ import {
   addMonths,
   addWeeks,
   addYears,
-  isBefore,
+  isAfter,
   isEqual,
   max,
   min,
@@ -84,7 +84,8 @@ export function clampRange(start: Date, end: Date): { start: Date; end: Date } {
 
 export function isValidEventRange(startAt: string, endAt: string): boolean {
   try {
-    return isBefore(parseISO(startAt), parseISO(endAt));
+    // Allow zero-duration events (common on device calendars).
+    return !isAfter(parseISO(startAt), parseISO(endAt));
   } catch {
     return false;
   }
