@@ -13,13 +13,13 @@ import {
   PlusJakartaSans_700Bold,
   useFonts,
 } from '@expo-google-fonts/plus-jakarta-sans';
-import { I18nextProvider } from 'react-i18next';
+import { I18nextProvider, useTranslation } from 'react-i18next';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 
 import { GluestackUIProvider } from '@/components/ui/gluestack-ui-provider';
-import { CalendarProvider } from '@/hooks/useCalendarContext';
+import { CalendarProvider, useCalendar } from '@/hooks/useCalendarContext';
 import {
   ThemePreferenceProvider,
   useThemePreference,
@@ -84,6 +84,35 @@ function NotificationBridge() {
   return null;
 }
 
+function RootStack() {
+  const { t } = useTranslation(['event', 'settings']);
+  // Re-render stack titles when the app locale changes.
+  useCalendar().locale;
+
+  return (
+    <Stack>
+      <Stack.Screen name="index" options={{ headerShown: false }} />
+      <Stack.Screen name="(calendar)" options={{ headerShown: false }} />
+      <Stack.Screen
+        name="event/new"
+        options={{ presentation: 'modal', title: t('event:navNew') }}
+      />
+      <Stack.Screen
+        name="event/[id]"
+        options={{ title: t('event:navDetail') }}
+      />
+      <Stack.Screen
+        name="event/edit/[id]"
+        options={{ presentation: 'modal', title: t('event:navEdit') }}
+      />
+      <Stack.Screen
+        name="settings/index"
+        options={{ title: t('settings:title') }}
+      />
+    </Stack>
+  );
+}
+
 function RootLayoutNav() {
   const { preference, resolvedScheme } = useThemePreference();
   const isDark = resolvedScheme === 'dark';
@@ -95,14 +124,7 @@ function RootLayoutNav() {
           <CalendarProvider>
             <StatusBar style={isDark ? 'light' : 'dark'} />
             <NotificationBridge />
-            <Stack>
-              <Stack.Screen name="index" options={{ headerShown: false }} />
-              <Stack.Screen name="(calendar)" options={{ headerShown: false }} />
-              <Stack.Screen name="event/new" options={{ presentation: 'modal', title: 'New' }} />
-              <Stack.Screen name="event/[id]" options={{ title: 'Event' }} />
-              <Stack.Screen name="event/edit/[id]" options={{ presentation: 'modal', title: 'Edit' }} />
-              <Stack.Screen name="settings/index" options={{ title: 'Settings' }} />
-            </Stack>
+            <RootStack />
           </CalendarProvider>
         </I18nextProvider>
       </ThemeProvider>

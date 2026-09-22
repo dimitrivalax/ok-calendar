@@ -31,5 +31,8 @@
   "details": "Détail de l’événement",
   "create": "Créer un événement",
   "edit": "Modifier l’événement",
+  "navNew": "Nouveau",
+  "navDetail": "Événement",
+  "navEdit": "Modifier",
   "deleteConfirm": "Supprimer cet événement ?"
 }

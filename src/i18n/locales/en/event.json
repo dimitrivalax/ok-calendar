@@ -31,5 +31,8 @@
   "details": "Event details",
   "create": "Create event",
   "edit": "Edit event",
+  "navNew": "New",
+  "navDetail": "Event",
+  "navEdit": "Edit",
   "deleteConfirm": "Delete this event?"
 }
