@@ -1,6 +1,6 @@
 # Développement
 
-**Objectif.** Guider le setup local, le dev client, les permissions et le dépannage. Voir [AGENTS.md](../AGENTS.md).
+**Objectif.** Guider le setup local, le dev client, les permissions et le dépannage. Voir [AGENTS.md](../AGENTS.md). Builds EAS / store : [BUILD.md](BUILD.md).
 
 ## Skills & rules (rappel)
 

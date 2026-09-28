@@ -4,6 +4,7 @@ import { addMonths, subMonths } from 'date-fns';
 import { safeUrl } from '@/domain/url';
 import { EventRepository } from '@/services/eventRepository';
 import { CalendarService } from '@/services/calendarDevice';
+import { alarmsToReminders } from '@/services/deviceAlarms';
 import {
   deviceOccurrenceKey,
   normalizeEventRange,
@@ -37,6 +38,51 @@ function* monthWindows(start: Date, end: Date): Generator<{ start: Date; end: Da
   }
 }
 
+async function findExistingLocalId(
+  occurrenceKey: string,
+  deviceEventId: string,
+  startAt: string,
+): Promise<string | null> {
+  const db = await getDb();
+  const byKey = await db.getFirstAsync<{ id: string }>(
+    `SELECT sm.local_event_id as id
+     FROM sync_map sm
+     INNER JOIN events e ON e.id = sm.local_event_id
+     WHERE sm.device_event_id = ? AND e.deleted_at IS NULL`,
+    occurrenceKey,
+  );
+  if (byKey) return byKey.id;
+
+  // Android Instance._ID often changes after Google edits; rematch by OS event id.
+  const candidates = await db.getAllAsync<{ id: string; start_at: string }>(
+    `SELECT id, start_at FROM events
+     WHERE device_event_id = ? AND deleted_at IS NULL AND origin = 'device'`,
+    deviceEventId,
+  );
+  if (candidates.length === 0) return null;
+  if (candidates.length === 1) return candidates[0].id;
+
+  const exactStart = candidates.find((c) => c.start_at === startAt);
+  return exactStart?.id ?? null;
+}
+
+async function upsertSyncMap(
+  localEventId: string,
+  occurrenceKey: string,
+  deviceCalendarId: string,
+): Promise<void> {
+  const db = await getDb();
+  await db.runAsync(
+    `INSERT OR REPLACE INTO sync_map (
+      local_event_id, device_event_id, device_calendar_id, last_synced_at
+    ) VALUES (?, ?, ?, ?)`,
+    localEventId,
+    occurrenceKey,
+    deviceCalendarId,
+    new Date().toISOString(),
+  );
+}
+
 /**
  * Best-effort sync engine.
  * Full EventKit write path uses expo-calendar when available;
@@ -64,11 +110,14 @@ export const SyncEngine = {
       const events: Awaited<ReturnType<typeof Calendar.getEventsAsync>> = [];
       const rangeStart = new Date(range.start);
       const rangeEnd = new Date(range.end);
+      // Only purge disappearances for calendars whose every month window succeeded.
+      const completeCalendarIds = new Set<string>();
       console.warn(
         `[SyncEngine] pulling ${deviceCalendars.length} calendars ${rangeStart.toISOString()} → ${rangeEnd.toISOString()}`,
       );
       for (const cal of deviceCalendars) {
         let calendarCount = 0;
+        let fetchFailed = false;
         for (const window of monthWindows(rangeStart, rangeEnd)) {
           try {
             const batch = await Calendar.getEventsAsync(
@@ -79,6 +128,7 @@ export const SyncEngine = {
             calendarCount += batch.length;
             events.push(...batch);
           } catch (error) {
+            fetchFailed = true;
             console.warn(
               '[SyncEngine] getEventsAsync failed',
               cal.title,
@@ -87,6 +137,9 @@ export const SyncEngine = {
               error,
             );
           }
+        }
+        if (!fetchFailed) {
+          completeCalendarIds.add(cal.id);
         }
         if (calendarCount > 0) {
           console.warn(
@@ -108,6 +161,8 @@ export const SyncEngine = {
         await EventRepository.purgeDeleted(row.local_event_id);
       }
 
+      const seenKeys = new Set<string>();
+
       for (const deviceEvent of events) {
         try {
           const mappedCal = deviceCalendars.find(
@@ -116,10 +171,7 @@ export const SyncEngine = {
           if (!mappedCal || !deviceEvent.id) continue;
 
           const occurrenceKey = deviceOccurrenceKey(deviceEvent);
-          const existing = await db.getFirstAsync<{ id: string }>(
-            `SELECT local_event_id as id FROM sync_map WHERE device_event_id = ?`,
-            occurrenceKey,
-          );
+          seenKeys.add(occurrenceKey);
 
           const { startAt, endAt } = normalizeEventRange(
             toEventIso(deviceEvent.startDate),
@@ -127,14 +179,22 @@ export const SyncEngine = {
           );
           const title = (deviceEvent.title || '(No title)').slice(0, 200);
           const url = safeUrl(deviceEvent.url) ?? null;
+          const notifications = alarmsToReminders(deviceEvent.alarms, startAt);
 
-          if (existing) {
-            const local = await EventRepository.getById(existing.id);
+          const existingId = await findExistingLocalId(
+            occurrenceKey,
+            deviceEvent.id,
+            startAt,
+          );
+
+          if (existingId) {
+            const local = await EventRepository.getById(existingId);
             if (!local) continue;
             const deviceMod = deviceEvent.lastModifiedDate
               ? new Date(deviceEvent.lastModifiedDate).getTime()
               : 0;
             const localMod = new Date(local.updatedAt).getTime();
+            // Device-origin rows always follow the OS. App-origin uses LWW.
             if (deviceMod >= localMod || local.origin === 'device') {
               await EventRepository.update(local.id, {
                 title,
@@ -144,10 +204,16 @@ export const SyncEngine = {
                 description: deviceEvent.notes ?? null,
                 location: deviceEvent.location ?? null,
                 url,
+                notifications,
                 syncStatus: 'synced',
                 deviceEventId: deviceEvent.id,
               });
             }
+            await upsertSyncMap(
+              local.id,
+              occurrenceKey,
+              mappedCal.deviceCalendarId!,
+            );
           } else {
             const created = await EventRepository.create({
               calendarId: mappedCal.id,
@@ -160,26 +226,56 @@ export const SyncEngine = {
               location: deviceEvent.location ?? null,
               url,
               origin: 'device',
-              notifications: [],
+              notifications,
             });
             await EventRepository.update(created.id, {
               syncStatus: 'synced',
               deviceEventId: deviceEvent.id,
             });
-            await db.runAsync(
-              `INSERT OR REPLACE INTO sync_map (
-                local_event_id, device_event_id, device_calendar_id, last_synced_at
-              ) VALUES (?, ?, ?, ?)`,
+            await upsertSyncMap(
               created.id,
               occurrenceKey,
               mappedCal.deviceCalendarId!,
-              new Date().toISOString(),
             );
           }
         } catch (error) {
           console.warn('[SyncEngine] skipped device event', deviceEvent.id, error);
         }
       }
+
+      // Soft-delete (purge) local mirrors of device events that left the window.
+      // Skip calendars with incomplete fetches so a native error cannot wipe the mirror.
+      if (completeCalendarIds.size > 0) {
+        const calIds = [...completeCalendarIds];
+        const placeholders = calIds.map(() => '?').join(',');
+        const mirrored = await db.getAllAsync<{
+          id: string;
+          occurrence_key: string;
+        }>(
+          `SELECT e.id as id, sm.device_event_id as occurrence_key
+           FROM events e
+           INNER JOIN sync_map sm ON sm.local_event_id = e.id
+           WHERE e.origin = 'device'
+             AND e.deleted_at IS NULL
+             AND e.calendar_id IN (${placeholders})
+             AND e.start_at < ? AND e.end_at > ?`,
+          ...calIds,
+          range.end,
+          range.start,
+        );
+        let removed = 0;
+        for (const row of mirrored) {
+          if (seenKeys.has(row.occurrence_key)) continue;
+          await EventRepository.purgeDeleted(row.id);
+          removed += 1;
+        }
+        if (removed > 0) {
+          console.warn(`[SyncEngine] purged ${removed} disappeared device events`);
+        }
+      }
+
+      // Schedule local notifications for the rolling window after the mirror is updated.
+      await NotificationService.resyncWindow();
     } catch (error) {
       console.warn('[SyncEngine] pull failed', error);
     }

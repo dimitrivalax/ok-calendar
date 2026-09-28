@@ -5,6 +5,7 @@ import {
   useEffect,
   useRef,
   useState,
+  startTransition,
   type ReactNode,
 } from 'react';
 import { AppState } from 'react-native';
@@ -73,6 +74,16 @@ function rangeForView(mode: ViewMode, cursor: Date): { start: string; end: strin
   };
 }
 
+function occurrencesFingerprint(occs: EventOccurrence[]): string {
+  // Omit updatedAt: device pull rewrites it even when visible fields are unchanged.
+  return occs
+    .map(
+      (o) =>
+        `${o.id}\0${o.occurrenceStart}\0${o.occurrenceEnd}\0${o.title}\0${o.allDay ? 1 : 0}\0${o.location ?? ''}\0${o.description ?? ''}`,
+    )
+    .join('\n');
+}
+
 export function CalendarProvider({ children }: { children: ReactNode }) {
   const [isReady, setIsReady] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>('month');
@@ -81,27 +92,51 @@ export function CalendarProvider({ children }: { children: ReactNode }) {
   const [isLocalOnly, setIsLocalOnly] = useState(false);
   const [locale, setLocale] = useState<AppLocale>('en');
 
-  const refresh = useCallback(async () => {
-    const calendars = await EventRepository.listCalendars();
-    const visibleIds = calendars.filter((c) => c.isVisible).map((c) => c.id);
-    const { start, end } = rangeForView(viewMode, cursorDate);
-    const events = await EventRepository.listInRange(start, end, visibleIds);
-    setOccurrences(expandOccurrences(events, start, end));
-  }, [viewMode, cursorDate]);
+  const applyOccurrences = useCallback(
+    (next: EventOccurrence[], soft: boolean) => {
+      const commit = () => {
+        setOccurrences((prev) =>
+          occurrencesFingerprint(prev) === occurrencesFingerprint(next)
+            ? prev
+            : next,
+        );
+      };
+      if (soft) {
+        startTransition(commit);
+      } else {
+        commit();
+      }
+    },
+    [],
+  );
+
+  const refresh = useCallback(
+    async (opts?: { soft?: boolean }) => {
+      const calendars = await EventRepository.listCalendars();
+      const visibleIds = calendars.filter((c) => c.isVisible).map((c) => c.id);
+      const { start, end } = rangeForView(viewMode, cursorDate);
+      const events = await EventRepository.listInRange(start, end, visibleIds);
+      applyOccurrences(expandOccurrences(events, start, end), opts?.soft === true);
+    },
+    [viewMode, cursorDate, applyOccurrences],
+  );
 
   const syncFromDevice = useCallback(async () => {
     const perm = await CalendarService.requestPermissions();
-    setIsLocalOnly(perm === 'denied');
+    const denied = perm === 'denied';
+    setIsLocalOnly((prev) => (prev === denied ? prev : denied));
     if (perm === 'granted') {
       await SyncEngine.pull();
     }
-    await refresh();
+    // Background sync: keep current pixels until React can swap quietly.
+    await refresh({ soft: true });
   }, [refresh]);
 
   const refreshRef = useRef(refresh);
   refreshRef.current = refresh;
   const syncRef = useRef(syncFromDevice);
   syncRef.current = syncFromDevice;
+  const prevViewModeRef = useRef(viewMode);
 
   useEffect(() => {
     let cancelled = false;
@@ -130,6 +165,17 @@ export function CalendarProvider({ children }: { children: ReactNode }) {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- sync view window
     void refresh();
   }, [refresh, isReady]);
+
+  // Pull from the device calendar when switching month/week/day/agenda tabs.
+  useEffect(() => {
+    if (!isReady) return;
+    if (prevViewModeRef.current === viewMode) return;
+    prevViewModeRef.current = viewMode;
+    const handle = setTimeout(() => {
+      void syncRef.current();
+    }, 150);
+    return () => clearTimeout(handle);
+  }, [viewMode, isReady]);
 
   useEffect(() => {
     const sub = AppState.addEventListener('change', (state) => {

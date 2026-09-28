@@ -45,6 +45,16 @@ npx expo start --dev-client
 
 Détails : [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md).
 
+## Builds (EAS)
+
+```bash
+eas login
+eas build --platform android --profile preview      # tests internes
+eas build --platform android --profile production   # release
+```
+
+Guide complet : [docs/BUILD.md](docs/BUILD.md).
+
 ## Licence
 
 [European Union Public Licence v1.2 (EUPL-1.2)](LICENSE).
