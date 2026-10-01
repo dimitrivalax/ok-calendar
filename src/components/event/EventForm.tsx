@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Controller, useForm } from 'react-hook-form';
+import { Controller, useForm, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -94,7 +94,6 @@ export function EventForm({ initial, onSubmit, submitLabel }: Props) {
   const {
     control,
     handleSubmit,
-    watch,
     setValue,
     formState: { errors, isSubmitting },
   } = useForm<EventFormValues>({
@@ -113,9 +112,9 @@ export function EventForm({ initial, onSubmit, submitLabel }: Props) {
     },
   });
 
-  const recurrence = watch('recurrence');
-  const allDay = watch('allDay');
-  const calendarId = watch('calendarId');
+  const recurrence = useWatch({ control, name: 'recurrence' });
+  const allDay = useWatch({ control, name: 'allDay' });
+  const calendarId = useWatch({ control, name: 'calendarId' });
   const selectedCalendar = calendars.find((c) => c.id === calendarId);
 
   useEffect(() => {

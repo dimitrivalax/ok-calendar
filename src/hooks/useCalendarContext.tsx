@@ -133,10 +133,16 @@ export function CalendarProvider({ children }: { children: ReactNode }) {
   }, [refresh]);
 
   const refreshRef = useRef(refresh);
-  refreshRef.current = refresh;
   const syncRef = useRef(syncFromDevice);
-  syncRef.current = syncFromDevice;
   const prevViewModeRef = useRef(viewMode);
+
+  useEffect(() => {
+    refreshRef.current = refresh;
+  }, [refresh]);
+
+  useEffect(() => {
+    syncRef.current = syncFromDevice;
+  }, [syncFromDevice]);
 
   useEffect(() => {
     let cancelled = false;
@@ -162,7 +168,6 @@ export function CalendarProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!isReady) return;
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- sync view window
     void refresh();
   }, [refresh, isReady]);
 

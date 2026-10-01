@@ -88,10 +88,11 @@ function NotificationBridge() {
 function RootStack() {
   const { t } = useTranslation(['event', 'settings']);
   // Re-render stack titles when the app locale changes.
-  useCalendar().locale;
+  const { locale } = useCalendar();
 
   return (
-    <Stack>
+    <Stack key={locale}>
+
       <Stack.Screen name="index" options={{ headerShown: false }} />
       <Stack.Screen name="(calendar)" options={{ headerShown: false }} />
       <Stack.Screen
