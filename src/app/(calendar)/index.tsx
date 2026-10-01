@@ -3,6 +3,8 @@ import { enUS, fr } from 'date-fns/locale';
 import { Stack, useRouter } from 'expo-router';
 import { ChevronLeft, ChevronRight, Settings } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import { runOnJS } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AgendaView } from '@/components/calendar/AgendaView';
@@ -17,6 +19,8 @@ import { Text } from '@/components/ui/text';
 import { VStack } from '@/components/ui/vstack';
 import { useCalendar } from '@/hooks/useCalendarContext';
 import { href } from '@/navigation/href';
+
+const SWIPE_THRESHOLD = 50;
 
 export default function CalendarScreen() {
   const {
@@ -49,6 +53,18 @@ export default function CalendarScreen() {
     }
     return format(cursorDate, 'MMMM yyyy', { locale: dfLocale });
   })();
+
+  const periodSwipe = Gesture.Pan()
+    .activeOffsetX([-24, 24])
+    .failOffsetY([-16, 16])
+    .onEnd((event) => {
+      'worklet';
+      if (event.translationX > SWIPE_THRESHOLD) {
+        runOnJS(shiftPeriod)(-1);
+      } else if (event.translationX < -SWIPE_THRESHOLD) {
+        runOnJS(shiftPeriod)(1);
+      }
+    });
 
   return (
     <>
@@ -90,26 +106,28 @@ export default function CalendarScreen() {
           </HStack>
         </HStack>
 
-        <Box className="flex-1">
-          {viewMode === 'month' && (
-            <MonthView
-              onSelectDay={(day) => {
-                setCursorDate(day);
-                setViewMode('day');
-              }}
-            />
-          )}
-          {viewMode === 'week' && (
-            <WeekView
-              onSelectDay={(day) => {
-                setCursorDate(day);
-                setViewMode('day');
-              }}
-            />
-          )}
-          {viewMode === 'day' && <DayView />}
-          {viewMode === 'agenda' && <AgendaView />}
-        </Box>
+        <GestureDetector gesture={periodSwipe}>
+          <Box className="flex-1">
+            {viewMode === 'month' && (
+              <MonthView
+                onSelectDay={(day) => {
+                  setCursorDate(day);
+                  setViewMode('day');
+                }}
+              />
+            )}
+            {viewMode === 'week' && (
+              <WeekView
+                onSelectDay={(day) => {
+                  setCursorDate(day);
+                  setViewMode('day');
+                }}
+              />
+            )}
+            {viewMode === 'day' && <DayView />}
+            {viewMode === 'agenda' && <AgendaView />}
+          </Box>
+        </GestureDetector>
 
         <ViewTabBar />
       </VStack>

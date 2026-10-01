@@ -17,6 +17,7 @@ import { I18nextProvider, useTranslation } from 'react-i18next';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { GluestackUIProvider } from '@/components/ui/gluestack-ui-provider';
 import { CalendarProvider, useCalendar } from '@/hooks/useCalendarContext';
@@ -151,8 +152,10 @@ export default function RootLayout() {
   }
 
   return (
-    <ThemePreferenceProvider>
-      <RootLayoutNav />
-    </ThemePreferenceProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <ThemePreferenceProvider>
+        <RootLayoutNav />
+      </ThemePreferenceProvider>
+    </GestureHandlerRootView>
   );
 }
