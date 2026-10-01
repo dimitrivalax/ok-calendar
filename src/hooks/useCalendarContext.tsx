@@ -86,7 +86,7 @@ function occurrencesFingerprint(occs: EventOccurrence[]): string {
 
 export function CalendarProvider({ children }: { children: ReactNode }) {
   const [isReady, setIsReady] = useState(false);
-  const [viewMode, setViewMode] = useState<ViewMode>('month');
+  const [viewMode, setViewMode] = useState<ViewMode>('day');
   const [cursorDate, setCursorDate] = useState(() => new Date());
   const [occurrences, setOccurrences] = useState<EventOccurrence[]>([]);
   const [isLocalOnly, setIsLocalOnly] = useState(false);
