@@ -145,6 +145,8 @@ interface SyncEngine {
 interface NotificationService {
   syncForEvent(eventId: string): Promise<void>;
   cancelForEvent(eventId: string): Promise<void>;
+  syncDailyDigest(): Promise<void>;
+  cancelDailyDigest(): Promise<void>;
   resyncWindow(): Promise<void>;
 }
 ```
@@ -156,3 +158,5 @@ interface NotificationService {
 - Événement `origin=app` : SQLite SoT ; push device best-effort
 - Soft-delete : `deleted_at` non null → exclu des listes UI ; purge après sync OK
 - `settings.locale` ∈ `{en,fr}` ; défaut applicatif `en`
+- `settings.dailyDigestEnabled` ∈ `{true,false}` ; défaut `true`
+- `settings.dailyDigestTime` = `HH:mm` ; défaut `08:30`

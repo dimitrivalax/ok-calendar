@@ -28,6 +28,7 @@ import { SyncEngine } from '@/services/syncEngine';
 import { CalendarService } from '@/services/calendarDevice';
 import { getSetting, setSetting, getDb } from '@/db/client';
 import { setAppLocale, type AppLocale } from '@/i18n';
+import { NotificationService } from '@/services/notificationService';
 
 type CalendarContextValue = {
   isReady: boolean;
@@ -157,6 +158,8 @@ export function CalendarProvider({ children }: { children: ReactNode }) {
       if (!cancelled) setIsLocalOnly(perm === 'denied');
       if (perm === 'granted') {
         await SyncEngine.pull();
+      } else {
+        await NotificationService.resyncWindow();
       }
       await refreshRef.current();
       if (!cancelled) setIsReady(true);
@@ -210,6 +213,7 @@ export function CalendarProvider({ children }: { children: ReactNode }) {
     await setAppLocale(next);
     await setSetting('locale', next);
     setLocale(next);
+    await NotificationService.syncDailyDigest();
   };
 
   return (

@@ -61,17 +61,25 @@ const darkTheme = {
 function NotificationBridge() {
   const router = useRouter();
   const navigationState = useRootNavigationState();
+  const { setViewMode, setCursorDate } = useCalendar();
 
   useEffect(() => {
     if (!navigationState?.key) return;
 
     const pendingTimers = new Set<ReturnType<typeof setTimeout>>();
 
-    const sub = attachNotificationResponseListener((eventId) => {
+    const sub = attachNotificationResponseListener((tap) => {
       // Defer so index → calendar redirect can settle on cold start.
       const timer = setTimeout(() => {
         pendingTimers.delete(timer);
-        router.push(href(`/event/${eventId}`));
+        if (tap.type === 'dailyDigest') {
+          const [year, month, day] = tap.date.split('-').map(Number);
+          setViewMode('day');
+          setCursorDate(new Date(year, month - 1, day));
+          router.push(href('/(calendar)'));
+          return;
+        }
+        router.push(href(`/event/${tap.eventId}`));
       }, 0);
       pendingTimers.add(timer);
     });
@@ -81,7 +89,12 @@ function NotificationBridge() {
       for (const timer of pendingTimers) clearTimeout(timer);
       pendingTimers.clear();
     };
-  }, [router, navigationState?.key]);
+  }, [
+    router,
+    navigationState?.key,
+    setViewMode,
+    setCursorDate,
+  ]);
   return null;
 }
 

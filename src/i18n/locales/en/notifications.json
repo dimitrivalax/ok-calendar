@@ -1,5 +1,10 @@
 {
   "channelName": "Event reminders",
   "reminderTitle": "Upcoming event",
-  "reminderBody": "{{title}}"
+  "reminderBody": "{{title}}",
+  "digestChannelName": "Daily agenda",
+  "digestTitle": "Today's events",
+  "digestAllDay": "All day",
+  "digestMore": "+{{count}} more",
+  "digestEmptyBody": "You have free time today — go outside!"
 }
