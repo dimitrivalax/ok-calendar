@@ -67,8 +67,11 @@ jobs:
       - name: Install Playwright Chromium
         run: pnpm exec playwright install --with-deps chromium
 
-      - name: E2E tests
-        run: pnpm test:e2e
+      - name: E2E functional
+        run: pnpm exec playwright test --grep-invert a11y
+
+      - name: Accessibility (axe WCAG A/AA)
+        run: pnpm test:e2e:a11y
 
       - name: Upload Playwright report
         if: failure()

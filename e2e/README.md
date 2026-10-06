@@ -15,8 +15,11 @@ npx expo start --web
 
 ```bash
 npm run test:e2e
+npm run test:e2e:a11y
 npm run test:e2e:ui
 ```
+
+CI (job `E2E`) : functional puis `pnpm test:e2e:a11y` — voir [`.github/workflows/ci.yml`](../.github/workflows/ci.yml).
 
 ## Scénarios
 
@@ -41,9 +44,9 @@ Les assertions comparent un **fingerprint** des violations connues (`e2e/a11y-ut
 Lancer uniquement les a11y :
 
 ```bash
-npm run test:e2e -- a11y
+npm run test:e2e:a11y
 # après un vrai correctif a11y :
-npm run test:e2e -- a11y --update-snapshots
+npm run test:e2e:a11y -- --update-snapshots
 ```
 
 ## Conventions
