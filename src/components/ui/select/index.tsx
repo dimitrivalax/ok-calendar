@@ -171,7 +171,7 @@ const SelectInput = React.forwardRef<
   ISelectInputProps
 >(function SelectInput({ className, ...props }, ref) {
   const parent = useStyleContext() as
-    | { size?: string; variant?: string }
+    | VariantProps<typeof selectTriggerStyle>
     | undefined;
   return (
     <UISelect.Input
