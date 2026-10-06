@@ -6,7 +6,10 @@
   "calendars": "Calendriers",
   "settings": "Réglages",
   "newEvent": "Nouvel événement",
+  "previousPeriod": "Période précédente",
+  "nextPeriod": "Période suivante",
   "noEvents": "Libre",
   "syncNow": "Synchroniser",
-  "visible": "Visible"
+  "visible": "Visible",
+  "toggleCalendarVisibility": "Afficher {{title}}"
 }

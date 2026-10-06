@@ -28,6 +28,7 @@ import { SyncEngine } from '@/services/syncEngine';
 import { CalendarService } from '@/services/calendarDevice';
 import { getSetting, setSetting, getDb } from '@/db/client';
 import { setAppLocale, type AppLocale } from '@/i18n';
+import { NotificationService } from '@/services/notificationService';
 
 type CalendarContextValue = {
   isReady: boolean;
@@ -133,10 +134,16 @@ export function CalendarProvider({ children }: { children: ReactNode }) {
   }, [refresh]);
 
   const refreshRef = useRef(refresh);
-  refreshRef.current = refresh;
   const syncRef = useRef(syncFromDevice);
-  syncRef.current = syncFromDevice;
   const prevViewModeRef = useRef(viewMode);
+
+  useEffect(() => {
+    refreshRef.current = refresh;
+  }, [refresh]);
+
+  useEffect(() => {
+    syncRef.current = syncFromDevice;
+  }, [syncFromDevice]);
 
   useEffect(() => {
     let cancelled = false;
@@ -151,6 +158,8 @@ export function CalendarProvider({ children }: { children: ReactNode }) {
       if (!cancelled) setIsLocalOnly(perm === 'denied');
       if (perm === 'granted') {
         await SyncEngine.pull();
+      } else {
+        await NotificationService.resyncWindow();
       }
       await refreshRef.current();
       if (!cancelled) setIsReady(true);
@@ -162,7 +171,6 @@ export function CalendarProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!isReady) return;
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- sync view window
     void refresh();
   }, [refresh, isReady]);
 
@@ -205,6 +213,7 @@ export function CalendarProvider({ children }: { children: ReactNode }) {
     await setAppLocale(next);
     await setSetting('locale', next);
     setLocale(next);
+    await NotificationService.syncDailyDigest();
   };
 
   return (

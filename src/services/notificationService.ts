@@ -1,9 +1,30 @@
 import { Platform } from 'react-native';
 import Constants, { ExecutionEnvironment } from 'expo-constants';
-import { addDays, addHours, addMinutes, parseISO, isBefore } from 'date-fns';
+import {
+  addDays,
+  addHours,
+  addMinutes,
+  endOfDay,
+  format,
+  isBefore,
+  parseISO,
+  startOfDay,
+} from 'date-fns';
 
 import type { EventReminder } from '@/domain/types';
 import { expandOccurrences } from '@/domain/recurrence';
+import { getSetting } from '@/db/client';
+import {
+  DAILY_DIGEST_ENABLED_KEY,
+  DAILY_DIGEST_ID_PREFIX,
+  DAILY_DIGEST_TIME_KEY,
+  DAILY_DIGEST_WINDOW_DAYS,
+  digestNotificationId,
+  fireAtForDay,
+  formatDigestBody,
+  isDailyDigestEnabled,
+  parseDigestTime,
+} from '@/services/dailyDigest';
 import { EventRepository } from '@/services/eventRepository';
 import i18n from '@/i18n';
 
@@ -12,6 +33,7 @@ type NotificationsModule = typeof import('expo-notifications');
 type Subscription = { remove: () => void };
 
 const REMINDER_CHANNEL_ID = 'event-reminders';
+const DIGEST_CHANNEL_ID = 'daily-digest';
 
 const isExpoGo =
   Constants.executionEnvironment === ExecutionEnvironment.StoreClient;
@@ -23,6 +45,7 @@ function notificationsSupported(): boolean {
 let notificationsPromise: Promise<NotificationsModule | null> | null = null;
 let handlerConfigured = false;
 let reminderChannelReady = false;
+let digestChannelReady = false;
 
 async function getNotifications(): Promise<NotificationsModule | null> {
   if (!notificationsSupported()) return null;
@@ -65,6 +88,20 @@ async function ensureReminderChannel(
     bypassDnd: false,
   });
   reminderChannelReady = true;
+}
+
+async function ensureDigestChannel(
+  Notifications: NotificationsModule,
+): Promise<void> {
+  if (Platform.OS !== 'android' || digestChannelReady) return;
+  await Notifications.setNotificationChannelAsync(DIGEST_CHANNEL_ID, {
+    name: i18n.t('notifications:digestChannelName'),
+    importance: Notifications.AndroidImportance.DEFAULT,
+    lockscreenVisibility:
+      Notifications.AndroidNotificationVisibility.PUBLIC,
+    bypassDnd: false,
+  });
+  digestChannelReady = true;
 }
 
 function reminderFireAt(
@@ -116,6 +153,19 @@ export const NotificationService = {
     );
   },
 
+  async cancelDailyDigest(): Promise<void> {
+    const Notifications = await getNotifications();
+    if (!Notifications) return;
+    const scheduled = await Notifications.getAllScheduledNotificationsAsync();
+    await Promise.all(
+      scheduled
+        .filter((n) => n.identifier.startsWith(DAILY_DIGEST_ID_PREFIX))
+        .map((n) =>
+          Notifications.cancelScheduledNotificationAsync(n.identifier),
+        ),
+    );
+  },
+
   async syncForEvent(eventId: string): Promise<void> {
     const Notifications = await getNotifications();
     if (!Notifications) return;
@@ -161,6 +211,78 @@ export const NotificationService = {
     }
   },
 
+  async syncDailyDigest(): Promise<void> {
+    const Notifications = await getNotifications();
+    if (!Notifications) return;
+
+    await this.cancelDailyDigest();
+
+    const enabled = isDailyDigestEnabled(
+      await getSetting(DAILY_DIGEST_ENABLED_KEY),
+    );
+    if (!enabled) return;
+
+    const granted = await this.requestPermissions();
+    if (!granted) return;
+
+    await ensureDigestChannel(Notifications);
+
+    const { hours, minutes } = parseDigestTime(
+      await getSetting(DAILY_DIGEST_TIME_KEY),
+    );
+    const calendars = await EventRepository.listCalendars();
+    const visibleIds = calendars.filter((c) => c.isVisible).map((c) => c.id);
+    const now = new Date();
+    const labels = {
+      allDay: i18n.t('notifications:digestAllDay'),
+      empty: i18n.t('notifications:digestEmptyBody'),
+      more: (count: number) =>
+        i18n.t('notifications:digestMore', { count }),
+    };
+
+    for (let offset = 0; offset < DAILY_DIGEST_WINDOW_DAYS; offset += 1) {
+      const day = addDays(startOfDay(now), offset);
+      const fireAt = fireAtForDay(day, hours, minutes);
+      if (isBefore(fireAt, now)) continue;
+
+      const rangeStart = startOfDay(day).toISOString();
+      const rangeEnd = endOfDay(day).toISOString();
+      const occurrences =
+        visibleIds.length === 0
+          ? []
+          : expandOccurrences(
+              await EventRepository.listInRange(
+                rangeStart,
+                rangeEnd,
+                visibleIds,
+              ),
+              rangeStart,
+              rangeEnd,
+            );
+      const dayKey = format(day, 'yyyy-MM-dd');
+      const body = formatDigestBody(occurrences, labels);
+
+      await Notifications.scheduleNotificationAsync({
+        identifier: digestNotificationId(dayKey),
+        content: {
+          title: i18n.t('notifications:digestTitle'),
+          body,
+          data: {
+            type: 'dailyDigest',
+            date: dayKey,
+          },
+          sound: true,
+          priority: Notifications.AndroidNotificationPriority.DEFAULT,
+        },
+        trigger: {
+          type: Notifications.SchedulableTriggerInputTypes.DATE,
+          date: fireAt,
+          channelId: DIGEST_CHANNEL_ID,
+        },
+      });
+    }
+  },
+
   async resyncWindow(): Promise<void> {
     if (!notificationsSupported()) return;
     const now = new Date();
@@ -171,26 +293,42 @@ export const NotificationService = {
     for (const event of events) {
       await this.syncForEvent(event.id);
     }
+    await this.syncDailyDigest();
   },
 };
 
-function eventIdFromNotificationData(
+export type NotificationTap =
+  | { type: 'event'; eventId: string }
+  | { type: 'dailyDigest'; date: string };
+
+function tapFromNotificationData(
   data: Record<string, unknown> | undefined,
-): string | null {
+): NotificationTap | null {
   if (!data) return null;
+
+  if (data.type === 'dailyDigest') {
+    const date = data.date;
+    if (typeof date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      return { type: 'dailyDigest', date };
+    }
+    return null;
+  }
+
   const eventId = data.eventId;
-  if (typeof eventId === 'string' && eventId.length > 0) return eventId;
+  if (typeof eventId === 'string' && eventId.length > 0) {
+    return { type: 'event', eventId };
+  }
 
   const url = data.url;
   if (typeof url === 'string') {
     const match = url.match(/\/event\/([^/?#]+)/);
-    if (match?.[1]) return match[1];
+    if (match?.[1]) return { type: 'event', eventId: match[1] };
   }
   return null;
 }
 
 export function attachNotificationResponseListener(
-  onEvent: (eventId: string) => void,
+  onTap: (tap: NotificationTap) => void,
 ): Subscription {
   if (!notificationsSupported()) {
     return { remove: () => undefined };
@@ -213,12 +351,12 @@ export function attachNotificationResponseListener(
   ) => {
     const requestId = response.notification.request.identifier;
     if (handledRequestId === requestId) return;
-    const eventId = eventIdFromNotificationData(
+    const tap = tapFromNotificationData(
       response.notification.request.content.data,
     );
-    if (!eventId) return;
+    if (!tap) return;
     handledRequestId = requestId;
-    onEvent(eventId);
+    onTap(tap);
     try {
       Notifications.clearLastNotificationResponse();
     } catch {

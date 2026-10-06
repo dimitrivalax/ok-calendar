@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Controller, useForm } from 'react-hook-form';
+import { Controller, useForm, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -17,6 +17,7 @@ import {
   SelectDragIndicator,
   SelectDragIndicatorWrapper,
   SelectIcon,
+  SelectInput,
   SelectItem,
   SelectPortal,
   SelectTrigger,
@@ -94,7 +95,6 @@ export function EventForm({ initial, onSubmit, submitLabel }: Props) {
   const {
     control,
     handleSubmit,
-    watch,
     setValue,
     formState: { errors, isSubmitting },
   } = useForm<EventFormValues>({
@@ -113,9 +113,9 @@ export function EventForm({ initial, onSubmit, submitLabel }: Props) {
     },
   });
 
-  const recurrence = watch('recurrence');
-  const allDay = watch('allDay');
-  const calendarId = watch('calendarId');
+  const recurrence = useWatch({ control, name: 'recurrence' });
+  const allDay = useWatch({ control, name: 'allDay' });
+  const calendarId = useWatch({ control, name: 'calendarId' });
   const selectedCalendar = calendars.find((c) => c.id === calendarId);
 
   useEffect(() => {
@@ -165,11 +165,17 @@ export function EventForm({ initial, onSubmit, submitLabel }: Props) {
                   selectedLabel={selectedCalendar?.title}
                   onValueChange={(id) => selectCalendar(id, onChange)}
                 >
+                  {/* Sets native <select aria-label> via gluestack context (must not nest inside Trigger). */}
+                  <SelectInput
+                    placeholder={t('calendar')}
+                    className="absolute h-px w-px opacity-0"
+                  />
                   <SelectTrigger
                     variant="outline"
                     size="md"
                     testID="event-calendar-select"
                     className="gap-2 px-3"
+                    accessibilityLabel={t('calendar')}
                   >
                     {selectedCalendar && (
                       <Box
@@ -224,6 +230,7 @@ export function EventForm({ initial, onSubmit, submitLabel }: Props) {
                     onBlur={onBlur}
                     onChangeText={onChange}
                     placeholder={t('title')}
+                    accessibilityLabel={t('title')}
                   />
                 </Input>
               )}
@@ -241,7 +248,11 @@ export function EventForm({ initial, onSubmit, submitLabel }: Props) {
               control={control}
               name="allDay"
               render={({ field: { value, onChange } }) => (
-                <Switch value={value} onValueChange={onChange} />
+                <Switch
+                  value={value}
+                  onValueChange={onChange}
+                  accessibilityLabel={t('allDay')}
+                />
               )}
             />
           </HStack>
@@ -315,7 +326,11 @@ export function EventForm({ initial, onSubmit, submitLabel }: Props) {
               name="description"
               render={({ field: { onChange, value } }) => (
                 <Textarea>
-                  <TextareaInput value={value} onChangeText={onChange} />
+                  <TextareaInput
+                    value={value}
+                    onChangeText={onChange}
+                    accessibilityLabel={t('description')}
+                  />
                 </Textarea>
               )}
             />
@@ -328,7 +343,11 @@ export function EventForm({ initial, onSubmit, submitLabel }: Props) {
               name="location"
               render={({ field: { onChange, value } }) => (
                 <Input>
-                  <InputField value={value} onChangeText={onChange} />
+                  <InputField
+                    value={value}
+                    onChangeText={onChange}
+                    accessibilityLabel={t('location')}
+                  />
                 </Input>
               )}
             />
@@ -349,6 +368,7 @@ export function EventForm({ initial, onSubmit, submitLabel }: Props) {
                     onChangeText={onChange}
                     autoCapitalize="none"
                     keyboardType="url"
+                    accessibilityLabel={t('url')}
                   />
                 </Input>
               )}

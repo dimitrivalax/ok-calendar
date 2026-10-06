@@ -78,32 +78,42 @@ export default function CalendarScreen() {
           </Box>
         )}
 
-        <HStack className="items-center justify-between px-3 py-2">
-          <Button size="sm" variant="outline" onPress={() => shiftPeriod(-1)}>
+        <HStack className="items-center px-3 py-2 gap-1">
+          <Button
+            size="sm"
+            variant="outline"
+            onPress={() => shiftPeriod(-1)}
+            accessibilityLabel={t('calendar:previousPeriod')}
+            testID="btn-prev-period"
+          >
             <ButtonIcon as={ChevronLeft} />
           </Button>
-          <VStack className="items-center flex-1 px-2">
-            <Text bold size="lg">
+          <VStack className="min-w-0 flex-1 items-center px-1">
+            <Text bold size="lg" className="text-center" numberOfLines={2}>
               {title}
             </Text>
             <Button size="sm" variant="link" onPress={goToday} testID="btn-today">
               <ButtonText>{t('common:today')}</ButtonText>
             </Button>
           </VStack>
-          <HStack className="items-center gap-2">
-            <Button size="sm" variant="outline" onPress={() => shiftPeriod(1)}>
-              <ButtonIcon as={ChevronRight} />
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              onPress={() => router.push(href('/settings'))}
-              testID="btn-settings"
-              accessibilityLabel={t('calendar:settings')}
-            >
-              <ButtonIcon as={Settings} />
-            </Button>
-          </HStack>
+          <Button
+            size="sm"
+            variant="outline"
+            onPress={() => shiftPeriod(1)}
+            accessibilityLabel={t('calendar:nextPeriod')}
+            testID="btn-next-period"
+          >
+            <ButtonIcon as={ChevronRight} />
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onPress={() => router.push(href('/settings'))}
+            testID="btn-settings"
+            accessibilityLabel={t('calendar:settings')}
+          >
+            <ButtonIcon as={Settings} />
+          </Button>
         </HStack>
 
         <GestureDetector gesture={periodSwipe}>

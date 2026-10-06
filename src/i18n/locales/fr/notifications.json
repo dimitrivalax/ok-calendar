@@ -1,5 +1,10 @@
 {
   "channelName": "Rappels d'événements",
   "reminderTitle": "Événement à venir",
-  "reminderBody": "{{title}}"
+  "reminderBody": "{{title}}",
+  "digestChannelName": "Agenda du jour",
+  "digestTitle": "Événements du jour",
+  "digestAllDay": "Toute la journée",
+  "digestMore": "+{{count}} autres",
+  "digestEmptyBody": "Vous avez du temps libre aujourd'hui, sortez !"
 }

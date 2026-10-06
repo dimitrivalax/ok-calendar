@@ -71,6 +71,9 @@ export function DayView() {
       <ScrollView
         ref={scrollRef}
         className="flex-1"
+        accessibilityLabel={t('day')}
+        // Web: keyboard users must be able to focus overflow containers (axe scrollable-region-focusable).
+        {...({ tabIndex: 0 } as object)}
         onLayout={(e) => setViewportHeight(e.nativeEvent.layout.height)}
       >
         <VStack className="p-3">

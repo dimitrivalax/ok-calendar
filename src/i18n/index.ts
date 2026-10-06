@@ -38,6 +38,7 @@ function deviceLocale(): AppLocale {
   return 'en';
 }
 
+// eslint-disable-next-line import/no-named-as-default-member -- i18n instance API
 void i18n.use(initReactI18next).init({
   resources,
   lng: deviceLocale(),
@@ -49,6 +50,7 @@ void i18n.use(initReactI18next).init({
 });
 
 export async function setAppLocale(locale: AppLocale) {
+  // eslint-disable-next-line import/no-named-as-default-member -- i18n instance API
   await i18n.changeLanguage(locale);
 }
 

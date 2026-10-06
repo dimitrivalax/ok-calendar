@@ -14,6 +14,8 @@
     /* primary #39AFEA · contrast #000000 */
     --primary: 57 175 234;
     --primary-foreground: 0 0 0;
+    /* text-on-background AA (≥4.5:1 on white); brand blue is for fills/icons */
+    --primary-text: 20 120 160;
     /* secondary #F4F4FB */
     --secondary: 244 244 251;
     --secondary-foreground: 0 0 0;
@@ -48,6 +50,7 @@
       /* keep brand blue; slightly tinted for dark surfaces */
       --primary: 77 183 236;
       --primary-foreground: 0 0 0;
+      --primary-text: 77 183 236;
       /* dark #2f2f2f family */
       --background: 26 25 25;
       --card: 47 47 47;
@@ -79,6 +82,7 @@
 
   --color-primary: rgb(var(--primary));
   --color-primary-foreground: rgb(var(--primary-foreground));
+  --color-primary-text: rgb(var(--primary-text));
   --color-card: rgb(var(--card));
   --color-secondary: rgb(var(--secondary));
   --color-secondary-foreground: rgb(var(--secondary-foreground));
