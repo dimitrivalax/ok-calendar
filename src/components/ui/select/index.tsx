@@ -26,6 +26,8 @@ import {
 } from './select-actionsheet';
 import { Pressable, View, TextInput } from 'react-native';
 
+import { decorativeIconProps } from '@/components/ui/utils/decorative-icon';
+
 const SelectTriggerWrapper = React.forwardRef<
   React.ComponentRef<typeof Pressable>,
   React.ComponentProps<typeof Pressable>
@@ -168,14 +170,16 @@ const SelectInput = React.forwardRef<
   React.ComponentRef<typeof UISelect.Input>,
   ISelectInputProps
 >(function SelectInput({ className, ...props }, ref) {
-  const { size: parentSize, variant: parentVariant } = useStyleContext();
+  const parent = useStyleContext() as
+    | { size?: string; variant?: string }
+    | undefined;
   return (
     <UISelect.Input
       className={selectInputStyle({
         class: className,
         parentVariants: {
-          size: parentSize,
-          variant: parentVariant,
+          size: parent?.size,
+          variant: parent?.variant,
         },
       })}
       ref={ref}
@@ -196,6 +200,7 @@ const SelectIcon = React.forwardRef<
     return (
       <UISelect.Icon
         ref={ref}
+        {...decorativeIconProps}
         {...props}
         className={selectIconStyle({ class: className })}
         size={size}
@@ -209,6 +214,7 @@ const SelectIcon = React.forwardRef<
     return (
       <UISelect.Icon
         ref={ref}
+        {...decorativeIconProps}
         {...props}
         className={selectIconStyle({ class: className })}
       />
@@ -216,6 +222,7 @@ const SelectIcon = React.forwardRef<
   }
   return (
     <UISelect.Icon
+      {...decorativeIconProps}
       className={selectIconStyle({
         class: className,
         size,

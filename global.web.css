@@ -5,6 +5,7 @@
   :root.dark {
     --primary: 77 183 236;
     --primary-foreground: 0 0 0;
+    --primary-text: 77 183 236;
     --background: 26 25 25;
     --card: 47 47 47;
     --popover: 47 47 47;
@@ -28,6 +29,7 @@
   :root.light {
     --primary: 57 175 234;
     --primary-foreground: 0 0 0;
+    --primary-text: 20 120 160;
     --secondary: 244 244 251;
     --secondary-foreground: 0 0 0;
     --background: 255 255 255;

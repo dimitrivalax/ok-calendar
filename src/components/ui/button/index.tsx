@@ -10,6 +10,8 @@ import {
 import { styled } from 'nativewind';
 import React from 'react';
 import { ActivityIndicator, Pressable, Text, View } from 'react-native';
+
+import { decorativeIconProps } from '@/components/ui/utils/decorative-icon';
 const SCOPE = 'BUTTON';
 const Root = withStyleContext(Pressable, SCOPE);
 const StyledUIIcon = styled(UIIcon, {
@@ -35,7 +37,7 @@ const buttonStyle = tva({
       secondary:
         'bg-secondary text-secondary-foreground data-[hover=true]:bg-secondary/80 data-[active=true]:bg-secondary/80',
       ghost: 'data-[hover=true]:bg-accent data-[active=true]:bg-accent dark:data-[hover=true]:bg-accent/50 dark:data-[active=true]:bg-accent/50',
-      link: 'text-primary underline-offset-4 data-[hover=true]:underline data-[active=true]:underline',
+      link: 'text-primary-text underline-offset-4 data-[hover=true]:underline data-[active=true]:underline',
     },
     size: {
       default: 'px-4 py-2',
@@ -54,7 +56,7 @@ const buttonTextStyle = tva({
       outline: 'text-foreground data-[hover=true]:text-accent-foreground data-[active=true]:text-accent-foreground',
       secondary: 'text-secondary-foreground',
       ghost: 'text-foreground ',
-      link: 'text-primary data-[hover=true]:underline data-[active=true]:underline',
+      link: 'text-primary-text data-[hover=true]:underline data-[active=true]:underline',
     },
     size: {
       default: 'text-sm',
@@ -88,7 +90,7 @@ const buttonIconStyle = tva({
       secondary: 'text-secondary-foreground',
       ghost:
         'text-foreground data-[hover=true]:text-accent-foreground data-[active=true]:text-accent-foreground',
-      link: 'text-primary',
+      link: 'text-primary-text',
     },
     size: {
       default: 'h-4 w-4',
@@ -185,6 +187,7 @@ const ButtonIcon = React.forwardRef<
     return (
       <UIButton.Icon
         ref={ref}
+        {...decorativeIconProps}
         {...props}
         className={buttonIconStyle({ class: className })}
         size={size}
@@ -197,6 +200,7 @@ const ButtonIcon = React.forwardRef<
     return (
       <UIButton.Icon
         ref={ref}
+        {...decorativeIconProps}
         {...props}
         className={buttonIconStyle({ class: className })}
       />
@@ -204,6 +208,7 @@ const ButtonIcon = React.forwardRef<
   }
   return (
     <UIButton.Icon
+      {...decorativeIconProps}
       {...props}
       className={buttonIconStyle({
         parentVariants: {

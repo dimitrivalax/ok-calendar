@@ -3,7 +3,7 @@ import { Platform, ScrollView, TextInput } from 'react-native';
 import DateTimePicker, {
   type DateTimePickerEvent,
 } from '@react-native-community/datetimepicker';
-import { format, set } from 'date-fns';
+import { set } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -181,6 +181,7 @@ export default function SettingsScreen() {
               onValueChange={(value: boolean) => {
                 void persistDigestEnabled(value);
               }}
+              accessibilityLabel={t('settings:dailyDigest')}
               testID="daily-digest-enabled"
             />
           </HStack>
@@ -294,6 +295,9 @@ export default function SettingsScreen() {
               </HStack>
               <Switch
                 value={item.isVisible}
+                accessibilityLabel={t('calendar:toggleCalendarVisibility', {
+                  title: item.title,
+                })}
                 onValueChange={async (value: boolean) => {
                   await EventRepository.updateCalendarVisibility(item.id, value);
                   await loadCalendars();

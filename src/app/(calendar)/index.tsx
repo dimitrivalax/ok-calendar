@@ -79,7 +79,13 @@ export default function CalendarScreen() {
         )}
 
         <HStack className="items-center px-3 py-2 gap-1">
-          <Button size="sm" variant="outline" onPress={() => shiftPeriod(-1)}>
+          <Button
+            size="sm"
+            variant="outline"
+            onPress={() => shiftPeriod(-1)}
+            accessibilityLabel={t('calendar:previousPeriod')}
+            testID="btn-prev-period"
+          >
             <ButtonIcon as={ChevronLeft} />
           </Button>
           <VStack className="min-w-0 flex-1 items-center px-1">
@@ -90,7 +96,13 @@ export default function CalendarScreen() {
               <ButtonText>{t('common:today')}</ButtonText>
             </Button>
           </VStack>
-          <Button size="sm" variant="outline" onPress={() => shiftPeriod(1)}>
+          <Button
+            size="sm"
+            variant="outline"
+            onPress={() => shiftPeriod(1)}
+            accessibilityLabel={t('calendar:nextPeriod')}
+            testID="btn-next-period"
+          >
             <ButtonIcon as={ChevronRight} />
           </Button>
           <Button
