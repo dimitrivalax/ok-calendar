@@ -1,6 +1,7 @@
 {
   "title": "Settings",
   "language": "Language",
+  "languageSystem": "System",
   "languageEn": "English",
   "languageFr": "French",
   "theme": "Theme",

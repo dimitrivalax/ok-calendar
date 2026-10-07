@@ -20,7 +20,7 @@ import {
   useThemePreference,
   type ThemePreference,
 } from '@/hooks/useThemePreference';
-import type { AppLocale } from '@/i18n';
+import type { LocalePreference } from '@/i18n';
 import { CalendarService } from '@/services/calendarDevice';
 import {
   DAILY_DIGEST_ENABLED_KEY,
@@ -35,6 +35,7 @@ import { NotificationService } from '@/services/notificationService';
 import { SyncEngine } from '@/services/syncEngine';
 
 const THEME_OPTIONS: ThemePreference[] = ['system', 'light', 'dark'];
+const LOCALE_OPTIONS: LocalePreference[] = ['system', 'en', 'fr'];
 
 function timeToDate(hours: number, minutes: number): Date {
   return set(new Date(), {
@@ -47,8 +48,13 @@ function timeToDate(hours: number, minutes: number): Date {
 
 export default function SettingsScreen() {
   const { t, i18n } = useTranslation(['settings', 'calendar', 'common']);
-  const { locale, changeLocale, refresh, syncFromDevice, isLocalOnly } =
-    useCalendar();
+  const {
+    localePreference,
+    changeLocale,
+    refresh,
+    syncFromDevice,
+    isLocalOnly,
+  } = useCalendar();
   const { preference, setPreference } = useThemePreference();
   const insets = useSafeAreaInsets();
   const [calendars, setCalendars] = useState<Calendar[]>([]);
@@ -128,18 +134,20 @@ export default function SettingsScreen() {
 
         <VStack className="gap-2">
           <Text bold>{t('settings:language')}</Text>
-          <HStack className="gap-2" testID="settings-locale">
-            {(['en', 'fr'] as AppLocale[]).map((code) => (
+          <HStack className="gap-2 flex-wrap" testID="settings-locale">
+            {LOCALE_OPTIONS.map((code) => (
               <Button
                 key={code}
-                variant={locale === code ? 'default' : 'outline'}
+                variant={localePreference === code ? 'default' : 'outline'}
                 onPress={() => changeLocale(code)}
                 testID={`locale-${code}`}
               >
                 <ButtonText>
-                  {code === 'en'
-                    ? t('settings:languageEn')
-                    : t('settings:languageFr')}
+                  {code === 'system'
+                    ? t('settings:languageSystem')
+                    : code === 'en'
+                      ? t('settings:languageEn')
+                      : t('settings:languageFr')}
                 </ButtonText>
               </Button>
             ))}

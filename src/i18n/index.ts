@@ -1,5 +1,7 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
+import { enUS, fr } from 'date-fns/locale';
+import type { Locale as DateFnsLocale } from 'date-fns';
 import * as Localization from 'expo-localization';
 
 import enCommon from './locales/en/common.json';
@@ -31,11 +33,27 @@ export const resources = {
 } as const;
 
 export type AppLocale = 'en' | 'fr';
+export type LocalePreference = AppLocale | 'system';
 
-function deviceLocale(): AppLocale {
+export function deviceLocale(): AppLocale {
   const code = Localization.getLocales()[0]?.languageCode;
   if (code === 'fr' || code === 'en') return code;
   return 'en';
+}
+
+export function resolveLocale(preference: LocalePreference): AppLocale {
+  if (preference === 'en' || preference === 'fr') return preference;
+  return deviceLocale();
+}
+
+export function isLocalePreference(
+  value: string | null,
+): value is LocalePreference {
+  return value === 'en' || value === 'fr' || value === 'system';
+}
+
+export function dateFnsLocale(locale: AppLocale | string): DateFnsLocale {
+  return locale === 'fr' || locale.startsWith('fr') ? fr : enUS;
 }
 
 // eslint-disable-next-line import/no-named-as-default-member -- i18n instance API

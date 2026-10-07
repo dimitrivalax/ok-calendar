@@ -107,10 +107,9 @@ export function DayView() {
 
             {isToday && (
               <View
-                pointerEvents="none"
                 testID="now-indicator"
                 className="absolute left-0 right-0 z-10 flex-row items-center"
-                style={{ top: nowOffset }}
+                style={{ top: nowOffset, pointerEvents: 'none' }}
               >
                 <Box className="ml-0.5 h-2.5 w-2.5 rounded-full bg-primary" />
                 <Box className="h-0.5 flex-1 bg-primary" />

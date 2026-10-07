@@ -7,7 +7,6 @@ import {
   parseISO,
   startOfWeek,
 } from 'date-fns';
-import { enUS, fr } from 'date-fns/locale';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView } from 'react-native';
@@ -17,6 +16,7 @@ import { HStack } from '@/components/ui/hstack';
 import { Text } from '@/components/ui/text';
 import { VStack } from '@/components/ui/vstack';
 import { useCalendar } from '@/hooks/useCalendarContext';
+import { dateFnsLocale } from '@/i18n';
 import { href } from '@/navigation/href';
 
 type Props = {
@@ -27,7 +27,7 @@ export function WeekView({ onSelectDay }: Props) {
   const { cursorDate, occurrences, locale } = useCalendar();
   const { t } = useTranslation('calendar');
   const router = useRouter();
-  const dfLocale = locale === 'fr' ? fr : enUS;
+  const dfLocale = dateFnsLocale(locale);
 
   const days = useMemo(() => {
     const start = startOfWeek(cursorDate, { weekStartsOn: 1 });

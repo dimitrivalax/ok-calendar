@@ -15,6 +15,7 @@ import { safeUrl } from '@/domain/url';
 import { EventRepository } from '@/services/eventRepository';
 import { SyncEngine } from '@/services/syncEngine';
 import { useCalendar } from '@/hooks/useCalendarContext';
+import { dateFnsLocale } from '@/i18n';
 import { href } from '@/navigation/href';
 
 export default function EventDetailScreen() {
@@ -22,7 +23,8 @@ export default function EventDetailScreen() {
   const { t } = useTranslation(['event', 'common']);
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { refresh } = useCalendar();
+  const { refresh, locale } = useCalendar();
+  const dfLocale = dateFnsLocale(locale);
   const [event, setEvent] = useState<CalendarEvent | null>(null);
   const [calendar, setCalendar] = useState<Calendar | null>(null);
 
@@ -92,8 +94,8 @@ export default function EventDetailScreen() {
         ) : null}
         <Text>
           {event.allDay
-            ? format(parseISO(event.startAt), 'PPP')
-            : `${format(parseISO(event.startAt), 'PPp')} – ${format(parseISO(event.endAt), 'PPp')}`}
+            ? format(parseISO(event.startAt), 'PPP', { locale: dfLocale })
+            : `${format(parseISO(event.startAt), 'PPp', { locale: dfLocale })} – ${format(parseISO(event.endAt), 'PPp', { locale: dfLocale })}`}
         </Text>
         <Text>
           {t('event:recurrence')}: {event.recurrence}

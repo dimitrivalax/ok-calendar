@@ -27,7 +27,14 @@ import { EventRepository } from '@/services/eventRepository';
 import { SyncEngine } from '@/services/syncEngine';
 import { CalendarService } from '@/services/calendarDevice';
 import { getSetting, setSetting, getDb } from '@/db/client';
-import { setAppLocale, type AppLocale } from '@/i18n';
+import {
+  deviceLocale,
+  isLocalePreference,
+  resolveLocale,
+  setAppLocale,
+  type AppLocale,
+  type LocalePreference,
+} from '@/i18n';
 import { NotificationService } from '@/services/notificationService';
 
 type CalendarContextValue = {
@@ -42,8 +49,11 @@ type CalendarContextValue = {
   refresh: () => Promise<void>;
   syncFromDevice: () => Promise<void>;
   isLocalOnly: boolean;
+  /** Resolved UI/date locale (preference or device). */
   locale: AppLocale;
-  changeLocale: (locale: AppLocale) => Promise<void>;
+  /** Persisted preference; `system` follows the device language. */
+  localePreference: LocalePreference;
+  changeLocale: (preference: LocalePreference) => Promise<void>;
 };
 
 const CalendarContext = createContext<CalendarContextValue | null>(null);
@@ -91,7 +101,9 @@ export function CalendarProvider({ children }: { children: ReactNode }) {
   const [cursorDate, setCursorDate] = useState(() => new Date());
   const [occurrences, setOccurrences] = useState<EventOccurrence[]>([]);
   const [isLocalOnly, setIsLocalOnly] = useState(false);
-  const [locale, setLocale] = useState<AppLocale>('en');
+  const [localePreference, setLocalePreference] =
+    useState<LocalePreference>('system');
+  const [locale, setLocale] = useState<AppLocale>(() => deviceLocale());
 
   const applyOccurrences = useCallback(
     (next: EventOccurrence[], soft: boolean) => {
@@ -149,10 +161,15 @@ export function CalendarProvider({ children }: { children: ReactNode }) {
     let cancelled = false;
     (async () => {
       await getDb();
-      const savedLocale = (await getSetting('locale')) as AppLocale | null;
-      if (savedLocale === 'en' || savedLocale === 'fr') {
-        await setAppLocale(savedLocale);
-        if (!cancelled) setLocale(savedLocale);
+      const savedLocale = await getSetting('locale');
+      const preference: LocalePreference = isLocalePreference(savedLocale)
+        ? savedLocale
+        : 'system';
+      const resolved = resolveLocale(preference);
+      await setAppLocale(resolved);
+      if (!cancelled) {
+        setLocalePreference(preference);
+        setLocale(resolved);
       }
       const perm = await CalendarService.requestPermissions();
       if (!cancelled) setIsLocalOnly(perm === 'denied');
@@ -209,12 +226,29 @@ export function CalendarProvider({ children }: { children: ReactNode }) {
     });
   };
 
-  const changeLocale = async (next: AppLocale) => {
-    await setAppLocale(next);
+  const changeLocale = async (next: LocalePreference) => {
+    const resolved = resolveLocale(next);
+    await setAppLocale(resolved);
     await setSetting('locale', next);
-    setLocale(next);
+    setLocalePreference(next);
+    setLocale(resolved);
     await NotificationService.syncDailyDigest();
   };
+
+  useEffect(() => {
+    if (!isReady || localePreference !== 'system') return;
+    const sub = AppState.addEventListener('change', (state) => {
+      if (state !== 'active') return;
+      const resolved = deviceLocale();
+      if (resolved === locale) return;
+      void (async () => {
+        await setAppLocale(resolved);
+        setLocale(resolved);
+        await NotificationService.syncDailyDigest();
+      })();
+    });
+    return () => sub.remove();
+  }, [isReady, localePreference, locale]);
 
   return (
     <CalendarContext.Provider
@@ -231,6 +265,7 @@ export function CalendarProvider({ children }: { children: ReactNode }) {
         syncFromDevice,
         isLocalOnly,
         locale,
+        localePreference,
         changeLocale,
       }}
     >

@@ -157,6 +157,6 @@ interface NotificationService {
 - `url` vide ou schéma `http` / `https` / `mailto`
 - Événement `origin=app` : SQLite SoT ; push device best-effort
 - Soft-delete : `deleted_at` non null → exclu des listes UI ; purge après sync OK
-- `settings.locale` ∈ `{en,fr}` ; défaut applicatif `en`
+- `settings.locale` ∈ `{system,en,fr}` ; défaut `system` (langue device, sinon `en`)
 - `settings.dailyDigestEnabled` ∈ `{true,false}` ; défaut `true`
 - `settings.dailyDigestTime` = `HH:mm` ; défaut `08:30`

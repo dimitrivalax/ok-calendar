@@ -10,7 +10,6 @@ import {
   startOfMonth,
   startOfWeek,
 } from 'date-fns';
-import { enUS, fr } from 'date-fns/locale';
 import { Pressable, View } from 'react-native';
 
 import { Box } from '@/components/ui/box';
@@ -18,6 +17,7 @@ import { HStack } from '@/components/ui/hstack';
 import { Text } from '@/components/ui/text';
 import { VStack } from '@/components/ui/vstack';
 import { useCalendar } from '@/hooks/useCalendarContext';
+import { dateFnsLocale } from '@/i18n';
 
 type Props = {
   onSelectDay: (date: Date) => void;
@@ -25,7 +25,7 @@ type Props = {
 
 export function MonthView({ onSelectDay }: Props) {
   const { cursorDate, occurrences, locale } = useCalendar();
-  const dfLocale = locale === 'fr' ? fr : enUS;
+  const dfLocale = dateFnsLocale(locale);
 
   const weeks = useMemo(() => {
     const start = startOfWeek(startOfMonth(cursorDate), { weekStartsOn: 1 });

@@ -114,14 +114,14 @@ type IAlertDialogBackdropProps = React.ComponentPropsWithoutRef<
 const AlertDialog = React.forwardRef<
   React.ComponentRef<typeof UIAccessibleAlertDialog>,
   IAlertDialogProps
->(function AlertDialog({ className, size = 'md', ...props }, ref) {
+>(function AlertDialog({ className, size = 'md', style, ...props }, ref) {
   return (
     <UIAccessibleAlertDialog
       ref={ref}
       {...props}
       className={alertDialogStyle({ class: className })}
       context={{ size }}
-      pointerEvents="box-none"
+      style={[{ pointerEvents: 'box-none' }, style]}
     />
   );
 });
@@ -129,12 +129,11 @@ const AlertDialog = React.forwardRef<
 const AlertDialogContent = React.forwardRef<
   React.ComponentRef<typeof UIAccessibleAlertDialog.Content>,
   IAlertDialogContentProps
->(function AlertDialogContent({ className, size, ...props }, ref) {
+>(function AlertDialogContent({ className, size, style, ...props }, ref) {
   const { size: parentSize } = useStyleContext(SCOPE);
 
   return (
     <UIAccessibleAlertDialog.Content
-      pointerEvents="auto"
       entering={ZoomIn.duration(200).withInitialValues({
         transform: [{ scale: 0.9 }],
         opacity: 0,
@@ -149,6 +148,7 @@ const AlertDialogContent = React.forwardRef<
         size,
         class: className,
       })}
+      style={[{ pointerEvents: 'auto' }, style]}
     />
   );
 });

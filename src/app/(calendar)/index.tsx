@@ -1,5 +1,4 @@
 import { addDays, endOfWeek, format, startOfWeek } from 'date-fns';
-import { enUS, fr } from 'date-fns/locale';
 import { Stack, useRouter } from 'expo-router';
 import { ChevronLeft, ChevronRight, Settings } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
@@ -18,6 +17,7 @@ import { HStack } from '@/components/ui/hstack';
 import { Text } from '@/components/ui/text';
 import { VStack } from '@/components/ui/vstack';
 import { useCalendar } from '@/hooks/useCalendarContext';
+import { dateFnsLocale } from '@/i18n';
 import { href } from '@/navigation/href';
 
 const SWIPE_THRESHOLD = 50;
@@ -36,7 +36,7 @@ export default function CalendarScreen() {
   const { t } = useTranslation(['calendar', 'common']);
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const dfLocale = locale === 'fr' ? fr : enUS;
+  const dfLocale = dateFnsLocale(locale);
 
   const title = (() => {
     if (viewMode === 'day') {

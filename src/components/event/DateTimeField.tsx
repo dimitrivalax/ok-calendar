@@ -2,7 +2,6 @@ import DateTimePicker, {
   type DateTimePickerEvent,
 } from '@react-native-community/datetimepicker';
 import { format, parseISO, set } from 'date-fns';
-import { enUS, fr } from 'date-fns/locale';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Platform, TextInput } from 'react-native';
@@ -11,6 +10,7 @@ import { Button, ButtonText } from '@/components/ui/button';
 import { HStack } from '@/components/ui/hstack';
 import { Text } from '@/components/ui/text';
 import { VStack } from '@/components/ui/vstack';
+import { dateFnsLocale } from '@/i18n';
 
 type Props = {
   label: string;
@@ -47,7 +47,7 @@ export function DateTimeField({
   testID,
 }: Props) {
   const { t, i18n } = useTranslation('event');
-  const dfLocale = i18n.language.startsWith('fr') ? fr : enUS;
+  const dfLocale = dateFnsLocale(i18n.language);
   const date = parseISO(value);
   const [openMode, setOpenMode] = useState<PickerMode | null>(null);
 
