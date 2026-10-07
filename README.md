@@ -51,9 +51,10 @@ Détails : [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md).
 eas login
 eas build --platform android --profile preview      # tests internes
 eas build --platform android --profile production   # release
+# sans quota cloud : ajouter --local (voir docs/BUILD.md § Build local)
 ```
 
-Guide complet : [docs/BUILD.md](docs/BUILD.md).
+Guide complet : [docs/BUILD.md](docs/BUILD.md) (cloud + build local).
 
 ## Licence
 
