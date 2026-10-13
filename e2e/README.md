@@ -27,6 +27,7 @@ CI (job `E2E`) : functional puis `pnpm test:e2e:a11y` — voir [`.github/workflo
 |---------|------------|
 | `views.navigation.spec.ts` | Bascule Mois/Semaine/Jour/Planning |
 | `calendar.jump-to-date.spec.ts` | Clic titre → saut de période (mois/semaine/jour/agenda) |
+| `search.spec.ts` | Ouverture recherche, résultats, empty state, navigation détail |
 | `a11y.views.spec.ts` | Scan axe WCAG A/AA sur chaque vue |
 | `a11y.settings.spec.ts` | Scan axe sur Réglages |
 | `a11y.event-form.spec.ts` | Scan axe sur formulaire nouvel événement |

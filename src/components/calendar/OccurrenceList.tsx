@@ -79,9 +79,11 @@ export function OccurrenceList({
     <ScrollView ref={scrollRef} testID={testID} className="flex-1">
       <VStack className="pb-4">
         {sections.length === 0 && (
-          <Text className="p-4 text-muted-foreground">
-            {emptyMessage ?? t('calendar:noEvents')}
-          </Text>
+          <Box testID="occurrence-list-empty" className="p-4">
+            <Text className="text-muted-foreground">
+              {emptyMessage ?? t('calendar:noEvents')}
+            </Text>
+          </Box>
         )}
         {sections.map((item) => {
           const firstKey = item.events[0] ? eventKey(item.events[0]) : null;
