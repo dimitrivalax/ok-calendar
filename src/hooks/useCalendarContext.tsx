@@ -60,6 +60,9 @@ const CalendarContext = createContext<CalendarContextValue | null>(null);
 
 const WEEK_OPTIONS = { weekStartsOn: 1 as const };
 
+/** Inclusive agenda window length in days from cursor (start → start + N). */
+export const AGENDA_RANGE_DAYS = 60;
+
 function rangeForView(mode: ViewMode, cursor: Date): { start: string; end: string } {
   if (mode === 'day') {
     return {
@@ -76,7 +79,7 @@ function rangeForView(mode: ViewMode, cursor: Date): { start: string; end: strin
   if (mode === 'agenda') {
     return {
       start: startOfDay(cursor).toISOString(),
-      end: endOfDay(addDays(cursor, 60)).toISOString(),
+      end: endOfDay(addDays(cursor, AGENDA_RANGE_DAYS)).toISOString(),
     };
   }
   return {

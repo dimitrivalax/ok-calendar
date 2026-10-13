@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { scheduleOnRN } from 'react-native-worklets';
 
 import { AgendaView } from '@/components/calendar/AgendaView';
+import { CalendarTitle } from '@/components/calendar/CalendarTitle';
 import { DayView } from '@/components/calendar/DayView';
 import { MonthView } from '@/components/calendar/MonthView';
 import { ViewTabBar } from '@/components/calendar/ViewTabBar';
@@ -16,7 +17,10 @@ import { Button, ButtonIcon, ButtonText } from '@/components/ui/button';
 import { HStack } from '@/components/ui/hstack';
 import { Text } from '@/components/ui/text';
 import { VStack } from '@/components/ui/vstack';
-import { useCalendar } from '@/hooks/useCalendarContext';
+import {
+  AGENDA_RANGE_DAYS,
+  useCalendar,
+} from '@/hooks/useCalendarContext';
 import { dateFnsLocale } from '@/i18n';
 import { href } from '@/navigation/href';
 
@@ -48,7 +52,7 @@ export default function CalendarScreen() {
       return `${format(start, 'd MMM', { locale: dfLocale })} – ${format(end, 'd MMM yyyy', { locale: dfLocale })}`;
     }
     if (viewMode === 'agenda') {
-      const end = addDays(cursorDate, 60);
+      const end = addDays(cursorDate, AGENDA_RANGE_DAYS);
       return `${format(cursorDate, 'd MMM', { locale: dfLocale })} – ${format(end, 'd MMM yyyy', { locale: dfLocale })}`;
     }
     return format(cursorDate, 'MMMM yyyy', { locale: dfLocale });
@@ -80,9 +84,12 @@ export default function CalendarScreen() {
 
         <HStack className="items-center px-3 py-2 gap-1">
           <VStack className="min-w-0 flex-1 items-center px-1">
-            <Text bold size="lg" className="text-center" numberOfLines={2}>
-              {title}
-            </Text>
+            <CalendarTitle
+              title={title}
+              value={cursorDate}
+              onChange={setCursorDate}
+              locale={locale}
+            />
             <Button size="sm" variant="link" onPress={goToday} testID="btn-today">
               <ButtonText>{t('common:today')}</ButtonText>
             </Button>
