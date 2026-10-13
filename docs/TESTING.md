@@ -51,12 +51,13 @@ Scripts cibles (à l’implémentation) : `test`, `test:watch`.
 ### Scénarios minimaux
 
 1. `views.navigation`
-2. `a11y.views` / `a11y.settings` / `a11y.event-form` (axe WCAG A/AA)
-3. `event.create-edit-delete`
-4. `event.validation`
-5. `event.recurrence-display`
-6. `calendars.local-only`
-7. `i18n.switch-locale`
+2. `calendar.jump-to-date`
+3. `a11y.views` / `a11y.settings` / `a11y.event-form` (axe WCAG A/AA)
+4. `event.create-edit-delete`
+5. `event.validation`
+6. `event.recurrence-display`
+7. `calendars.local-only`
+8. `i18n.switch-locale`
 
 Voir [../e2e/README.md](../e2e/README.md).
 

@@ -77,6 +77,7 @@ export function CalendarTitle({ title, value, onChange, locale }: Props) {
           className="absolute h-px w-px opacity-0"
           // @ts-expect-error web-only input type
           type="date"
+          testID="calendar-title-date-input"
           value={format(value, 'yyyy-MM-dd')}
           onChangeText={(raw) => {
             if (!raw) return;
