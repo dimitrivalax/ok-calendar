@@ -3,8 +3,8 @@ import { Stack, useRouter } from 'expo-router';
 import { Search, Settings } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import { runOnJS } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { scheduleOnRN } from 'react-native-worklets';
 
 import { AgendaView } from '@/components/calendar/AgendaView';
 import { DayView } from '@/components/calendar/DayView';
@@ -60,9 +60,9 @@ export default function CalendarScreen() {
     .onEnd((event) => {
       'worklet';
       if (event.translationX > SWIPE_THRESHOLD) {
-        runOnJS(shiftPeriod)(-1);
+        scheduleOnRN(shiftPeriod, -1);
       } else if (event.translationX < -SWIPE_THRESHOLD) {
-        runOnJS(shiftPeriod)(1);
+        scheduleOnRN(shiftPeriod, 1);
       }
     });
 
