@@ -48,3 +48,6 @@ example
 
 
 credentials.json
+
+# Android build files
+*.aab

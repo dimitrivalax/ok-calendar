@@ -99,7 +99,7 @@ function NotificationBridge() {
 }
 
 function RootStack() {
-  const { t } = useTranslation(['event', 'settings']);
+  const { t } = useTranslation(['event', 'settings', 'calendar']);
   // Re-render stack titles when the app locale changes.
   const { locale } = useCalendar();
 
@@ -123,6 +123,10 @@ function RootStack() {
       <Stack.Screen
         name="settings/index"
         options={{ title: t('settings:title') }}
+      />
+      <Stack.Screen
+        name="search/index"
+        options={{ title: t('calendar:search') }}
       />
     </Stack>
   );

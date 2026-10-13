@@ -1,6 +1,6 @@
 import { addDays, endOfWeek, format, startOfWeek } from 'date-fns';
 import { Stack, useRouter } from 'expo-router';
-import { ChevronLeft, ChevronRight, Settings } from 'lucide-react-native';
+import { Search, Settings } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { runOnJS } from 'react-native-reanimated';
@@ -79,15 +79,6 @@ export default function CalendarScreen() {
         )}
 
         <HStack className="items-center px-3 py-2 gap-1">
-          <Button
-            size="sm"
-            variant="outline"
-            onPress={() => shiftPeriod(-1)}
-            accessibilityLabel={t('calendar:previousPeriod')}
-            testID="btn-prev-period"
-          >
-            <ButtonIcon as={ChevronLeft} />
-          </Button>
           <VStack className="min-w-0 flex-1 items-center px-1">
             <Text bold size="lg" className="text-center" numberOfLines={2}>
               {title}
@@ -99,11 +90,11 @@ export default function CalendarScreen() {
           <Button
             size="sm"
             variant="outline"
-            onPress={() => shiftPeriod(1)}
-            accessibilityLabel={t('calendar:nextPeriod')}
-            testID="btn-next-period"
+            onPress={() => router.push(href('/search'))}
+            testID="btn-search"
+            accessibilityLabel={t('calendar:search')}
           >
-            <ButtonIcon as={ChevronRight} />
+            <ButtonIcon as={Search} />
           </Button>
           <Button
             size="sm"
