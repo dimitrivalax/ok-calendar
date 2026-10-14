@@ -3,7 +3,7 @@ import { Controller, useForm, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { addHours, parseISO, set } from 'date-fns';
+import { addHours } from 'date-fns';
 import { ChevronDown } from 'lucide-react-native';
 
 import { DateTimeField } from '@/components/event/DateTimeField';
@@ -27,6 +27,7 @@ import { Text } from '@/components/ui/text';
 import { Textarea, TextareaInput } from '@/components/ui/textarea';
 import { VStack } from '@/components/ui/vstack';
 import { HStack } from '@/components/ui/hstack';
+import { nextEndAtFromStartChange } from '@/domain/eventRange';
 import type {
   Calendar,
   CalendarEvent,
@@ -122,23 +123,11 @@ export function EventForm({ initial, onSubmit, submitLabel }: Props) {
 
   const syncEndFromStart = (startIso: string, part: 'date' | 'time') => {
     if (!isCreate) return;
-    if (part === 'time') {
-      setValue('endAt', addHours(parseISO(startIso), 1).toISOString(), {
-        shouldValidate: true,
-      });
-      return;
-    }
-    const start = parseISO(startIso);
-    const end = parseISO(getValues('endAt'));
-    let nextEnd = set(end, {
-      year: start.getFullYear(),
-      month: start.getMonth(),
-      date: start.getDate(),
-    });
-    if (nextEnd <= start) {
-      nextEnd = addHours(start, 1);
-    }
-    setValue('endAt', nextEnd.toISOString(), { shouldValidate: true });
+    setValue(
+      'endAt',
+      nextEndAtFromStartChange(startIso, getValues('endAt'), part),
+      { shouldValidate: true },
+    );
   };
 
   useEffect(() => {
