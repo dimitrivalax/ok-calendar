@@ -26,9 +26,14 @@ import {
   DAILY_DIGEST_ENABLED_KEY,
   DAILY_DIGEST_TIME_KEY,
   DEFAULT_DAILY_DIGEST_TIME,
+  DEFAULT_TOMORROW_DIGEST_TIME,
   formatDigestTime,
   isDailyDigestEnabled,
+  isTomorrowDigestEnabled,
   parseDigestTime,
+  parseTomorrowDigestTime,
+  TOMORROW_DIGEST_ENABLED_KEY,
+  TOMORROW_DIGEST_TIME_KEY,
 } from '@/services/dailyDigest';
 import { EventRepository } from '@/services/eventRepository';
 import { NotificationService } from '@/services/notificationService';
@@ -60,7 +65,12 @@ export default function SettingsScreen() {
   const [calendars, setCalendars] = useState<Calendar[]>([]);
   const [digestEnabled, setDigestEnabled] = useState(true);
   const [digestTime, setDigestTime] = useState(DEFAULT_DAILY_DIGEST_TIME);
+  const [tomorrowDigestEnabled, setTomorrowDigestEnabled] = useState(true);
+  const [tomorrowDigestTime, setTomorrowDigestTime] = useState(
+    DEFAULT_TOMORROW_DIGEST_TIME,
+  );
   const [showTimePicker, setShowTimePicker] = useState(false);
+  const [showTomorrowTimePicker, setShowTomorrowTimePicker] = useState(false);
 
   const loadCalendars = async () => {
     await CalendarService.syncDeviceCalendarsIntoDb();
@@ -75,14 +85,22 @@ export default function SettingsScreen() {
   useEffect(() => {
     let cancelled = false;
     void (async () => {
-      const [enabledRaw, timeRaw] = await Promise.all([
-        getSetting(DAILY_DIGEST_ENABLED_KEY),
-        getSetting(DAILY_DIGEST_TIME_KEY),
-      ]);
+      const [enabledRaw, timeRaw, tomorrowEnabledRaw, tomorrowTimeRaw] =
+        await Promise.all([
+          getSetting(DAILY_DIGEST_ENABLED_KEY),
+          getSetting(DAILY_DIGEST_TIME_KEY),
+          getSetting(TOMORROW_DIGEST_ENABLED_KEY),
+          getSetting(TOMORROW_DIGEST_TIME_KEY),
+        ]);
       if (cancelled) return;
       setDigestEnabled(isDailyDigestEnabled(enabledRaw));
       const parsed = parseDigestTime(timeRaw);
       setDigestTime(formatDigestTime(parsed.hours, parsed.minutes));
+      setTomorrowDigestEnabled(isTomorrowDigestEnabled(tomorrowEnabledRaw));
+      const tomorrowParsed = parseTomorrowDigestTime(tomorrowTimeRaw);
+      setTomorrowDigestTime(
+        formatDigestTime(tomorrowParsed.hours, tomorrowParsed.minutes),
+      );
     })();
     return () => {
       cancelled = true;
@@ -105,6 +123,22 @@ export default function SettingsScreen() {
     await NotificationService.syncDailyDigest();
   };
 
+  const persistTomorrowDigestEnabled = async (next: boolean) => {
+    setTomorrowDigestEnabled(next);
+    await setSetting(TOMORROW_DIGEST_ENABLED_KEY, next ? 'true' : 'false');
+    if (next) {
+      await NotificationService.requestPermissions();
+    }
+    await NotificationService.syncTomorrowDigest();
+  };
+
+  const persistTomorrowDigestTime = async (hours: number, minutes: number) => {
+    const next = formatDigestTime(hours, minutes);
+    setTomorrowDigestTime(next);
+    await setSetting(TOMORROW_DIGEST_TIME_KEY, next);
+    await NotificationService.syncTomorrowDigest();
+  };
+
   const onAndroidTimeChange = (
     event: DateTimePickerEvent,
     selected?: Date,
@@ -114,8 +148,22 @@ export default function SettingsScreen() {
     void persistDigestTime(selected.getHours(), selected.getMinutes());
   };
 
+  const onAndroidTomorrowTimeChange = (
+    event: DateTimePickerEvent,
+    selected?: Date,
+  ) => {
+    setShowTomorrowTimePicker(false);
+    if (event.type === 'dismissed' || !selected) return;
+    void persistTomorrowDigestTime(selected.getHours(), selected.getMinutes());
+  };
+
   const digestDate = (() => {
     const { hours, minutes } = parseDigestTime(digestTime);
+    return timeToDate(hours, minutes);
+  })();
+
+  const tomorrowDigestDate = (() => {
+    const { hours, minutes } = parseTomorrowDigestTime(tomorrowDigestTime);
     return timeToDate(hours, minutes);
   })();
 
@@ -249,6 +297,82 @@ export default function SettingsScreen() {
           ) : null}
         </VStack>
 
+        <VStack className="gap-2" testID="settings-tomorrow-digest">
+          <HStack className="items-center justify-between">
+            <VStack className="flex-1 pr-3 gap-1">
+              <Text bold>{t('settings:tomorrowDigest')}</Text>
+              <Text size="xs" className="text-muted-foreground">
+                {t('settings:tomorrowDigestHint')}
+              </Text>
+            </VStack>
+            <Switch
+              value={tomorrowDigestEnabled}
+              onValueChange={(value: boolean) => {
+                void persistTomorrowDigestEnabled(value);
+              }}
+              accessibilityLabel={t('settings:tomorrowDigest')}
+              testID="tomorrow-digest-enabled"
+            />
+          </HStack>
+          {tomorrowDigestEnabled ? (
+            <VStack className="gap-1">
+              <Text>{t('settings:tomorrowDigestTime')}</Text>
+              {Platform.OS === 'web' ? (
+                <TextInput
+                  accessibilityLabel={t('settings:tomorrowDigestTime')}
+                  className="min-h-9 w-32 rounded-md border border-border px-3 py-1 text-sm text-foreground"
+                  // @ts-expect-error web-only input type
+                  type="time"
+                  value={tomorrowDigestTime}
+                  onChangeText={(raw) => {
+                    if (!raw) return;
+                    const parsed = parseTomorrowDigestTime(raw);
+                    void persistTomorrowDigestTime(
+                      parsed.hours,
+                      parsed.minutes,
+                    );
+                  }}
+                  testID="tomorrow-digest-time"
+                />
+              ) : Platform.OS === 'ios' ? (
+                <DateTimePicker
+                  value={tomorrowDigestDate}
+                  mode="time"
+                  display="compact"
+                  locale={i18n.language}
+                  onChange={(_event, selected) => {
+                    if (!selected) return;
+                    void persistTomorrowDigestTime(
+                      selected.getHours(),
+                      selected.getMinutes(),
+                    );
+                  }}
+                  testID="tomorrow-digest-time"
+                />
+              ) : (
+                <>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onPress={() => setShowTomorrowTimePicker(true)}
+                    testID="tomorrow-digest-time"
+                  >
+                    <ButtonText>{tomorrowDigestTime}</ButtonText>
+                  </Button>
+                  {showTomorrowTimePicker ? (
+                    <DateTimePicker
+                      value={tomorrowDigestDate}
+                      mode="time"
+                      display="default"
+                      onChange={onAndroidTomorrowTimeChange}
+                    />
+                  ) : null}
+                </>
+              )}
+            </VStack>
+          ) : null}
+        </VStack>
+
         <VStack className="gap-2">
           <Text bold>{t('settings:permissions')}</Text>
           <Text>
@@ -311,6 +435,7 @@ export default function SettingsScreen() {
                   await loadCalendars();
                   await refresh();
                   await NotificationService.syncDailyDigest();
+                  await NotificationService.syncTomorrowDigest();
                 }}
               />
             </HStack>

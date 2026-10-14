@@ -5,6 +5,12 @@ export const DAILY_DIGEST_TIME_KEY = 'dailyDigestTime';
 export const DEFAULT_DAILY_DIGEST_TIME = '08:30';
 export const DAILY_DIGEST_WINDOW_DAYS = 14;
 export const DAILY_DIGEST_ID_PREFIX = 'digest:';
+
+export const TOMORROW_DIGEST_ENABLED_KEY = 'tomorrowDigestEnabled';
+export const TOMORROW_DIGEST_TIME_KEY = 'tomorrowDigestTime';
+export const DEFAULT_TOMORROW_DIGEST_TIME = '19:00';
+export const TOMORROW_DIGEST_ID_PREFIX = 'tomorrowDigest:';
+
 export const MAX_DIGEST_BODY_LENGTH = 240;
 
 export type DigestLineInput = {
@@ -19,16 +25,31 @@ export type DigestBodyLabels = {
   more: (count: number) => string;
 };
 
-export function isDailyDigestEnabled(raw: string | null): boolean {
+export type DigestTimeParts = {
+  hours: number;
+  minutes: number;
+};
+
+const DEFAULT_DAILY_FALLBACK: DigestTimeParts = { hours: 8, minutes: 30 };
+const DEFAULT_TOMORROW_FALLBACK: DigestTimeParts = { hours: 19, minutes: 0 };
+
+export function isDigestSettingEnabled(raw: string | null): boolean {
   if (raw == null) return true;
   return raw !== 'false';
 }
 
-export function parseDigestTime(raw: string | null): {
-  hours: number;
-  minutes: number;
-} {
-  const fallback = { hours: 8, minutes: 30 };
+export function isDailyDigestEnabled(raw: string | null): boolean {
+  return isDigestSettingEnabled(raw);
+}
+
+export function isTomorrowDigestEnabled(raw: string | null): boolean {
+  return isDigestSettingEnabled(raw);
+}
+
+export function parseDigestTime(
+  raw: string | null,
+  fallback: DigestTimeParts = DEFAULT_DAILY_FALLBACK,
+): DigestTimeParts {
   if (!raw) return fallback;
   const match = /^(\d{1,2}):(\d{2})$/.exec(raw.trim());
   if (!match) return fallback;
@@ -47,12 +68,20 @@ export function parseDigestTime(raw: string | null): {
   return { hours, minutes };
 }
 
+export function parseTomorrowDigestTime(raw: string | null): DigestTimeParts {
+  return parseDigestTime(raw, DEFAULT_TOMORROW_FALLBACK);
+}
+
 export function formatDigestTime(hours: number, minutes: number): string {
   return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
 }
 
 export function digestNotificationId(dayKey: string): string {
   return `${DAILY_DIGEST_ID_PREFIX}${dayKey}`;
+}
+
+export function tomorrowDigestNotificationId(dayKey: string): string {
+  return `${TOMORROW_DIGEST_ID_PREFIX}${dayKey}`;
 }
 
 export function fireAtForDay(

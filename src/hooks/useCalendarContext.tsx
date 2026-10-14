@@ -236,6 +236,7 @@ export function CalendarProvider({ children }: { children: ReactNode }) {
     setLocalePreference(next);
     setLocale(resolved);
     await NotificationService.syncDailyDigest();
+    await NotificationService.syncTomorrowDigest();
   };
 
   useEffect(() => {
@@ -248,6 +249,7 @@ export function CalendarProvider({ children }: { children: ReactNode }) {
         await setAppLocale(resolved);
         setLocale(resolved);
         await NotificationService.syncDailyDigest();
+        await NotificationService.syncTomorrowDigest();
       })();
     });
     return () => sub.remove();

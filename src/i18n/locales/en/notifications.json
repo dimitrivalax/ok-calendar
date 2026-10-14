@@ -4,6 +4,7 @@
   "reminderBody": "{{title}}",
   "digestChannelName": "Daily agenda",
   "digestTitle": "Today's events",
+  "tomorrowDigestTitle": "Tomorrow's events",
   "digestAllDay": "All day",
   "digestMore": "+{{count}} more",
   "digestEmptyBody": "You have free time today — go outside!"

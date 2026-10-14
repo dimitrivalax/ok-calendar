@@ -72,7 +72,7 @@ function NotificationBridge() {
       // Defer so index → calendar redirect can settle on cold start.
       const timer = setTimeout(() => {
         pendingTimers.delete(timer);
-        if (tap.type === 'dailyDigest') {
+        if (tap.type === 'dailyDigest' || tap.type === 'tomorrowDigest') {
           const [year, month, day] = tap.date.split('-').map(Number);
           setViewMode('day');
           setCursorDate(new Date(year, month - 1, day));
