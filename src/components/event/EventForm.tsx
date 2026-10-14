@@ -3,7 +3,7 @@ import { Controller, useForm, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { addHours } from 'date-fns';
+import { addHours, parseISO, set } from 'date-fns';
 import { ChevronDown } from 'lucide-react-native';
 
 import { DateTimeField } from '@/components/event/DateTimeField';
@@ -92,9 +92,11 @@ export function EventForm({ initial, onSubmit, submitLabel }: Props) {
     initial?.endAt ?? addHours(new Date(defaultStart), 1).toISOString();
   const [calendars, setCalendars] = useState<Calendar[]>([]);
 
+  const isCreate = !initial?.id;
   const {
     control,
     handleSubmit,
+    getValues,
     setValue,
     formState: { errors, isSubmitting },
   } = useForm<EventFormValues>({
@@ -117,6 +119,27 @@ export function EventForm({ initial, onSubmit, submitLabel }: Props) {
   const allDay = useWatch({ control, name: 'allDay' });
   const calendarId = useWatch({ control, name: 'calendarId' });
   const selectedCalendar = calendars.find((c) => c.id === calendarId);
+
+  const syncEndFromStart = (startIso: string, part: 'date' | 'time') => {
+    if (!isCreate) return;
+    if (part === 'time') {
+      setValue('endAt', addHours(parseISO(startIso), 1).toISOString(), {
+        shouldValidate: true,
+      });
+      return;
+    }
+    const start = parseISO(startIso);
+    const end = parseISO(getValues('endAt'));
+    let nextEnd = set(end, {
+      year: start.getFullYear(),
+      month: start.getMonth(),
+      date: start.getDate(),
+    });
+    if (nextEnd <= start) {
+      nextEnd = addHours(start, 1);
+    }
+    setValue('endAt', nextEnd.toISOString(), { shouldValidate: true });
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -265,7 +288,10 @@ export function EventForm({ initial, onSubmit, submitLabel }: Props) {
                 testID="event-start-at"
                 label={t('start')}
                 value={value}
-                onChange={onChange}
+                onChange={(iso, part) => {
+                  onChange(iso);
+                  syncEndFromStart(iso, part);
+                }}
                 allDay={allDay}
               />
             )}
@@ -283,7 +309,7 @@ export function EventForm({ initial, onSubmit, submitLabel }: Props) {
                 testID="event-end-at"
                 label={t('end')}
                 value={value}
-                onChange={onChange}
+                onChange={(iso) => onChange(iso)}
                 allDay={allDay}
               />
             )}

@@ -12,15 +12,15 @@ import { Text } from '@/components/ui/text';
 import { VStack } from '@/components/ui/vstack';
 import { dateFnsLocale } from '@/i18n';
 
+type PickerMode = 'date' | 'time';
+
 type Props = {
   label: string;
   value: string;
-  onChange: (iso: string) => void;
+  onChange: (iso: string, part: PickerMode) => void;
   allDay: boolean;
   testID?: string;
 };
-
-type PickerMode = 'date' | 'time';
 
 function applyDatePart(current: Date, next: Date): Date {
   return set(current, {
@@ -51,18 +51,19 @@ export function DateTimeField({
   const date = parseISO(value);
   const [openMode, setOpenMode] = useState<PickerMode | null>(null);
 
-  const emit = (next: Date) => onChange(next.toISOString());
+  const emit = (next: Date, part: PickerMode) =>
+    onChange(next.toISOString(), part);
 
   const onPickerChange = (event: DateTimePickerEvent, selected?: Date) => {
     if (Platform.OS === 'android') {
       setOpenMode(null);
     }
-    if (event.type === 'dismissed' || !selected) return;
+    if (event.type === 'dismissed' || !selected || openMode == null) return;
 
     if (openMode === 'date') {
-      emit(applyDatePart(date, selected));
-    } else if (openMode === 'time') {
-      emit(applyTimePart(date, selected));
+      emit(applyDatePart(date, selected), 'date');
+    } else {
+      emit(applyTimePart(date, selected), 'time');
     }
   };
 
@@ -80,7 +81,7 @@ export function DateTimeField({
             onChangeText={(raw) => {
               if (!raw) return;
               const [y, m, d] = raw.split('-').map(Number);
-              emit(set(date, { year: y, month: m - 1, date: d }));
+              emit(set(date, { year: y, month: m - 1, date: d }), 'date');
             }}
           />
           {!allDay && (
@@ -93,7 +94,10 @@ export function DateTimeField({
               onChangeText={(raw) => {
                 if (!raw) return;
                 const [hours, minutes] = raw.split(':').map(Number);
-                emit(set(date, { hours, minutes, seconds: 0, milliseconds: 0 }));
+                emit(
+                  set(date, { hours, minutes, seconds: 0, milliseconds: 0 }),
+                  'time',
+                );
               }}
             />
           )}
@@ -114,7 +118,7 @@ export function DateTimeField({
               display="compact"
               locale={i18n.language}
               onChange={(_event, selected) => {
-                if (selected) emit(applyDatePart(date, selected));
+                if (selected) emit(applyDatePart(date, selected), 'date');
               }}
             />
             {!allDay && (
@@ -124,7 +128,7 @@ export function DateTimeField({
                 display="compact"
                 locale={i18n.language}
                 onChange={(_event, selected) => {
-                  if (selected) emit(applyTimePart(date, selected));
+                  if (selected) emit(applyTimePart(date, selected), 'time');
                 }}
               />
             )}
