@@ -95,7 +95,7 @@ export default function CalendarScreen() {
             </Button>
           </VStack>
           <Button
-            size="sm"
+            size="default"
             variant="outline"
             onPress={() => router.push(href('/search'))}
             testID="btn-search"
@@ -104,7 +104,7 @@ export default function CalendarScreen() {
             <ButtonIcon as={Search} />
           </Button>
           <Button
-            size="sm"
+            size="default"
             variant="outline"
             onPress={() => router.push(href('/settings'))}
             testID="btn-settings"
