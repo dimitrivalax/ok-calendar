@@ -13,8 +13,9 @@
 - [x] Settings (langue, permissions, sync manuel)
 - [x] Tâche de fond système (Background sync périodique & recalcul notifications via expo-background-task)
 - [x] Vitest unit smoke (`src/domain/*.test.ts`) + Playwright scaffold (`e2e/views.navigation.spec.ts`)
-- [ ] Dev client iOS/Android validé sur device réel
-- [ ] Suite E2E Playwright complète verte en CI
+- [x] Dev client iOS/Android validé sur device réel
+- [x] Suite E2E Playwright complète verte en CI
+- [x] Observer / sync plus réactive
 
 ## Hors scope v1
 
@@ -29,7 +30,6 @@
 ## Idées v2+
 
 - Édition d’occurrence (API legacy ou UI native)
-- Observer / sync plus réactive
 - Widgets home screen
 - Partage .ics
 - Thèmes custom
