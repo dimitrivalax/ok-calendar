@@ -87,7 +87,8 @@
     "test:e2e": "playwright test",
     "test:e2e:a11y": "playwright test a11y",
     "test:e2e:ui": "playwright test --ui",
-    "postinstall": "patch-package"
+    "ci": "pnpm lint && pnpm typecheck && pnpm test && pnpm exec playwright test --grep-invert a11y && pnpm test:e2e:a11y",
+    "postinstall": "patch-package && (git config core.hooksPath .githooks || true)"
   },
   "overrides": {
     "lightningcss": "1.30.1"
