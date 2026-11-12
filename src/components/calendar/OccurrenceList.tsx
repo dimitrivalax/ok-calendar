@@ -1,16 +1,16 @@
-import { format, parseISO } from 'date-fns';
-import { useRouter } from 'expo-router';
-import { useEffect, useMemo, useRef } from 'react';
-import { useTranslation } from 'react-i18next';
-import { Pressable, ScrollView, View } from 'react-native';
+import { format, parseISO } from "date-fns";
+import { useRouter } from "expo-router";
+import { useEffect, useMemo, useRef } from "react";
+import { useTranslation } from "react-i18next";
+import { Pressable, ScrollView, View } from "react-native";
 
-import { Box } from '@/components/ui/box';
-import { Text } from '@/components/ui/text';
-import { VStack } from '@/components/ui/vstack';
-import type { EventOccurrence } from '@/domain/types';
-import { useCalendar } from '@/hooks/useCalendarContext';
-import { dateFnsLocale } from '@/i18n';
-import { href } from '@/navigation/href';
+import { Box } from "@/components/ui/box";
+import { Text } from "@/components/ui/text";
+import { VStack } from "@/components/ui/vstack";
+import type { EventOccurrence } from "@/domain/types";
+import { useCalendar } from "@/hooks/useCalendarContext";
+import { dateFnsLocale } from "@/i18n";
+import { href } from "@/navigation/href";
 
 type OccurrenceListProps = {
   occurrences: EventOccurrence[];
@@ -31,7 +31,7 @@ export function OccurrenceList({
   scrollToFirstFuture = false,
 }: OccurrenceListProps) {
   const { locale } = useCalendar();
-  const { t } = useTranslation(['calendar', 'event']);
+  const { t } = useTranslation(["calendar", "event"]);
   const router = useRouter();
   const dfLocale = dateFnsLocale(locale);
   const scrollRef = useRef<ScrollView>(null);
@@ -41,7 +41,7 @@ export function OccurrenceList({
   const sections = useMemo(() => {
     const map = new Map<string, EventOccurrence[]>();
     for (const occ of occurrences) {
-      const key = format(parseISO(occ.occurrenceStart), 'yyyy-MM-dd');
+      const key = format(parseISO(occ.occurrenceStart), "yyyy-MM-dd");
       const list = map.get(key) ?? [];
       list.push(occ);
       map.set(key, list);
@@ -64,10 +64,11 @@ export function OccurrenceList({
     if (!scrollToFirstFuture || !firstFutureKey || didScrollRef.current) return;
     const anchor = anchorRef.current;
     const scroll = scrollRef.current;
-    if (!anchor || !scroll) return;
+    const scrollNode = scroll?.getNativeScrollRef();
+    if (!anchor || !scroll || !scrollNode) return;
 
     anchor.measureInWindow((_ax, ay) => {
-      scroll.measureInWindow((_sx, sy) => {
+      scrollNode.measureInWindow((_sx, sy) => {
         const y = Math.max(0, ay - sy);
         didScrollRef.current = true;
         scroll.scrollTo({ y, animated: false });
@@ -81,18 +82,21 @@ export function OccurrenceList({
         {sections.length === 0 && (
           <Box testID="occurrence-list-empty" className="p-4">
             <Text className="text-muted-foreground">
-              {emptyMessage ?? t('calendar:noEvents')}
+              {emptyMessage ?? t("calendar:noEvents")}
             </Text>
           </Box>
         )}
         {sections.map((item) => {
           const firstKey = item.events[0] ? eventKey(item.events[0]) : null;
-          const anchorAtSection = firstFutureKey !== null && firstKey === firstFutureKey;
+          const anchorAtSection =
+            firstFutureKey !== null && firstKey === firstFutureKey;
 
           const body = (
             <>
               <Text bold>
-                {format(parseISO(item.day), 'EEEE d MMMM', { locale: dfLocale })}
+                {format(parseISO(item.day), "EEEE d MMMM", {
+                  locale: dfLocale,
+                })}
               </Text>
               {item.events.map((event) => {
                 const key = eventKey(event);
@@ -103,8 +107,8 @@ export function OccurrenceList({
                     <Text bold>{event.title}</Text>
                     <Text size="sm" className="text-muted-foreground">
                       {event.allDay
-                        ? t('event:allDay')
-                        : `${format(parseISO(event.occurrenceStart), 'HH:mm')} – ${format(parseISO(event.occurrenceEnd), 'HH:mm')}`}
+                        ? t("event:allDay")
+                        : `${format(parseISO(event.occurrenceStart), "HH:mm")} – ${format(parseISO(event.occurrenceEnd), "HH:mm")}`}
                     </Text>
                   </Box>
                 );

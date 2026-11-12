@@ -12,8 +12,22 @@ import Animated, {
   ZoomIn
 } from 'react-native-reanimated';
 
-const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
-const AnimatedView = Animated.createAnimatedComponent(View);
+type IAnimatedPressableProps = React.ComponentProps<typeof Pressable> & {
+  entering?: React.ComponentProps<typeof Animated.View>['entering'];
+  exiting?: React.ComponentProps<typeof Animated.View>['exiting'];
+};
+
+type IAnimatedViewProps = React.ComponentProps<typeof View> & {
+  entering?: React.ComponentProps<typeof Animated.View>['entering'];
+  exiting?: React.ComponentProps<typeof Animated.View>['exiting'];
+};
+
+const AnimatedPressable = Animated.createAnimatedComponent(
+  Pressable
+) as React.ComponentType<IAnimatedPressableProps>;
+const AnimatedView = Animated.createAnimatedComponent(
+  View
+) as React.ComponentType<IAnimatedViewProps>;
 const SCOPE = 'MODAL';
 
 const StyledAnimatedPressable = styled(AnimatedPressable, { className: 'style' });
@@ -136,7 +150,6 @@ const ModalContent = React.forwardRef<
       ref={ref}
       entering={ZoomIn.duration(200).withInitialValues({
         transform: [{ scale: 0.9 }],
-        opacity: 0,
       })}
       exiting={FadeOut.duration(200)}
       {...props}
