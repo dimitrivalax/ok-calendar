@@ -12,9 +12,8 @@
 - Après chaque CRUD local réussi
 - `AppState` → `active`
 - Pull-to-refresh utilisateur
-- Intervalle foreground optionnel (~60 s)
-
-Pas d’observer EventKit dans Expo → pas de sync background temps réel en v1.
+- Intervalle foreground actif (~60 s)
+- Tâche de fond système (`background-calendar-sync`) via `expo-background-task` / `expo-task-manager` (WorkManager sur Android, BGAppRefreshTask sur iOS, intervalle ~15 min) exécutant `SyncEngine.pull()` + `NotificationService.resyncWindow()` même si l'application est fermée.
 
 ## Fenêtre
 
@@ -38,12 +37,12 @@ Pull par défaut : `[aujourd’hui − 12 mois, aujourd’hui + 24 mois]` (const
 
 Comparer `events.updated_at` (local) et `lastModifiedDate` (device).
 
-| Cas | Vainqueur |
-|-----|-----------|
-| Local plus récent | Local → push |
-| Device plus récent | Device → écraser miroir local |
-| Égalité, `origin=device` | Device |
-| Égalité, `origin=app` | Local |
+| Cas                      | Vainqueur                     |
+| ------------------------ | ----------------------------- |
+| Local plus récent        | Local → push                  |
+| Device plus récent       | Device → écraser miroir local |
+| Égalité, `origin=device` | Device                        |
+| Égalité, `origin=app`    | Local                         |
 
 ## Calendriers read-only
 

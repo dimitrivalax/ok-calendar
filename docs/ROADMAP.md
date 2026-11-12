@@ -11,6 +11,7 @@
 - [x] Notifications locales (service)
 - [x] Sync device + local-only (best-effort via `expo-calendar/legacy`)
 - [x] Settings (langue, permissions, sync manuel)
+- [x] Tâche de fond système (Background sync périodique & recalcul notifications via expo-background-task)
 - [x] Vitest unit smoke (`src/domain/*.test.ts`) + Playwright scaffold (`e2e/views.navigation.spec.ts`)
 - [ ] Dev client iOS/Android validé sur device réel
 - [ ] Suite E2E Playwright complète verte en CI

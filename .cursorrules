@@ -1,0 +1,10 @@
+# Cursor Rules for Ok! Calendar
+Always apply the rules located in `.cursor/rules/react/`:
+- `coding-style.md`
+- `hooks.md`
+- `patterns.md`
+- `security.md`
+- `testing.md`
+
+All code, hooks, components, and tests must adhere strictly to these guidelines.
+

@@ -18,6 +18,10 @@
   "calendarPermission": "Device calendars",
   "notificationPermission": "Notifications",
   "sync": "Synchronization",
+  "backgroundSync": "Background sync",
+  "backgroundSyncHint": "Keeps calendars and reminders up to date even when the app is closed.",
+  "backgroundSyncAvailable": "Active",
+  "backgroundSyncRestricted": "Inactive or restricted",
   "granted": "Granted",
   "denied": "Denied"
 }

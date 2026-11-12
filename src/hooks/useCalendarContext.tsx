@@ -36,6 +36,10 @@ import {
   type LocalePreference,
 } from '@/i18n';
 import { NotificationService } from '@/services/notificationService';
+import {
+  registerBackgroundSyncTask,
+  unregisterBackgroundSyncTask,
+} from '@/services/backgroundSync';
 
 type CalendarContextValue = {
   isReady: boolean;
@@ -143,6 +147,9 @@ export function CalendarProvider({ children }: { children: ReactNode }) {
     setIsLocalOnly((prev) => (prev === denied ? prev : denied));
     if (perm === 'granted') {
       await SyncEngine.pull();
+      await registerBackgroundSyncTask();
+    } else {
+      await unregisterBackgroundSyncTask();
     }
     // Background sync: keep current pixels until React can swap quietly.
     await refresh({ soft: true });
@@ -178,8 +185,10 @@ export function CalendarProvider({ children }: { children: ReactNode }) {
       if (!cancelled) setIsLocalOnly(perm === 'denied');
       if (perm === 'granted') {
         await SyncEngine.pull();
+        await registerBackgroundSyncTask();
       } else {
         await NotificationService.resyncWindow();
+        await unregisterBackgroundSyncTask();
       }
       await refreshRef.current();
       if (!cancelled) setIsReady(true);
@@ -212,6 +221,18 @@ export function CalendarProvider({ children }: { children: ReactNode }) {
       }
     });
     return () => sub.remove();
+  }, [isReady]);
+
+  // Optional periodic foreground sync while app remains open (~60s).
+  useEffect(() => {
+    if (!isReady) return;
+    const FOREGROUND_POLL_INTERVAL_MS = 60_000;
+    const interval = setInterval(() => {
+      if (AppState.currentState === 'active') {
+        void syncRef.current();
+      }
+    }, FOREGROUND_POLL_INTERVAL_MS);
+    return () => clearInterval(interval);
   }, [isReady]);
 
   const shiftPeriod = (delta: number) => {

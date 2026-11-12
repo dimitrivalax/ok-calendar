@@ -13,7 +13,11 @@
         "NSCalendarsFullAccessUsageDescription": "Ok! Calendar needs access to show and edit your calendars.",
         "NSCalendarsUsageDescription": "Ok! Calendar needs access to show and edit your calendars.",
         "NSRemindersUsageDescription": "Ok! Calendar can use reminders for event alerts.",
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "UIBackgroundModes": [
+          "fetch",
+          "processing"
+        ]
       },
       "entitlements": {
         "com.apple.developer.usernotifications.time-sensitive": true
@@ -31,9 +35,13 @@
         "READ_CALENDAR",
         "WRITE_CALENDAR",
         "POST_NOTIFICATIONS",
+        "RECEIVE_BOOT_COMPLETED",
+        "WAKE_LOCK",
         "android.permission.READ_CALENDAR",
         "android.permission.WRITE_CALENDAR",
-        "android.permission.USE_EXACT_ALARM"
+        "android.permission.USE_EXACT_ALARM",
+        "android.permission.RECEIVE_BOOT_COMPLETED",
+        "android.permission.WAKE_LOCK"
       ],
       "predictiveBackGestureEnabled": false,
       "package": "com.ok.calendar"
@@ -79,7 +87,8 @@
       ],
       "expo-image",
       "expo-web-browser",
-      "@react-native-community/datetimepicker"
+      "@react-native-community/datetimepicker",
+      "expo-background-task"
     ],
     "experiments": {
       "typedRoutes": true,

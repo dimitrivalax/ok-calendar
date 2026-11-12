@@ -28,6 +28,7 @@ import {
 import i18n from '@/i18n';
 import { href } from '@/navigation/href';
 import { attachNotificationResponseListener } from '@/services/notificationService';
+import '@/services/backgroundSync';
 import '../../global.css';
 
 SplashScreen.preventAutoHideAsync();

@@ -38,6 +38,7 @@ import {
 import { EventRepository } from '@/services/eventRepository';
 import { NotificationService } from '@/services/notificationService';
 import { SyncEngine } from '@/services/syncEngine';
+import { isBackgroundSyncRegistered } from '@/services/backgroundSync';
 
 const THEME_OPTIONS: ThemePreference[] = ['system', 'light', 'dark'];
 const LOCALE_OPTIONS: LocalePreference[] = ['system', 'en', 'fr'];
@@ -71,6 +72,11 @@ export default function SettingsScreen() {
   );
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [showTomorrowTimePicker, setShowTomorrowTimePicker] = useState(false);
+  const [bgSyncActive, setBgSyncActive] = useState(false);
+
+  useEffect(() => {
+    void isBackgroundSyncRegistered().then(setBgSyncActive);
+  }, [isLocalOnly]);
 
   const loadCalendars = async () => {
     await CalendarService.syncDeviceCalendarsIntoDb();
@@ -385,6 +391,7 @@ export default function SettingsScreen() {
               await syncFromDevice();
               await NotificationService.requestPermissions();
               await loadCalendars();
+              setBgSyncActive(await isBackgroundSyncRegistered());
             }}
           >
             <ButtonText>{t('settings:permissions')}</ButtonText>
@@ -393,11 +400,21 @@ export default function SettingsScreen() {
 
         <VStack className="gap-2">
           <Text bold>{t('settings:sync')}</Text>
+          <Text size="sm" className="text-muted-foreground">
+            {t('settings:backgroundSync')}:{' '}
+            {bgSyncActive
+              ? t('settings:backgroundSyncAvailable')
+              : t('settings:backgroundSyncRestricted')}
+          </Text>
+          <Text size="xs" className="text-muted-foreground">
+            {t('settings:backgroundSyncHint')}
+          </Text>
           <Button
             onPress={async () => {
               await syncFromDevice();
               await SyncEngine.pushAllPending();
               await loadCalendars();
+              setBgSyncActive(await isBackgroundSyncRegistered());
             }}
             testID="btn-sync-now"
           >
