@@ -96,7 +96,10 @@ const StyledIcon = styled(UIIcon, {
   },
 });
 
-const StyledTextInput = styled(TextInput, { className: 'style' });
+const StyledTextInput = styled(
+  TextInput as unknown as React.ComponentType<any>,
+  { className: 'style' }
+) as unknown as typeof TextInput;
 
 const UISelect = createSelect(
   {

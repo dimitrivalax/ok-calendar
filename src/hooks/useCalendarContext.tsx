@@ -3,6 +3,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
   startTransition,
@@ -21,7 +22,7 @@ import {
   startOfWeek,
 } from 'date-fns';
 
-import type { EventOccurrence, ViewMode } from '@/domain/types';
+import type { CalendarEvent, EventOccurrence, ViewMode } from '@/domain/types';
 import { expandOccurrences } from '@/domain/recurrence';
 import { EventRepository } from '@/services/eventRepository';
 import { SyncEngine } from '@/services/syncEngine';
@@ -87,17 +88,32 @@ function rangeForView(mode: ViewMode, cursor: Date): { start: string; end: strin
     };
   }
   return {
-    start: startOfMonth(cursor).toISOString(),
-    end: endOfMonth(cursor).toISOString(),
+    start: startOfWeek(startOfMonth(cursor), WEEK_OPTIONS).toISOString(),
+    end: endOfWeek(endOfMonth(cursor), WEEK_OPTIONS).toISOString(),
   };
 }
 
-function occurrencesFingerprint(occs: EventOccurrence[]): string {
+/**
+ * Unified SQLite fetch window around `cursor` that covers all 4 view modes
+ * (month grid, week, day, and 60-day agenda) so switching tabs never needs
+ * to reload events from SQLite or the device calendar.
+ */
+function windowForCursor(cursor: Date): { start: string; end: string } {
+  const monthGridStart = startOfWeek(startOfMonth(cursor), WEEK_OPTIONS);
+  const monthGridEnd = endOfWeek(endOfMonth(cursor), WEEK_OPTIONS);
+  const agendaEnd = endOfDay(addDays(cursor, AGENDA_RANGE_DAYS));
+  return {
+    start: monthGridStart.toISOString(),
+    end: (monthGridEnd > agendaEnd ? monthGridEnd : agendaEnd).toISOString(),
+  };
+}
+
+function eventsFingerprint(evts: CalendarEvent[]): string {
   // Omit updatedAt: device pull rewrites it even when visible fields are unchanged.
-  return occs
+  return evts
     .map(
-      (o) =>
-        `${o.id}\0${o.occurrenceStart}\0${o.occurrenceEnd}\0${o.title}\0${o.allDay ? 1 : 0}\0${o.location ?? ''}\0${o.description ?? ''}`,
+      (e) =>
+        `${e.id}\0${e.calendarId}\0${e.startAt}\0${e.endAt}\0${e.title}\0${e.allDay ? 1 : 0}\0${e.recurrence}\0${e.location ?? ''}\0${e.description ?? ''}`,
     )
     .join('\n');
 }
@@ -106,17 +122,19 @@ export function CalendarProvider({ children }: { children: ReactNode }) {
   const [isReady, setIsReady] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>('day');
   const [cursorDate, setCursorDate] = useState(() => new Date());
-  const [occurrences, setOccurrences] = useState<EventOccurrence[]>([]);
+  const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [isLocalOnly, setIsLocalOnly] = useState(false);
   const [localePreference, setLocalePreference] =
     useState<LocalePreference>('system');
   const [locale, setLocale] = useState<AppLocale>(() => deviceLocale());
 
-  const applyOccurrences = useCallback(
-    (next: EventOccurrence[], soft: boolean) => {
+  const refreshSeqRef = useRef(0);
+
+  const applyEvents = useCallback(
+    (next: CalendarEvent[], soft: boolean) => {
       const commit = () => {
-        setOccurrences((prev) =>
-          occurrencesFingerprint(prev) === occurrencesFingerprint(next)
+        setEvents((prev) =>
+          eventsFingerprint(prev) === eventsFingerprint(next)
             ? prev
             : next,
         );
@@ -130,16 +148,38 @@ export function CalendarProvider({ children }: { children: ReactNode }) {
     [],
   );
 
+  const windowRange = useMemo(() => windowForCursor(cursorDate), [cursorDate]);
+
+  const viewRange = useMemo(
+    () => rangeForView(viewMode, cursorDate),
+    [viewMode, cursorDate],
+  );
+
+  const occurrences = useMemo(
+    () => expandOccurrences(events, viewRange.start, viewRange.end),
+    [events, viewRange.start, viewRange.end],
+  );
+
   const refresh = useCallback(
     async (opts?: { soft?: boolean }) => {
+      const seq = ++refreshSeqRef.current;
       const calendars = await EventRepository.listCalendars();
       const visibleIds = calendars.filter((c) => c.isVisible).map((c) => c.id);
-      const { start, end } = rangeForView(viewMode, cursorDate);
-      const events = await EventRepository.listInRange(start, end, visibleIds);
-      applyOccurrences(expandOccurrences(events, start, end), opts?.soft === true);
+      const nextEvents = await EventRepository.listInRange(
+        windowRange.start,
+        windowRange.end,
+        visibleIds,
+      );
+      if (seq !== refreshSeqRef.current) return;
+      applyEvents(nextEvents, opts?.soft === true);
     },
-    [viewMode, cursorDate, applyOccurrences],
+    [windowRange.start, windowRange.end, applyEvents],
   );
+
+  const refreshRef = useRef(refresh);
+  useEffect(() => {
+    refreshRef.current = refresh;
+  }, [refresh]);
 
   const syncFromDevice = useCallback(async () => {
     const perm = await CalendarService.requestPermissions();
@@ -152,17 +192,10 @@ export function CalendarProvider({ children }: { children: ReactNode }) {
       await unregisterBackgroundSyncTask();
     }
     // Background sync: keep current pixels until React can swap quietly.
-    await refresh({ soft: true });
-  }, [refresh]);
+    await refreshRef.current({ soft: true });
+  }, []);
 
-  const refreshRef = useRef(refresh);
   const syncRef = useRef(syncFromDevice);
-  const prevViewModeRef = useRef(viewMode);
-
-  useEffect(() => {
-    refreshRef.current = refresh;
-  }, [refresh]);
-
   useEffect(() => {
     syncRef.current = syncFromDevice;
   }, [syncFromDevice]);
@@ -202,17 +235,6 @@ export function CalendarProvider({ children }: { children: ReactNode }) {
     if (!isReady) return;
     void refresh();
   }, [refresh, isReady]);
-
-  // Pull from the device calendar when switching month/week/day/agenda tabs.
-  useEffect(() => {
-    if (!isReady) return;
-    if (prevViewModeRef.current === viewMode) return;
-    prevViewModeRef.current = viewMode;
-    const handle = setTimeout(() => {
-      void syncRef.current();
-    }, 150);
-    return () => clearTimeout(handle);
-  }, [viewMode, isReady]);
 
   useEffect(() => {
     const sub = AppState.addEventListener('change', (state) => {

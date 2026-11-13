@@ -1,6 +1,6 @@
 import { format, parseISO } from "date-fns";
 import { useRouter } from "expo-router";
-import { useEffect, useMemo, useRef } from "react";
+import { type ComponentRef, useEffect, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { Pressable, ScrollView, View } from "react-native";
 
@@ -34,8 +34,8 @@ export function OccurrenceList({
   const { t } = useTranslation(["calendar", "event"]);
   const router = useRouter();
   const dfLocale = dateFnsLocale(locale);
-  const scrollRef = useRef<ScrollView>(null);
-  const anchorRef = useRef<View>(null);
+  const scrollRef = useRef<ComponentRef<typeof ScrollView>>(null);
+  const anchorRef = useRef<ComponentRef<typeof View>>(null);
   const didScrollRef = useRef(false);
 
   const sections = useMemo(() => {

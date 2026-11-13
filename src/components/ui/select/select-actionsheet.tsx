@@ -38,36 +38,57 @@ type IMotionViewProps = React.ComponentProps<typeof View> &
 
 const MotionView = Motion.View as React.ComponentType<IMotionViewProps>;
 
-const StyledMotionView = styled(MotionView, { className: 'style' });
-const StyledAnimatedPressable = styled(AnimatedPressable, { className: 'style' });
-const StyledScrollView = styled(ScrollView, {
-  className: 'style',
-  contentContainerClassName: 'contentContainerStyle',
-  indicatorClassName: 'indicatorStyle',
-});
-const StyledVirtualizedList = styled(VirtualizedList, {
-  className: 'style',
-  ListFooterComponentClassName: 'ListFooterComponentStyle',
-  ListHeaderComponentClassName: 'ListHeaderComponentStyle',
-  contentContainerClassName: 'contentContainerStyle',
-  indicatorClassName: 'indicatorStyle',
-});
-const StyledFlatList = styled(FlatList, {
-  className: 'style',
-  ListFooterComponentClassName: 'ListFooterComponentStyle',
-  ListHeaderComponentClassName: 'ListHeaderComponentStyle',
-  columnWrapperClassName: 'columnWrapperStyle',
-  contentContainerClassName: 'contentContainerStyle',
-  indicatorClassName: 'indicatorStyle',
-});
+const StyledMotionView = styled(
+  MotionView as React.ComponentType<any>,
+  { className: 'style' }
+) as React.ComponentType<IMotionViewProps & { className?: string }>;
+const StyledAnimatedPressable = styled(
+  AnimatedPressable as React.ComponentType<any>,
+  { className: 'style' }
+) as React.ComponentType<IAnimatedPressableProps & { className?: string }>;
+const StyledScrollView = styled(
+  ScrollView as unknown as React.ComponentType<any>,
+  {
+    className: 'style',
+    contentContainerClassName: 'contentContainerStyle',
+    indicatorClassName: 'indicatorStyle',
+  }
+) as unknown as typeof ScrollView;
+const StyledVirtualizedList = styled(
+  VirtualizedList as unknown as React.ComponentType<any>,
+  {
+    className: 'style',
+    ListFooterComponentClassName: 'ListFooterComponentStyle',
+    ListHeaderComponentClassName: 'ListHeaderComponentStyle',
+    contentContainerClassName: 'contentContainerStyle',
+    indicatorClassName: 'indicatorStyle',
+  }
+) as unknown as typeof VirtualizedList;
+const StyledFlatList = styled(
+  FlatList as unknown as React.ComponentType<any>,
+  {
+    className: 'style',
+    ListFooterComponentClassName: 'ListFooterComponentStyle',
+    ListHeaderComponentClassName: 'ListHeaderComponentStyle',
+    columnWrapperClassName: 'columnWrapperStyle',
+    contentContainerClassName: 'contentContainerStyle',
+    indicatorClassName: 'indicatorStyle',
+  }
+) as unknown as typeof FlatList;
 const StyledIcon = styled(UIIcon, {
   className: {
     target: 'style',
   },
 });
-const StyledSectionList = styled(SectionList, { className: 'style' });
+const StyledSectionList = styled(
+  SectionList as unknown as React.ComponentType<any>,
+  { className: 'style' }
+) as unknown as typeof SectionList;
 const StyledSectionHeaderText = styled(H4, { className: 'style' });
-const StyledText = styled(Text, { className: 'style' });
+const StyledText = styled(
+  Text as unknown as React.ComponentType<any>,
+  { className: 'style' }
+) as unknown as typeof Text;
 
 export const UIActionsheet = createActionsheet({
   Root: View,

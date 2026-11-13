@@ -2,7 +2,7 @@ import DateTimePicker, {
   type DateTimePickerEvent,
 } from '@react-native-community/datetimepicker';
 import { format, startOfDay } from 'date-fns';
-import { useRef, useState } from 'react';
+import { type ComponentRef, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Platform, Pressable, TextInput } from 'react-native';
 
@@ -28,7 +28,7 @@ export function CalendarTitle({ title, value, onChange, locale }: Props) {
   const { t } = useTranslation(['calendar', 'common']);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [draft, setDraft] = useState(value);
-  const webInputRef = useRef<TextInput>(null);
+  const webInputRef = useRef<ComponentRef<typeof TextInput>>(null);
 
   const apply = (date: Date) => {
     onChange(startOfDay(date));
@@ -39,7 +39,11 @@ export function CalendarTitle({ title, value, onChange, locale }: Props) {
     setDraft(value);
     if (Platform.OS === 'web') {
       const node = webInputRef.current as
-        | (TextInput & { showPicker?: () => void; click?: () => void })
+        | (ComponentRef<typeof TextInput> & {
+            showPicker?: () => void;
+            click?: () => void;
+            focus?: () => void;
+          })
         | null;
       if (node?.showPicker) {
         node.showPicker();
@@ -75,8 +79,7 @@ export function CalendarTitle({ title, value, onChange, locale }: Props) {
           ref={webInputRef}
           accessibilityLabel={t('calendar:jumpToDate')}
           className="absolute h-px w-px opacity-0"
-          // @ts-expect-error web-only input type
-          type="date"
+          {...({ type: 'date' } as object)}
           testID="calendar-title-date-input"
           value={format(value, 'yyyy-MM-dd')}
           onChangeText={(raw) => {

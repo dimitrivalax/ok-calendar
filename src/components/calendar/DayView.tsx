@@ -1,6 +1,6 @@
 import { format, isSameDay, parseISO } from 'date-fns';
 import { useRouter } from 'expo-router';
-import { useEffect, useRef, useState } from 'react';
+import { type ComponentRef, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, View } from 'react-native';
 
@@ -16,7 +16,7 @@ export function DayView() {
   const { occurrences, cursorDate } = useCalendar();
   const { t } = useTranslation('calendar');
   const router = useRouter();
-  const scrollRef = useRef<ScrollView>(null);
+  const scrollRef = useRef<ComponentRef<typeof ScrollView>>(null);
   const didCenterRef = useRef(false);
   const [now, setNow] = useState(() => new Date());
   const [viewportHeight, setViewportHeight] = useState(0);

@@ -438,7 +438,7 @@ export function EventForm({ initial, onSubmit, submitLabel }: Props) {
       >
         <Button
           testID="btn-save-event"
-          onPress={handleSubmit(onSubmit)}
+          onPress={() => void handleSubmit(onSubmit)()}
           disabled={isSubmitting}
         >
           <ButtonText>{submitLabel}</ButtonText>

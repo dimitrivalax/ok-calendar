@@ -297,6 +297,9 @@ export const EventRepository = {
     endIso: string,
     calendarIds?: string[],
   ): Promise<CalendarEvent[]> {
+    if (calendarIds && calendarIds.length === 0) {
+      return [];
+    }
     const db = await getDb();
     let sql = `SELECT * FROM events WHERE deleted_at IS NULL
       AND start_at < ? AND end_at > ?`;
