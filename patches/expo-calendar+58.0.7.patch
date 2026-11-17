@@ -1,4 +1,5 @@
 diff --git a/node_modules/expo-calendar/android/src/main/java/expo/modules/calendar/domain/event/EventRepository.kt b/node_modules/expo-calendar/android/src/main/java/expo/modules/calendar/domain/event/EventRepository.kt
+index b7fab5b..350a67d 100644
 --- a/node_modules/expo-calendar/android/src/main/java/expo/modules/calendar/domain/event/EventRepository.kt
 +++ b/node_modules/expo-calendar/android/src/main/java/expo/modules/calendar/domain/event/EventRepository.kt
 @@ -49,13 +49,14 @@ class EventRepository(context: Context) {
@@ -24,6 +25,7 @@ diff --git a/node_modules/expo-calendar/android/src/main/java/expo/modules/calen
      }
  
 diff --git a/node_modules/expo-calendar/android/src/main/java/expo/modules/calendar/domain/event/extensions/CursorExtensions.kt b/node_modules/expo-calendar/android/src/main/java/expo/modules/calendar/domain/event/extensions/CursorExtensions.kt
+index 7b174d4..bdb88eb 100644
 --- a/node_modules/expo-calendar/android/src/main/java/expo/modules/calendar/domain/event/extensions/CursorExtensions.kt
 +++ b/node_modules/expo-calendar/android/src/main/java/expo/modules/calendar/domain/event/extensions/CursorExtensions.kt
 @@ -41,11 +41,12 @@ fun Cursor.extractEvent(contentResolver: ContentResolver): EventEntity {
@@ -71,9 +73,10 @@ diff --git a/node_modules/expo-calendar/android/src/main/java/expo/modules/calen
    return alarms
  }
 diff --git a/node_modules/expo-calendar/android/src/main/java/expo/modules/calendar/domain/event/records/RecurrenceRuleEntity.kt b/node_modules/expo-calendar/android/src/main/java/expo/modules/calendar/domain/event/records/RecurrenceRuleEntity.kt
+index bcc83ce..c5c3e45 100644
 --- a/node_modules/expo-calendar/android/src/main/java/expo/modules/calendar/domain/event/records/RecurrenceRuleEntity.kt
 +++ b/node_modules/expo-calendar/android/src/main/java/expo/modules/calendar/domain/event/records/RecurrenceRuleEntity.kt
-@@ -20,15 +20,22 @@ data class RecurrenceRuleEntity(
+@@ -19,15 +19,22 @@ data class RecurrenceRuleEntity(
       * @param rrule A string defined by RFC 5455 section 3.3.10
       */
      fun fromRuleString(rrule: String): RecurrenceRuleEntity {
@@ -105,7 +108,7 @@ diff --git a/node_modules/expo-calendar/android/src/main/java/expo/modules/calen
  
        var occurrence: Int? = null
        var endDate: String? = null
-@@ -38,7 +45,7 @@ data class RecurrenceRuleEntity(
+@@ -37,7 +44,7 @@ data class RecurrenceRuleEntity(
            ?.let { tryParseEndDate(it) }
            ?.let { CalendarUtils.sdf.format(it) }
        } else if (ruleParts.contains("COUNT")) {
@@ -115,6 +118,7 @@ diff --git a/node_modules/expo-calendar/android/src/main/java/expo/modules/calen
  
        return RecurrenceRuleEntity(frequency, interval, occurrence, endDate)
 diff --git a/node_modules/expo-calendar/android/src/main/java/expo/modules/calendar/next/domain/model/event/RecurrenceRule.kt b/node_modules/expo-calendar/android/src/main/java/expo/modules/calendar/next/domain/model/event/RecurrenceRule.kt
+index 5078c7b..5f1f30d 100644
 --- a/node_modules/expo-calendar/android/src/main/java/expo/modules/calendar/next/domain/model/event/RecurrenceRule.kt
 +++ b/node_modules/expo-calendar/android/src/main/java/expo/modules/calendar/next/domain/model/event/RecurrenceRule.kt
 @@ -49,15 +49,20 @@ data class RecurrenceRule(
@@ -154,4 +158,3 @@ diff --git a/node_modules/expo-calendar/android/src/main/java/expo/modules/calen
        }
  
        return RecurrenceRule(frequency, interval, occurrence, endDate)
-
