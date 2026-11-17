@@ -33,16 +33,8 @@ export function GluestackUIProvider({
   }, [mode, handleMediaQuery]);
 
   return (
-    <>
-      <script
-        suppressHydrationWarning
-        dangerouslySetInnerHTML={{
-          __html: `(${script.toString()})('${mode}')`,
-        }}
-      />
-      <OverlayProvider>
-        <ToastProvider>{props.children}</ToastProvider>
-      </OverlayProvider>
-    </>
+    <OverlayProvider>
+      <ToastProvider>{props.children}</ToastProvider>
+    </OverlayProvider>
   );
 }
