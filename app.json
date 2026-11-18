@@ -3,7 +3,7 @@
     "name": "Ok! Calendar",
     "slug": "ok-calendar",
     "version": "1.0.0",
-    "orientation": "portrait",
+    "orientation": "default",
     "icon": "./assets/images/icon.png",
     "scheme": "okcalendar",
     "userInterfaceStyle": "automatic",
@@ -14,10 +14,7 @@
         "NSCalendarsUsageDescription": "Ok! Calendar needs access to show and edit your calendars.",
         "NSRemindersUsageDescription": "Ok! Calendar can use reminders for event alerts.",
         "ITSAppUsesNonExemptEncryption": false,
-        "UIBackgroundModes": [
-          "fetch",
-          "processing"
-        ]
+        "UIBackgroundModes": ["fetch", "processing"]
       },
       "entitlements": {
         "com.apple.developer.usernotifications.time-sensitive": true
