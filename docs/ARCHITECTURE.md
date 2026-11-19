@@ -54,8 +54,8 @@ src/
     event/             # EventForm, EventDetail
     calendars/         # CalendarList
   db/                  # client, schema, migrations
-  domain/              # types.ts, recurrence.ts, url.ts
-  services/            # eventRepository, calendarDevice, syncEngine, notificationService, backgroundSync
+  domain/              # types.ts, recurrence.ts, url.ts, icsParser.ts
+  services/            # eventRepository, calendarDevice, syncEngine, notificationService, backgroundSync, icsFileReader, icsImportDraft
   hooks/
   i18n/locales/{en,fr}/
   constants/           # tokens si besoin — alignés gluestack, pas de 2e design system

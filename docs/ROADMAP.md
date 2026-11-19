@@ -16,6 +16,7 @@
 - [x] Dev client iOS/Android validé sur device réel
 - [x] Suite E2E Playwright complète verte en CI
 - [x] Observer / sync plus réactive
+- [x] Import de fichiers `.ics` (ouverture native Android/iOS → pré-remplissage)
 
 ## Hors scope v1
 

@@ -17,6 +17,7 @@ Ordre de lecture : [AGENTS.md](../AGENTS.md) → skills `.agents/skills` + rules
 | [DATA_MODEL.md](DATA_MODEL.md) | DDL SQLite, types, invariants |
 | [SYNC.md](SYNC.md) | SyncEngine, conflits, local-only |
 | [NOTIFICATIONS.md](NOTIFICATIONS.md) | Rappels locaux + alarms OS |
+| [ICS_IMPORT.md](ICS_IMPORT.md) | Import natif de fichiers `.ics` (Android/iOS, RFC 5545) |
 | [UI.md](UI.md) | gluestack-ui, vues custom, testID |
 | [I18N.md](I18N.md) | EN défaut/fallback + FR |
 | [PRIVACY.md](PRIVACY.md) | Local-first, permissions |
