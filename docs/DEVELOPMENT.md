@@ -1,6 +1,6 @@
 # Développement
 
-**Objectif.** Guider le setup local, le dev client, les permissions et le dépannage. Voir [AGENTS.md](../AGENTS.md). Builds EAS / store : [BUILD.md](BUILD.md).
+**Objectif.** Guider le setup local, le dev client, les permissions et le dépannage. Voir [AGENTS.md](../AGENTS.md). Builds EAS / store (cloud ou machine) : [BUILD.md](BUILD.md). Quota cloud Free épuisé → section **Build local** de ce guide.
 
 ## Skills & rules (rappel)
 

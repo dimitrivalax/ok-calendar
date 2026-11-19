@@ -1,6 +1,7 @@
 {
   "title": "Réglages",
   "language": "Langue",
+  "languageSystem": "Système",
   "languageEn": "Anglais",
   "languageFr": "Français",
   "theme": "Thème",
@@ -10,10 +11,17 @@
   "dailyDigest": "Notification agenda du jour",
   "dailyDigestTime": "Heure de la notification",
   "dailyDigestHint": "Liste les événements du jour chaque matin",
+  "tomorrowDigest": "Notification agenda du lendemain",
+  "tomorrowDigestTime": "Heure de la notification",
+  "tomorrowDigestHint": "Liste les événements du lendemain le soir",
   "permissions": "Permissions",
   "calendarPermission": "Calendriers du device",
   "notificationPermission": "Notifications",
   "sync": "Synchronisation",
+  "backgroundSync": "Synchronisation en arrière-plan",
+  "backgroundSyncHint": "Maintient les calendriers et les rappels à jour même quand l'application est fermée.",
+  "backgroundSyncAvailable": "Active",
+  "backgroundSyncRestricted": "Inactive ou restreinte",
   "granted": "Accordée",
   "denied": "Refusée"
 }

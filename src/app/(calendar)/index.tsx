@@ -1,13 +1,13 @@
 import { addDays, endOfWeek, format, startOfWeek } from 'date-fns';
-import { enUS, fr } from 'date-fns/locale';
 import { Stack, useRouter } from 'expo-router';
-import { ChevronLeft, ChevronRight, Settings } from 'lucide-react-native';
+import { Search, Settings } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import { runOnJS } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { scheduleOnRN } from 'react-native-worklets';
 
 import { AgendaView } from '@/components/calendar/AgendaView';
+import { CalendarTitle } from '@/components/calendar/CalendarTitle';
 import { DayView } from '@/components/calendar/DayView';
 import { MonthView } from '@/components/calendar/MonthView';
 import { ViewTabBar } from '@/components/calendar/ViewTabBar';
@@ -17,7 +17,11 @@ import { Button, ButtonIcon, ButtonText } from '@/components/ui/button';
 import { HStack } from '@/components/ui/hstack';
 import { Text } from '@/components/ui/text';
 import { VStack } from '@/components/ui/vstack';
-import { useCalendar } from '@/hooks/useCalendarContext';
+import {
+  AGENDA_RANGE_DAYS,
+  useCalendar,
+} from '@/hooks/useCalendarContext';
+import { dateFnsLocale } from '@/i18n';
 import { href } from '@/navigation/href';
 
 const SWIPE_THRESHOLD = 50;
@@ -36,7 +40,7 @@ export default function CalendarScreen() {
   const { t } = useTranslation(['calendar', 'common']);
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const dfLocale = locale === 'fr' ? fr : enUS;
+  const dfLocale = dateFnsLocale(locale);
 
   const title = (() => {
     if (viewMode === 'day') {
@@ -48,7 +52,7 @@ export default function CalendarScreen() {
       return `${format(start, 'd MMM', { locale: dfLocale })} – ${format(end, 'd MMM yyyy', { locale: dfLocale })}`;
     }
     if (viewMode === 'agenda') {
-      const end = addDays(cursorDate, 60);
+      const end = addDays(cursorDate, AGENDA_RANGE_DAYS);
       return `${format(cursorDate, 'd MMM', { locale: dfLocale })} – ${format(end, 'd MMM yyyy', { locale: dfLocale })}`;
     }
     return format(cursorDate, 'MMMM yyyy', { locale: dfLocale });
@@ -60,9 +64,9 @@ export default function CalendarScreen() {
     .onEnd((event) => {
       'worklet';
       if (event.translationX > SWIPE_THRESHOLD) {
-        runOnJS(shiftPeriod)(-1);
+        scheduleOnRN(shiftPeriod, -1);
       } else if (event.translationX < -SWIPE_THRESHOLD) {
-        runOnJS(shiftPeriod)(1);
+        scheduleOnRN(shiftPeriod, 1);
       }
     });
 
@@ -79,34 +83,28 @@ export default function CalendarScreen() {
         )}
 
         <HStack className="items-center px-3 py-2 gap-1">
-          <Button
-            size="sm"
-            variant="outline"
-            onPress={() => shiftPeriod(-1)}
-            accessibilityLabel={t('calendar:previousPeriod')}
-            testID="btn-prev-period"
-          >
-            <ButtonIcon as={ChevronLeft} />
-          </Button>
           <VStack className="min-w-0 flex-1 items-center px-1">
-            <Text bold size="lg" className="text-center" numberOfLines={2}>
-              {title}
-            </Text>
+            <CalendarTitle
+              title={title}
+              value={cursorDate}
+              onChange={setCursorDate}
+              locale={locale}
+            />
             <Button size="sm" variant="link" onPress={goToday} testID="btn-today">
               <ButtonText>{t('common:today')}</ButtonText>
             </Button>
           </VStack>
           <Button
-            size="sm"
+            size="default"
             variant="outline"
-            onPress={() => shiftPeriod(1)}
-            accessibilityLabel={t('calendar:nextPeriod')}
-            testID="btn-next-period"
+            onPress={() => router.push(href('/search'))}
+            testID="btn-search"
+            accessibilityLabel={t('calendar:search')}
           >
-            <ButtonIcon as={ChevronRight} />
+            <ButtonIcon as={Search} />
           </Button>
           <Button
-            size="sm"
+            size="default"
             variant="outline"
             onPress={() => router.push(href('/settings'))}
             testID="btn-settings"

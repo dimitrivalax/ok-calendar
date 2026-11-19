@@ -23,7 +23,13 @@ import {
   fireAtForDay,
   formatDigestBody,
   isDailyDigestEnabled,
+  isTomorrowDigestEnabled,
   parseDigestTime,
+  parseTomorrowDigestTime,
+  TOMORROW_DIGEST_ENABLED_KEY,
+  TOMORROW_DIGEST_ID_PREFIX,
+  TOMORROW_DIGEST_TIME_KEY,
+  tomorrowDigestNotificationId,
 } from '@/services/dailyDigest';
 import { EventRepository } from '@/services/eventRepository';
 import i18n from '@/i18n';
@@ -166,6 +172,19 @@ export const NotificationService = {
     );
   },
 
+  async cancelTomorrowDigest(): Promise<void> {
+    const Notifications = await getNotifications();
+    if (!Notifications) return;
+    const scheduled = await Notifications.getAllScheduledNotificationsAsync();
+    await Promise.all(
+      scheduled
+        .filter((n) => n.identifier.startsWith(TOMORROW_DIGEST_ID_PREFIX))
+        .map((n) =>
+          Notifications.cancelScheduledNotificationAsync(n.identifier),
+        ),
+    );
+  },
+
   async syncForEvent(eventId: string): Promise<void> {
     const Notifications = await getNotifications();
     if (!Notifications) return;
@@ -283,6 +302,81 @@ export const NotificationService = {
     }
   },
 
+  async syncTomorrowDigest(): Promise<void> {
+    const Notifications = await getNotifications();
+    if (!Notifications) return;
+
+    await this.cancelTomorrowDigest();
+
+    const enabled = isTomorrowDigestEnabled(
+      await getSetting(TOMORROW_DIGEST_ENABLED_KEY),
+    );
+    if (!enabled) return;
+
+    const granted = await this.requestPermissions();
+    if (!granted) return;
+
+    await ensureDigestChannel(Notifications);
+
+    const { hours, minutes } = parseTomorrowDigestTime(
+      await getSetting(TOMORROW_DIGEST_TIME_KEY),
+    );
+    const calendars = await EventRepository.listCalendars();
+    const visibleIds = calendars.filter((c) => c.isVisible).map((c) => c.id);
+    const now = new Date();
+    const labels = {
+      allDay: i18n.t('notifications:digestAllDay'),
+      empty: '',
+      more: (count: number) =>
+        i18n.t('notifications:digestMore', { count }),
+    };
+
+    for (let offset = 0; offset < DAILY_DIGEST_WINDOW_DAYS; offset += 1) {
+      const fireDay = addDays(startOfDay(now), offset);
+      const targetDay = addDays(fireDay, 1);
+      const fireAt = fireAtForDay(fireDay, hours, minutes);
+      if (isBefore(fireAt, now)) continue;
+
+      const rangeStart = startOfDay(targetDay).toISOString();
+      const rangeEnd = endOfDay(targetDay).toISOString();
+      const occurrences =
+        visibleIds.length === 0
+          ? []
+          : expandOccurrences(
+              await EventRepository.listInRange(
+                rangeStart,
+                rangeEnd,
+                visibleIds,
+              ),
+              rangeStart,
+              rangeEnd,
+            );
+      if (occurrences.length === 0) continue;
+
+      const dayKey = format(targetDay, 'yyyy-MM-dd');
+      const body = formatDigestBody(occurrences, labels);
+
+      await Notifications.scheduleNotificationAsync({
+        identifier: tomorrowDigestNotificationId(dayKey),
+        content: {
+          title: i18n.t('notifications:tomorrowDigestTitle'),
+          body,
+          data: {
+            type: 'tomorrowDigest',
+            date: dayKey,
+          },
+          sound: true,
+          priority: Notifications.AndroidNotificationPriority.DEFAULT,
+        },
+        trigger: {
+          type: Notifications.SchedulableTriggerInputTypes.DATE,
+          date: fireAt,
+          channelId: DIGEST_CHANNEL_ID,
+        },
+      });
+    }
+  },
+
   async resyncWindow(): Promise<void> {
     if (!notificationsSupported()) return;
     const now = new Date();
@@ -294,12 +388,14 @@ export const NotificationService = {
       await this.syncForEvent(event.id);
     }
     await this.syncDailyDigest();
+    await this.syncTomorrowDigest();
   },
 };
 
 export type NotificationTap =
   | { type: 'event'; eventId: string }
-  | { type: 'dailyDigest'; date: string };
+  | { type: 'dailyDigest'; date: string }
+  | { type: 'tomorrowDigest'; date: string };
 
 function tapFromNotificationData(
   data: Record<string, unknown> | undefined,
@@ -310,6 +406,14 @@ function tapFromNotificationData(
     const date = data.date;
     if (typeof date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(date)) {
       return { type: 'dailyDigest', date };
+    }
+    return null;
+  }
+
+  if (data.type === 'tomorrowDigest') {
+    const date = data.date;
+    if (typeof date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      return { type: 'tomorrowDigest', date };
     }
     return null;
   }

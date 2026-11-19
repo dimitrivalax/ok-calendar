@@ -1,0 +1,25 @@
+#!/usr/bin/env sh
+set -e
+
+# Ensure node/pnpm are found when pushing from GUI Git clients / IDEs on macOS & Linux
+export PATH="/opt/homebrew/bin:/usr/local/bin:$HOME/Library/pnpm:$HOME/.local/share/pnpm:$HOME/.nvm/versions/node/$(ls "$HOME/.nvm/versions/node" 2>/dev/null | tail -n 1)/bin:$HOME/.volta/bin:$HOME/.fnm/current/bin:$PATH"
+
+echo "🔍 [pre-push] Exécution des tâches CI avant le push..."
+
+echo "👉 1/5 Lint..."
+pnpm lint
+
+echo "👉 2/5 Typecheck..."
+pnpm typecheck
+
+echo "👉 3/5 Unit tests..."
+pnpm test
+
+echo "👉 4/5 E2E functional (Playwright)..."
+pnpm exec playwright test --grep-invert a11y
+
+echo "👉 5/5 Accessibility (axe WCAG A/AA)..."
+pnpm test:e2e:a11y
+
+echo "✅ [pre-push] Toutes les vérifications CI sont passées avec succès !"
+

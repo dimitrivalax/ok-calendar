@@ -12,8 +12,22 @@ import Animated, {
   ZoomIn
 } from 'react-native-reanimated';
 
-const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
-const AnimatedView = Animated.createAnimatedComponent(View);
+type IAnimatedPressableProps = React.ComponentProps<typeof Pressable> & {
+  entering?: React.ComponentProps<typeof Animated.View>['entering'];
+  exiting?: React.ComponentProps<typeof Animated.View>['exiting'];
+};
+
+type IAnimatedViewProps = React.ComponentProps<typeof View> & {
+  entering?: React.ComponentProps<typeof Animated.View>['entering'];
+  exiting?: React.ComponentProps<typeof Animated.View>['exiting'];
+};
+
+const AnimatedPressable = Animated.createAnimatedComponent(
+  Pressable
+) as React.ComponentType<IAnimatedPressableProps>;
+const AnimatedView = Animated.createAnimatedComponent(
+  View
+) as React.ComponentType<IAnimatedViewProps>;
 const SCOPE = 'MODAL';
 
 const StyledAnimatedPressable = styled(AnimatedPressable, { className: 'style' });
@@ -97,11 +111,11 @@ type IModalCloseButtonProps = React.ComponentProps<typeof UIModal.CloseButton> &
   VariantProps<typeof modalCloseButtonStyle> & { className?: string };
 
 const Modal = React.forwardRef<React.ComponentRef<typeof UIModal>, IModalProps>(
-  ({ className, size = 'md', ...props }, ref) => (
+  ({ className, size = 'md', style, ...props }, ref) => (
     <UIModal
       ref={ref}
       {...props}
-      pointerEvents="box-none"
+      style={[{ pointerEvents: 'box-none' }, style]}
       className={modalStyle({ size, class: className })}
       context={{ size }}
     />
@@ -128,7 +142,7 @@ const ModalBackdrop = React.forwardRef<
 const ModalContent = React.forwardRef<
   React.ComponentRef<typeof UIModal.Content>,
   IModalContentProps
->(function ModalContent({ className, size, ...props }, ref) {
+>(function ModalContent({ className, size, style, ...props }, ref) {
   const { size: parentSize } = useStyleContext(SCOPE);
 
   return (
@@ -136,7 +150,6 @@ const ModalContent = React.forwardRef<
       ref={ref}
       entering={ZoomIn.duration(200).withInitialValues({
         transform: [{ scale: 0.9 }],
-        opacity: 0,
       })}
       exiting={FadeOut.duration(200)}
       {...props}
@@ -147,7 +160,7 @@ const ModalContent = React.forwardRef<
         size,
         class: className,
       })}
-      pointerEvents="auto"
+      style={[{ pointerEvents: 'auto' }, style]}
     />
   );
 });

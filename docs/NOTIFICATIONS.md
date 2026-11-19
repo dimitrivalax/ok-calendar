@@ -20,14 +20,15 @@ Android : `USE_EXACT_ALARM` (app calendrier) pour `setExactAndAllowWhileIdle` �
 ```
 notif:{eventId}:{reminderId}:{occurrenceStartIso}
 digest:yyyy-MM-dd
+tomorrowDigest:yyyy-MM-dd
 ```
 
-Permet cancel/reschedule sans fuite de notifs orphelines.
+Permet cancel/reschedule sans fuite de notifs orphelines. Pour `tomorrowDigest`, la date est celle du **jour cible** (lendemain).
 
 ## Fenêtre de schedule
 
 - Rappels d’événements : occurrences expansées sur **90 jours** glissants.
-- Digest quotidien : **14 jours** glissants, recalculé à chaque `resyncWindow` / changement de réglage.
+- Digest quotidien et digest lendemain : **14 jours** glissants, recalculés à chaque `resyncWindow` / changement de réglage.
 
 Au-delà : `resyncWindow` périodique (foreground / après sync).
 
@@ -48,6 +49,14 @@ Ne pas schedule dans le passé.
 - Corps : liste `HH:mm Titre` / all-day ; jour vide → message fun i18n (`digestEmptyBody`).
 - Tap → vue jour pour la date du payload (`data.type = dailyDigest`, `data.date`).
 
+## Digest lendemain
+
+- Réglages KV : `tomorrowDigestEnabled` (défaut `true`), `tomorrowDigestTime` (`HH:mm`, défaut `19:00`) — UI juste sous le digest du jour.
+- Fire à **J** à l’heure configurée pour les événements de **J+1**.
+- Jour cible vide → **pas de notification** (contrairement au digest matin).
+- Corps : même format liste `HH:mm Titre` / all-day (`digestAllDay` / `digestMore`).
+- Tap → vue jour pour la date cible (`data.type = tomorrowDigest`, `data.date`).
+
 ## Contenu
 
 Titre / corps via i18n namespace `notifications` (locale courante). Ne pas hardcoder.
@@ -55,10 +64,10 @@ Titre / corps via i18n namespace `notifications` (locale courante). Ne pas hardc
 ## Deep link
 
 - Rappel événement → `/event/{localEventId}` (payload `data.eventId` + `data.url`).
-- Digest → vue jour (`setViewMode('day')` + curseur sur `data.date`).
+- Digest du jour / lendemain → vue jour (`setViewMode('day')` + curseur sur `data.date`).
 
 Géré au cold start via `getLastNotificationResponse` et à chaud via le listener de réponse.
 
 ## API
 
-`syncForEvent` / `cancelForEvent` / `syncDailyDigest` / `cancelDailyDigest` / `resyncWindow` — [DATA_MODEL.md](DATA_MODEL.md).
+`syncForEvent` / `cancelForEvent` / `syncDailyDigest` / `cancelDailyDigest` / `syncTomorrowDigest` / `cancelTomorrowDigest` / `resyncWindow` — [DATA_MODEL.md](DATA_MODEL.md).

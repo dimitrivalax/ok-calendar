@@ -28,6 +28,7 @@ import {
 import i18n from '@/i18n';
 import { href } from '@/navigation/href';
 import { attachNotificationResponseListener } from '@/services/notificationService';
+import '@/services/backgroundSync';
 import '../../global.css';
 
 SplashScreen.preventAutoHideAsync();
@@ -72,7 +73,7 @@ function NotificationBridge() {
       // Defer so index → calendar redirect can settle on cold start.
       const timer = setTimeout(() => {
         pendingTimers.delete(timer);
-        if (tap.type === 'dailyDigest') {
+        if (tap.type === 'dailyDigest' || tap.type === 'tomorrowDigest') {
           const [year, month, day] = tap.date.split('-').map(Number);
           setViewMode('day');
           setCursorDate(new Date(year, month - 1, day));
@@ -99,7 +100,7 @@ function NotificationBridge() {
 }
 
 function RootStack() {
-  const { t } = useTranslation(['event', 'settings']);
+  const { t } = useTranslation(['event', 'settings', 'calendar']);
   // Re-render stack titles when the app locale changes.
   const { locale } = useCalendar();
 
@@ -123,6 +124,10 @@ function RootStack() {
       <Stack.Screen
         name="settings/index"
         options={{ title: t('settings:title') }}
+      />
+      <Stack.Screen
+        name="search/index"
+        options={{ title: t('calendar:search') }}
       />
     </Stack>
   );

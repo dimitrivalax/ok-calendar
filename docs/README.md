@@ -22,7 +22,7 @@ Ordre de lecture : [AGENTS.md](../AGENTS.md) → skills `.agents/skills` + rules
 | [PRIVACY.md](PRIVACY.md) | Local-first, permissions |
 | [ROADMAP.md](ROADMAP.md) | Scope v1 / hors scope / idées |
 | [DEVELOPMENT.md](DEVELOPMENT.md) | Dev client, permissions, troubleshooting |
-| [BUILD.md](BUILD.md) | Builds EAS Android/iOS + publication Expo / stores |
+| [BUILD.md](BUILD.md) | Builds EAS Android/iOS (cloud + local) + publication Expo / stores |
 | [TESTING.md](TESTING.md) | Vitest+RTL + Playwright E2E |
 | [adr/README.md](adr/README.md) | Architecture Decision Records |
 

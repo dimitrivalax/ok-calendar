@@ -39,10 +39,10 @@ flowchart TB
   Repo --> Types
 ```
 
-1. **Presentation** — écrans Expo Router + composants gluestack / vues calendrier custom  
-2. **Hooks** — orchestration UI, pas de SQL direct dans les vues  
-3. **Domain** — types, expansion récurrence, validation URL  
-4. **Infrastructure** — SQLite, expo-calendar, expo-notifications  
+1. **Presentation** — écrans Expo Router + composants gluestack / vues calendrier custom
+2. **Hooks** — orchestration UI, pas de SQL direct dans les vues
+3. **Domain** — types, expansion récurrence, validation URL
+4. **Infrastructure** — SQLite, expo-calendar, expo-notifications
 
 ## Structure `src/` cible
 
@@ -55,7 +55,7 @@ src/
     calendars/         # CalendarList
   db/                  # client, schema, migrations
   domain/              # types.ts, recurrence.ts, url.ts
-  services/            # eventRepository, calendarDevice, syncEngine, notificationService
+  services/            # eventRepository, calendarDevice, syncEngine, notificationService, backgroundSync
   hooks/
   i18n/locales/{en,fr}/
   constants/           # tokens si besoin — alignés gluestack, pas de 2e design system
@@ -65,16 +65,16 @@ Ne pas co-localiser composants dans `app/` (skill `expo-router`).
 
 ## Flux CRUD événement (app)
 
-1. `EventForm` (RHF) → `EventRepository.create/update`  
-2. `SyncEngine.pushEvent` → device si permissions + calendrier writable  
-3. `NotificationService.syncForEvent`  
+1. `EventForm` (RHF) → `EventRepository.create/update`
+2. `SyncEngine.pushEvent` → device si permissions + calendrier writable
+3. `NotificationService.syncForEvent`
 4. UI rafraîchit via `useEventsInRange`
 
 ## Flux pull device
 
-1. `SyncEngine.pull(range)` liste événements device visibles  
-2. Upsert miroir SQLite + `sync_map`  
-3. LWW selon [SYNC.md](SYNC.md)  
+1. `SyncEngine.pull(range)` liste événements device visibles
+2. Upsert miroir SQLite + `sync_map`
+3. LWW selon [SYNC.md](SYNC.md)
 4. Reschedule notifs si dates changent
 
 ## Providers racine (`_layout.tsx`)
@@ -83,7 +83,7 @@ Ne pas co-localiser composants dans `app/` (skill `expo-router`).
 
 ## Liens ADR
 
-- Dev client : ADR-0001  
-- SQLite SoT : ADR-0002  
-- Sync device : ADR-0003  
-- gluestack : ADR-0004  
+- Dev client : ADR-0001
+- SQLite SoT : ADR-0002
+- Sync device : ADR-0003
+- gluestack : ADR-0004
