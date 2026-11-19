@@ -34,5 +34,12 @@
   "navNew": "Nouveau",
   "navDetail": "Événement",
   "navEdit": "Modifier",
-  "deleteConfirm": "Supprimer cet événement ?"
+  "deleteConfirm": "Supprimer cet événement ?",
+  "icsImportErrorRead": "Impossible de lire le fichier .ics.",
+  "icsImportErrorTooLarge": "Le fichier .ics est trop volumineux pour être importé.",
+  "icsImportErrorInvalid": "Ce fichier .ics est invalide ou corrompu.",
+  "icsImportErrorNoEvents": "Aucun événement trouvé dans ce fichier .ics.",
+  "icsImportErrorMissingStart": "L’événement de ce fichier .ics n’a pas de date de début valide.",
+  "icsImportMultipleNotice": "Ce fichier contient {{count}} événements. Le premier a été prérempli.",
+  "icsImportRecurrenceNotice": "Règle de répétition complexe simplifiée — vérifiez la répétition avant d’enregistrer."
 }

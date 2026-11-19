@@ -88,7 +88,8 @@
       "expo-background-task",
       "expo-font",
       "expo-status-bar",
-      "./plugins/withAndroidR8Fix"
+      "./plugins/withAndroidR8Fix",
+      "./plugins/withIcsFileHandler"
     ],
     "experiments": {
       "typedRoutes": true,

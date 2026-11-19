@@ -34,5 +34,12 @@
   "navNew": "New",
   "navDetail": "Event",
   "navEdit": "Edit",
-  "deleteConfirm": "Delete this event?"
+  "deleteConfirm": "Delete this event?",
+  "icsImportErrorRead": "Could not read the .ics file.",
+  "icsImportErrorTooLarge": "The .ics file is too large to import.",
+  "icsImportErrorInvalid": "This .ics file is invalid or corrupted.",
+  "icsImportErrorNoEvents": "No event was found in this .ics file.",
+  "icsImportErrorMissingStart": "The event in this .ics file has no valid start date.",
+  "icsImportMultipleNotice": "This file contains {{count}} events. The first one has been pre-filled.",
+  "icsImportRecurrenceNotice": "Complex repeat rule simplified — please check the recurrence before saving."
 }
