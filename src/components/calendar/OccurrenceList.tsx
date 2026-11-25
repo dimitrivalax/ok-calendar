@@ -8,9 +8,9 @@ import { Box } from "@/components/ui/box";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
 import type { EventOccurrence } from "@/domain/types";
-import { useCalendar } from "@/hooks/useCalendarContext";
 import { dateFnsLocale } from "@/i18n";
 import { href } from "@/navigation/href";
+import { useLocale } from "@/state/calendarStore";
 
 type OccurrenceListProps = {
   occurrences: EventOccurrence[];
@@ -30,7 +30,7 @@ export function OccurrenceList({
   testID,
   scrollToFirstFuture = false,
 }: OccurrenceListProps) {
-  const { locale } = useCalendar();
+  const locale = useLocale();
   const { t } = useTranslation(["calendar", "event"]);
   const router = useRouter();
   const dfLocale = dateFnsLocale(locale);

@@ -8,13 +8,13 @@ import { HStack } from '@/components/ui/hstack';
 import { Text } from '@/components/ui/text';
 import { decorativeIconProps } from '@/components/ui/utils/decorative-icon';
 import type { ViewMode } from '@/domain/types';
-import { useCalendar } from '@/hooks/useCalendarContext';
 import { href } from '@/navigation/href';
+import { setViewMode, useViewMode } from '@/state/calendarStore';
 
 const MODES: ViewMode[] = ['month', 'week', 'day', 'agenda'];
 
 export function ViewTabBar() {
-  const { viewMode, setViewMode } = useCalendar();
+  const viewMode = useViewMode();
   const { t } = useTranslation('calendar');
   const insets = useSafeAreaInsets();
   const router = useRouter();

@@ -6,15 +6,14 @@ import { EventForm, type EventFormValues } from '@/components/event/EventForm';
 import { Box } from '@/components/ui/box';
 import { Text } from '@/components/ui/text';
 import { VStack } from '@/components/ui/vstack';
-import { useCalendar } from '@/hooks/useCalendarContext';
+import { useCreateEvent } from '@/hooks/mutations/useEventMutations';
 import { href } from '@/navigation/href';
-import { EventRepository } from '@/services/eventRepository';
 import {
   clearIcsImportPayload,
   getIcsImportPayload,
   type IcsImportErrorCode,
 } from '@/services/icsImportDraft';
-import { SyncEngine } from '@/services/syncEngine';
+import { setCursorDate } from '@/state/calendarStore';
 
 const ICS_ERROR_KEYS: Record<
   IcsImportErrorCode,
@@ -35,7 +34,7 @@ export default function NewEventScreen() {
   const { importId } = useLocalSearchParams<{ importId?: string }>();
   const { t } = useTranslation('event');
   const router = useRouter();
-  const { refresh, setCursorDate } = useCalendar();
+  const createEvent = useCreateEvent();
 
   const importPayload = getIcsImportPayload(importId);
   const initialDraft = importPayload?.ok ? importPayload.draft : undefined;
@@ -43,7 +42,7 @@ export default function NewEventScreen() {
   const onSubmit = async (values: EventFormValues) => {
     try {
       const reminderValue = Number(values.reminderValue) || 0;
-      const created = await EventRepository.create({
+      const created = await createEvent.mutateAsync({
         calendarId: values.calendarId,
         title: values.title,
         allDay: values.allDay,
@@ -61,8 +60,6 @@ export default function NewEventScreen() {
         ],
       });
 
-      await SyncEngine.pushEvent(created.id);
-      await refresh();
       if (importPayload?.ok) {
         setCursorDate(new Date(created.startAt));
       }

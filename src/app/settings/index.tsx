@@ -13,32 +13,35 @@ import { HStack } from "@/components/ui/hstack";
 import { Switch } from "@/components/ui/switch";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
-import { getSetting, setSetting } from "@/db/client";
-import type { Calendar } from "@/domain/types";
-import { useCalendar } from "@/hooks/useCalendarContext";
+import {
+  useChangeLocale,
+  useRequestPermissions,
+  useSyncNow,
+  useToggleCalendarVisibility,
+  useUpdateDigestSetting,
+} from "@/hooks/mutations/useCalendarMutations";
+import { queryKeys } from "@/hooks/queries/queryKeys";
+import { useCalendars } from "@/hooks/queries/useCalendars";
+import {
+  DEFAULT_DIGEST_SETTINGS,
+  useBackgroundSyncStatus,
+  useDigestSettings,
+} from "@/hooks/queries/useSettingsQueries";
 import {
   useThemePreference,
   type ThemePreference,
 } from "@/hooks/useThemePreference";
 import type { LocalePreference } from "@/i18n";
+import { queryClient } from "@/lib/queryClient";
 import { CalendarService } from "@/services/calendarDevice";
 import {
-  DAILY_DIGEST_ENABLED_KEY,
-  DAILY_DIGEST_TIME_KEY,
-  DEFAULT_DAILY_DIGEST_TIME,
-  DEFAULT_TOMORROW_DIGEST_TIME,
-  formatDigestTime,
-  isDailyDigestEnabled,
-  isTomorrowDigestEnabled,
   parseDigestTime,
   parseTomorrowDigestTime,
-  TOMORROW_DIGEST_ENABLED_KEY,
-  TOMORROW_DIGEST_TIME_KEY,
 } from "@/services/dailyDigest";
-import { EventRepository } from "@/services/eventRepository";
-import { NotificationService } from "@/services/notificationService";
-import { SyncEngine } from "@/services/syncEngine";
-import { isBackgroundSyncRegistered } from "@/services/backgroundSync";
+import {
+  useIsLocalOnly,
+  useLocalePreference,
+} from "@/state/calendarStore";
 import packageJson from "../../../package.json";
 
 const THEME_OPTIONS: ThemePreference[] = ["system", "light", "dark"];
@@ -55,101 +58,56 @@ function timeToDate(hours: number, minutes: number): Date {
 
 export default function SettingsScreen() {
   const { t, i18n } = useTranslation(["settings", "calendar", "common"]);
-  const {
-    localePreference,
-    changeLocale,
-    refresh,
-    syncFromDevice,
-    isLocalOnly,
-  } = useCalendar();
+  const localePreference = useLocalePreference();
+  const isLocalOnly = useIsLocalOnly();
   const { preference, setPreference } = useThemePreference();
   const insets = useSafeAreaInsets();
-  const [calendars, setCalendars] = useState<Calendar[]>([]);
-  const [digestEnabled, setDigestEnabled] = useState(true);
-  const [digestTime, setDigestTime] = useState(DEFAULT_DAILY_DIGEST_TIME);
-  const [tomorrowDigestEnabled, setTomorrowDigestEnabled] = useState(true);
-  const [tomorrowDigestTime, setTomorrowDigestTime] = useState(
-    DEFAULT_TOMORROW_DIGEST_TIME,
-  );
+  const { data: calendars = [] } = useCalendars();
+  const { data: digestSettings = DEFAULT_DIGEST_SETTINGS } =
+    useDigestSettings();
+  const { data: bgSyncActive = false } = useBackgroundSyncStatus();
+  const changeLocale = useChangeLocale();
+  const requestPermissions = useRequestPermissions();
+  const syncNow = useSyncNow();
+  const toggleCalendarVisibility = useToggleCalendarVisibility();
+  const updateDigestSetting = useUpdateDigestSetting();
+
+  const {
+    digestEnabled,
+    digestTime,
+    tomorrowDigestEnabled,
+    tomorrowDigestTime,
+  } = digestSettings;
+
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [showTomorrowTimePicker, setShowTomorrowTimePicker] = useState(false);
-  const [bgSyncActive, setBgSyncActive] = useState(false);
 
   useEffect(() => {
-    void isBackgroundSyncRegistered().then(setBgSyncActive);
-  }, [isLocalOnly]);
-
-  const loadCalendars = async () => {
-    await CalendarService.syncDeviceCalendarsIntoDb();
-    setCalendars(await EventRepository.listCalendars());
-  };
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch calendars on mount
-    void loadCalendars();
+    void CalendarService.syncDeviceCalendarsIntoDb().then(() =>
+      queryClient.invalidateQueries({ queryKey: queryKeys.calendars.all }),
+    );
   }, []);
 
-  useEffect(() => {
-    let cancelled = false;
-    void (async () => {
-      const [enabledRaw, timeRaw, tomorrowEnabledRaw, tomorrowTimeRaw] =
-        await Promise.all([
-          getSetting(DAILY_DIGEST_ENABLED_KEY),
-          getSetting(DAILY_DIGEST_TIME_KEY),
-          getSetting(TOMORROW_DIGEST_ENABLED_KEY),
-          getSetting(TOMORROW_DIGEST_TIME_KEY),
-        ]);
-      if (cancelled) return;
-      setDigestEnabled(isDailyDigestEnabled(enabledRaw));
-      const parsed = parseDigestTime(timeRaw);
-      setDigestTime(formatDigestTime(parsed.hours, parsed.minutes));
-      setTomorrowDigestEnabled(isTomorrowDigestEnabled(tomorrowEnabledRaw));
-      const tomorrowParsed = parseTomorrowDigestTime(tomorrowTimeRaw);
-      setTomorrowDigestTime(
-        formatDigestTime(tomorrowParsed.hours, tomorrowParsed.minutes),
-      );
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  const persistDigestEnabled = async (next: boolean) => {
-    setDigestEnabled(next);
-    await setSetting(DAILY_DIGEST_ENABLED_KEY, next ? "true" : "false");
-    if (next) {
-      await NotificationService.requestPermissions();
-    }
-    await NotificationService.syncDailyDigest();
+  const persistDigestEnabled = (next: boolean) => {
+    updateDigestSetting.mutate({ kind: "dailyEnabled", enabled: next });
   };
 
-  const persistDigestTime = async (hours: number, minutes: number) => {
-    const next = formatDigestTime(hours, minutes);
-    setDigestTime(next);
-    await setSetting(DAILY_DIGEST_TIME_KEY, next);
-    await NotificationService.syncDailyDigest();
+  const persistDigestTime = (hours: number, minutes: number) => {
+    updateDigestSetting.mutate({ kind: "dailyTime", hours, minutes });
   };
 
-  const persistTomorrowDigestEnabled = async (next: boolean) => {
-    setTomorrowDigestEnabled(next);
-    await setSetting(TOMORROW_DIGEST_ENABLED_KEY, next ? "true" : "false");
-    if (next) {
-      await NotificationService.requestPermissions();
-    }
-    await NotificationService.syncTomorrowDigest();
+  const persistTomorrowDigestEnabled = (next: boolean) => {
+    updateDigestSetting.mutate({ kind: "tomorrowEnabled", enabled: next });
   };
 
-  const persistTomorrowDigestTime = async (hours: number, minutes: number) => {
-    const next = formatDigestTime(hours, minutes);
-    setTomorrowDigestTime(next);
-    await setSetting(TOMORROW_DIGEST_TIME_KEY, next);
-    await NotificationService.syncTomorrowDigest();
+  const persistTomorrowDigestTime = (hours: number, minutes: number) => {
+    updateDigestSetting.mutate({ kind: "tomorrowTime", hours, minutes });
   };
 
   const onAndroidTimeChange = (event: DateTimePickerEvent, selected?: Date) => {
     setShowTimePicker(false);
     if (event.type === "dismissed" || !selected) return;
-    void persistDigestTime(selected.getHours(), selected.getMinutes());
+    persistDigestTime(selected.getHours(), selected.getMinutes());
   };
 
   const onAndroidTomorrowTimeChange = (
@@ -158,7 +116,7 @@ export default function SettingsScreen() {
   ) => {
     setShowTomorrowTimePicker(false);
     if (event.type === "dismissed" || !selected) return;
-    void persistTomorrowDigestTime(selected.getHours(), selected.getMinutes());
+    persistTomorrowDigestTime(selected.getHours(), selected.getMinutes());
   };
 
   const digestDate = (() => {
@@ -191,7 +149,7 @@ export default function SettingsScreen() {
               <Button
                 key={code}
                 variant={localePreference === code ? "default" : "outline"}
-                onPress={() => changeLocale(code)}
+                onPress={() => changeLocale.mutate(code)}
                 testID={`locale-${code}`}
               >
                 <ButtonText>
@@ -385,12 +343,8 @@ export default function SettingsScreen() {
           </Text>
           <Button
             variant="outline"
-            onPress={async () => {
-              await syncFromDevice();
-              await NotificationService.requestPermissions();
-              await loadCalendars();
-              setBgSyncActive(await isBackgroundSyncRegistered());
-            }}
+            disabled={requestPermissions.isPending}
+            onPress={() => requestPermissions.mutate()}
           >
             <ButtonText>{t("settings:permissions")}</ButtonText>
           </Button>
@@ -408,12 +362,8 @@ export default function SettingsScreen() {
             {t("settings:backgroundSyncHint")}
           </Text>
           <Button
-            onPress={async () => {
-              await syncFromDevice();
-              await SyncEngine.pushAllPending();
-              await loadCalendars();
-              setBgSyncActive(await isBackgroundSyncRegistered());
-            }}
+            disabled={syncNow.isPending}
+            onPress={() => syncNow.mutate()}
             testID="btn-sync-now"
           >
             <ButtonText>{t("calendar:syncNow")}</ButtonText>
@@ -445,15 +395,11 @@ export default function SettingsScreen() {
                 accessibilityLabel={t("calendar:toggleCalendarVisibility", {
                   title: item.title,
                 })}
-                onValueChange={async (value: boolean) => {
-                  await EventRepository.updateCalendarVisibility(
-                    item.id,
-                    value,
-                  );
-                  await loadCalendars();
-                  await refresh();
-                  await NotificationService.syncDailyDigest();
-                  await NotificationService.syncTomorrowDigest();
+                onValueChange={(value: boolean) => {
+                  toggleCalendarVisibility.mutate({
+                    id: item.id,
+                    isVisible: value,
+                  });
                 }}
               />
             </HStack>

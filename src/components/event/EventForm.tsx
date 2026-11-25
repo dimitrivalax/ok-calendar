@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { ScrollView } from 'react-native';
@@ -29,13 +29,13 @@ import { VStack } from '@/components/ui/vstack';
 import { HStack } from '@/components/ui/hstack';
 import { nextEndAtFromStartChange } from '@/domain/eventRange';
 import type {
-  Calendar,
   CalendarEvent,
   Recurrence,
   ReminderType,
 } from '@/domain/types';
 import { isValidOptionalUrl } from '@/domain/url';
-import { EventRepository } from '@/services/eventRepository';
+import { useSetPrimaryCalendar } from '@/hooks/mutations/useCalendarMutations';
+import { useWritableCalendars } from '@/hooks/queries/useCalendars';
 
 export type EventFormValues = {
   calendarId: string;
@@ -91,7 +91,9 @@ export function EventForm({ initial, onSubmit, submitLabel }: Props) {
   const defaultStart = initial?.startAt ?? new Date().toISOString();
   const defaultEnd =
     initial?.endAt ?? addHours(new Date(defaultStart), 1).toISOString();
-  const [calendars, setCalendars] = useState<Calendar[]>([]);
+  const { data: calendars = [] } = useWritableCalendars();
+  const setPrimaryCalendar = useSetPrimaryCalendar();
+  const initializedCalendarRef = useRef(false);
 
   const isCreate = !initial?.id;
   const {
@@ -131,26 +133,18 @@ export function EventForm({ initial, onSubmit, submitLabel }: Props) {
   };
 
   useEffect(() => {
-    let cancelled = false;
-    void (async () => {
-      const all = await EventRepository.listCalendars();
-      const writable = all.filter((c) => c.allowsModifications);
-      if (cancelled) return;
-      setCalendars(writable);
-      const preferred =
-        (initial?.calendarId &&
-          writable.find((c) => c.id === initial.calendarId)?.id) ||
-        writable.find((c) => c.isPrimary)?.id ||
-        writable[0]?.id ||
-        '';
-      if (preferred) {
-        setValue('calendarId', preferred);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [initial?.calendarId, setValue]);
+    if (initializedCalendarRef.current || calendars.length === 0) return;
+    const preferred =
+      (initial?.calendarId &&
+        calendars.find((c) => c.id === initial.calendarId)?.id) ||
+      calendars.find((c) => c.isPrimary)?.id ||
+      calendars[0]?.id ||
+      '';
+    if (preferred) {
+      initializedCalendarRef.current = true;
+      setValue('calendarId', preferred);
+    }
+  }, [calendars, initial?.calendarId, setValue]);
 
   useEffect(() => {
     // keep form controlled
@@ -158,7 +152,7 @@ export function EventForm({ initial, onSubmit, submitLabel }: Props) {
 
   const selectCalendar = (id: string, onChange: (id: string) => void) => {
     onChange(id);
-    void EventRepository.setPrimaryCalendar(id);
+    setPrimaryCalendar.mutate(id);
   };
 
   return (

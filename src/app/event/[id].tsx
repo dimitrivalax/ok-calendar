@@ -1,5 +1,4 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Alert, Linking, ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -10,36 +9,24 @@ import { Button, ButtonText } from '@/components/ui/button';
 import { HStack } from '@/components/ui/hstack';
 import { Text } from '@/components/ui/text';
 import { VStack } from '@/components/ui/vstack';
-import type { Calendar, CalendarEvent } from '@/domain/types';
 import { safeUrl } from '@/domain/url';
-import { EventRepository } from '@/services/eventRepository';
-import { SyncEngine } from '@/services/syncEngine';
-import { useCalendar } from '@/hooks/useCalendarContext';
+import { useDeleteEvent } from '@/hooks/mutations/useEventMutations';
+import { useCalendars } from '@/hooks/queries/useCalendars';
+import { useEvent } from '@/hooks/queries/useEvent';
 import { dateFnsLocale } from '@/i18n';
 import { href } from '@/navigation/href';
+import { useLocale } from '@/state/calendarStore';
 
 export default function EventDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { t } = useTranslation(['event', 'common']);
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { refresh, locale } = useCalendar();
+  const locale = useLocale();
   const dfLocale = dateFnsLocale(locale);
-  const [event, setEvent] = useState<CalendarEvent | null>(null);
-  const [calendar, setCalendar] = useState<Calendar | null>(null);
-
-  useEffect(() => {
-    void (async () => {
-      const next = await EventRepository.getById(id);
-      setEvent(next);
-      if (!next) {
-        setCalendar(null);
-        return;
-      }
-      const calendars = await EventRepository.listCalendars();
-      setCalendar(calendars.find((c) => c.id === next.calendarId) ?? null);
-    })();
-  }, [id]);
+  const { data: event } = useEvent(id);
+  const { data: calendars = [] } = useCalendars();
+  const deleteEvent = useDeleteEvent();
 
   if (!event) {
     return (
@@ -48,6 +35,8 @@ export default function EventDetailScreen() {
       </Box>
     );
   }
+
+  const calendar = calendars.find((c) => c.id === event.calendarId) ?? null;
 
   const openUrl = async () => {
     const url = safeUrl(event.url);
@@ -62,9 +51,7 @@ export default function EventDetailScreen() {
         text: t('common:delete'),
         style: 'destructive',
         onPress: async () => {
-          await EventRepository.delete(event.id);
-          await SyncEngine.pushEvent(event.id);
-          await refresh();
+          await deleteEvent.mutateAsync(event.id);
           router.replace(href('/(calendar)'));
         },
       },

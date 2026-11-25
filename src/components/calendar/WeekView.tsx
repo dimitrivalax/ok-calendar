@@ -15,16 +15,19 @@ import { Box } from '@/components/ui/box';
 import { HStack } from '@/components/ui/hstack';
 import { Text } from '@/components/ui/text';
 import { VStack } from '@/components/ui/vstack';
-import { useCalendar } from '@/hooks/useCalendarContext';
+import { useCalendarOccurrences } from '@/hooks/queries/useEventsInRange';
 import { dateFnsLocale } from '@/i18n';
 import { href } from '@/navigation/href';
+import { useCursorDate, useLocale } from '@/state/calendarStore';
 
 type Props = {
   onSelectDay: (date: Date) => void;
 };
 
 export function WeekView({ onSelectDay }: Props) {
-  const { cursorDate, occurrences, locale } = useCalendar();
+  const cursorDate = useCursorDate();
+  const locale = useLocale();
+  const occurrences = useCalendarOccurrences();
   const { t } = useTranslation('calendar');
   const router = useRouter();
   const dfLocale = dateFnsLocale(locale);

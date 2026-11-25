@@ -13,21 +13,28 @@ import {
   PlusJakartaSans_700Bold,
   useFonts,
 } from '@expo-google-fonts/plus-jakarta-sans';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { I18nextProvider, useTranslation } from 'react-i18next';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
+import { AppBootstrap } from '@/components/AppBootstrap';
 import { GluestackUIProvider } from '@/components/ui/gluestack-ui-provider';
-import { CalendarProvider, useCalendar } from '@/hooks/useCalendarContext';
 import {
   ThemePreferenceProvider,
   useThemePreference,
 } from '@/hooks/useThemePreference';
 import i18n from '@/i18n';
+import { queryClient } from '@/lib/queryClient';
 import { href } from '@/navigation/href';
 import { attachNotificationResponseListener } from '@/services/notificationService';
+import {
+  setCursorDate,
+  setViewMode,
+  useLocale,
+} from '@/state/calendarStore';
 import '@/services/backgroundSync';
 import '../../global.css';
 
@@ -62,7 +69,6 @@ const darkTheme = {
 function NotificationBridge() {
   const router = useRouter();
   const navigationState = useRootNavigationState();
-  const { setViewMode, setCursorDate } = useCalendar();
 
   useEffect(() => {
     if (!navigationState?.key) return;
@@ -90,19 +96,14 @@ function NotificationBridge() {
       for (const timer of pendingTimers) clearTimeout(timer);
       pendingTimers.clear();
     };
-  }, [
-    router,
-    navigationState?.key,
-    setViewMode,
-    setCursorDate,
-  ]);
+  }, [router, navigationState?.key]);
   return null;
 }
 
 function RootStack() {
   const { t } = useTranslation(['event', 'settings', 'calendar']);
   // Re-render stack titles when the app locale changes.
-  const { locale } = useCalendar();
+  const locale = useLocale();
 
   return (
     <Stack key={locale}>
@@ -141,11 +142,12 @@ function RootLayoutNav() {
     <GluestackUIProvider mode={preference}>
       <ThemeProvider value={isDark ? darkTheme : lightTheme}>
         <I18nextProvider i18n={i18n}>
-          <CalendarProvider>
+          <QueryClientProvider client={queryClient}>
+            <AppBootstrap />
             <StatusBar style={isDark ? 'light' : 'dark'} />
             <NotificationBridge />
             <RootStack />
-          </CalendarProvider>
+          </QueryClientProvider>
         </I18nextProvider>
       </ThemeProvider>
     </GluestackUIProvider>

@@ -7,13 +7,15 @@ import { Pressable, ScrollView, View } from 'react-native';
 import { Box } from '@/components/ui/box';
 import { Text } from '@/components/ui/text';
 import { VStack } from '@/components/ui/vstack';
-import { useCalendar } from '@/hooks/useCalendarContext';
+import { useCalendarOccurrences } from '@/hooks/queries/useEventsInRange';
 import { href } from '@/navigation/href';
+import { useCursorDate } from '@/state/calendarStore';
 
 const HOUR_HEIGHT = 56;
 
 export function DayView() {
-  const { occurrences, cursorDate } = useCalendar();
+  const occurrences = useCalendarOccurrences();
+  const cursorDate = useCursorDate();
   const { t } = useTranslation('calendar');
   const router = useRouter();
   const scrollRef = useRef<ComponentRef<typeof ScrollView>>(null);

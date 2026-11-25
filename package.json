@@ -13,6 +13,8 @@
     "@legendapp/motion": "^2.5.3",
     "@react-native-async-storage/async-storage": "2.2.0",
     "@react-native-community/datetimepicker": "9.2.1",
+    "@tanstack/react-query": "^5.108.4",
+    "@tanstack/react-store": "^0.11.4",
     "clsx": "^2.1.1",
     "date-fns": "^4.4.0",
     "expo": "~58.0.25",

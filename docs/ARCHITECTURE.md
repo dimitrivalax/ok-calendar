@@ -11,13 +11,14 @@ flowchart TB
     Views[Month_Year_Day_Agenda]
     Forms[EventForm_gluestack]
   end
-  subgraph application [Application_hooks]
-    useEvents[useEventsInRange]
-    useCals[useCalendars]
-    useView[useCalendarView]
+  subgraph application [Application_hooks_and_state]
+    Store[calendarStore_tanstack_store]
+    useEvents[useEventsInRange_tanstack_query]
+    useCals[useCalendars_tanstack_query]
+    useMuts[useEventMutations_useCalendarMutations]
   end
   subgraph domain [Domain]
-    Types[types_recurrence]
+    Types[types_recurrence_calendarWindow]
   end
   subgraph infra [Infrastructure]
     Repo[EventRepository_sqlite]
@@ -28,11 +29,14 @@ flowchart TB
   Routes --> Views
   Routes --> Forms
   Views --> useEvents
-  Views --> useView
-  Forms --> useEvents
+  Views --> Store
+  Forms --> useCals
+  Forms --> useMuts
   useEvents --> Repo
-  useEvents --> Sync
-  useCals --> CalDev
+  useCals --> Repo
+  useMuts --> Repo
+  useMuts --> Sync
+  useMuts --> Notif
   Sync --> Repo
   Sync --> CalDev
   Sync --> Notif
@@ -40,8 +44,8 @@ flowchart TB
 ```
 
 1. **Presentation** — écrans Expo Router + composants gluestack / vues calendrier custom
-2. **Hooks** — orchestration UI, pas de SQL direct dans les vues
-3. **Domain** — types, expansion récurrence, validation URL
+2. **State & Hooks** — TanStack Store (état UI client synchrone : `viewMode`, `cursorDate`, `locale`, `isLocalOnly`) + TanStack Query (`networkMode: 'always'`, cache SQLite local, invalidation déclarative et mutations) — pas de SQL direct dans les vues
+3. **Domain** — types, fenêtres calendrier, expansion récurrence, validation URL
 4. **Infrastructure** — SQLite, expo-calendar, expo-notifications
 
 ## Structure `src/` cible
@@ -50,13 +54,18 @@ flowchart TB
 src/
   app/                 # routes uniquement (kebab-case)
   components/
-    calendar/          # MonthView, YearView, DayView, AgendaView
-    event/             # EventForm, EventDetail
-    calendars/         # CalendarList
+    AppBootstrap.tsx   # bootstrap SQLite/locale/permissions + sync foreground
+    calendar/          # MonthView, WeekView, DayView, AgendaView, OccurrenceList, ViewTabBar
+    event/             # EventForm, DateTimeField
   db/                  # client, schema, migrations
-  domain/              # types.ts, recurrence.ts, url.ts, icsParser.ts
+  domain/              # types.ts, calendarWindow.ts, recurrence.ts, url.ts, icsParser.ts
+  lib/                 # queryClient.ts (TanStack Query offline-first + AppState focusManager)
+  state/               # calendarStore.ts (TanStack Store UI state + sélecteurs)
   services/            # eventRepository, calendarDevice, syncEngine, notificationService, backgroundSync, icsFileReader, icsImportDraft
   hooks/
+    queries/           # queryKeys, useCalendars, useEventsInRange, useEvent, useSearchEvents, useSettingsQueries
+    mutations/         # useEventMutations, useCalendarMutations
+    useThemePreference.tsx
   i18n/locales/{en,fr}/
   constants/           # tokens si besoin — alignés gluestack, pas de 2e design system
 ```
@@ -65,10 +74,9 @@ Ne pas co-localiser composants dans `app/` (skill `expo-router`).
 
 ## Flux CRUD événement (app)
 
-1. `EventForm` (RHF) → `EventRepository.create/update`
-2. `SyncEngine.pushEvent` → device si permissions + calendrier writable
-3. `NotificationService.syncForEvent`
-4. UI rafraîchit via `useEventsInRange`
+1. `EventForm` (RHF) → `useCreateEvent` / `useUpdateEvent` / `useDeleteEvent`
+2. `EventRepository.create/update/delete` → `SyncEngine.pushEvent` (device + notifications)
+3. Invalidation TanStack Query (`queryKeys.events.all`) → rafraîchissement automatique du calendrier, du détail et de la recherche
 
 ## Flux pull device
 
@@ -76,10 +84,11 @@ Ne pas co-localiser composants dans `app/` (skill `expo-router`).
 2. Upsert miroir SQLite + `sync_map`
 3. LWW selon [SYNC.md](SYNC.md)
 4. Reschedule notifs si dates changent
+5. Invalidation TanStack Query (`calendars`, `events`, `backgroundSync`)
 
 ## Providers racine (`_layout.tsx`)
 
-`GluestackUIProvider` → i18n → DB ready → Navigation stack/groupes.
+`GestureHandlerRootView` → `ThemePreferenceProvider` → `GluestackUIProvider` → `ThemeProvider` → `I18nextProvider` → `QueryClientProvider` → `AppBootstrap` + `NotificationBridge` + `RootStack`.
 
 ## Liens ADR
 

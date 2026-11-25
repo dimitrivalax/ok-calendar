@@ -1,10 +1,10 @@
 import { useTranslation } from 'react-i18next';
 
 import { OccurrenceList } from '@/components/calendar/OccurrenceList';
-import { useCalendar } from '@/hooks/useCalendarContext';
+import { useCalendarOccurrences } from '@/hooks/queries/useEventsInRange';
 
 export function AgendaView() {
-  const { occurrences } = useCalendar();
+  const occurrences = useCalendarOccurrences();
   const { t } = useTranslation(['calendar']);
 
   return (

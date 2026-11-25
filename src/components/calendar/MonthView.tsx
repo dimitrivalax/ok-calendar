@@ -18,8 +18,9 @@ import { HStack } from '@/components/ui/hstack';
 import { Text } from '@/components/ui/text';
 import { VStack } from '@/components/ui/vstack';
 import type { EventOccurrence } from '@/domain/types';
-import { useCalendar } from '@/hooks/useCalendarContext';
+import { useCalendarOccurrences } from '@/hooks/queries/useEventsInRange';
 import { dateFnsLocale } from '@/i18n';
+import { useCursorDate, useLocale } from '@/state/calendarStore';
 
 const MAX_BADGES_PER_DAY = 3;
 
@@ -28,7 +29,9 @@ type Props = {
 };
 
 export function MonthView({ onSelectDay }: Props) {
-  const { cursorDate, occurrences, locale } = useCalendar();
+  const cursorDate = useCursorDate();
+  const locale = useLocale();
+  const occurrences = useCalendarOccurrences();
   const dfLocale = dateFnsLocale(locale);
 
   const weeks = useMemo(() => {

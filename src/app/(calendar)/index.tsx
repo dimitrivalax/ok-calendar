@@ -17,26 +17,27 @@ import { Button, ButtonIcon, ButtonText } from '@/components/ui/button';
 import { HStack } from '@/components/ui/hstack';
 import { Text } from '@/components/ui/text';
 import { VStack } from '@/components/ui/vstack';
-import {
-  AGENDA_RANGE_DAYS,
-  useCalendar,
-} from '@/hooks/useCalendarContext';
+import { AGENDA_RANGE_DAYS } from '@/domain/calendarWindow';
 import { dateFnsLocale } from '@/i18n';
 import { href } from '@/navigation/href';
+import {
+  goToday,
+  setCursorDate,
+  setViewMode,
+  shiftPeriod,
+  useCursorDate,
+  useIsLocalOnly,
+  useLocale,
+  useViewMode,
+} from '@/state/calendarStore';
 
 const SWIPE_THRESHOLD = 50;
 
 export default function CalendarScreen() {
-  const {
-    viewMode,
-    setViewMode,
-    cursorDate,
-    setCursorDate,
-    goToday,
-    shiftPeriod,
-    isLocalOnly,
-    locale,
-  } = useCalendar();
+  const viewMode = useViewMode();
+  const cursorDate = useCursorDate();
+  const isLocalOnly = useIsLocalOnly();
+  const locale = useLocale();
   const { t } = useTranslation(['calendar', 'common']);
   const router = useRouter();
   const insets = useSafeAreaInsets();
