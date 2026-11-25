@@ -1,27 +1,27 @@
-import { useEffect, useState } from 'react';
-import { Platform, ScrollView, TextInput } from 'react-native';
+import { useEffect, useState } from "react";
+import { Platform, ScrollView, TextInput } from "react-native";
 import DateTimePicker, {
   type DateTimePickerEvent,
-} from '@react-native-community/datetimepicker';
-import { set } from 'date-fns';
-import { useTranslation } from 'react-i18next';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+} from "@react-native-community/datetimepicker";
+import { set } from "date-fns";
+import { useTranslation } from "react-i18next";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { Box } from '@/components/ui/box';
-import { Button, ButtonText } from '@/components/ui/button';
-import { HStack } from '@/components/ui/hstack';
-import { Switch } from '@/components/ui/switch';
-import { Text } from '@/components/ui/text';
-import { VStack } from '@/components/ui/vstack';
-import { getSetting, setSetting } from '@/db/client';
-import type { Calendar } from '@/domain/types';
-import { useCalendar } from '@/hooks/useCalendarContext';
+import { Box } from "@/components/ui/box";
+import { Button, ButtonText } from "@/components/ui/button";
+import { HStack } from "@/components/ui/hstack";
+import { Switch } from "@/components/ui/switch";
+import { Text } from "@/components/ui/text";
+import { VStack } from "@/components/ui/vstack";
+import { getSetting, setSetting } from "@/db/client";
+import type { Calendar } from "@/domain/types";
+import { useCalendar } from "@/hooks/useCalendarContext";
 import {
   useThemePreference,
   type ThemePreference,
-} from '@/hooks/useThemePreference';
-import type { LocalePreference } from '@/i18n';
-import { CalendarService } from '@/services/calendarDevice';
+} from "@/hooks/useThemePreference";
+import type { LocalePreference } from "@/i18n";
+import { CalendarService } from "@/services/calendarDevice";
 import {
   DAILY_DIGEST_ENABLED_KEY,
   DAILY_DIGEST_TIME_KEY,
@@ -34,14 +34,15 @@ import {
   parseTomorrowDigestTime,
   TOMORROW_DIGEST_ENABLED_KEY,
   TOMORROW_DIGEST_TIME_KEY,
-} from '@/services/dailyDigest';
-import { EventRepository } from '@/services/eventRepository';
-import { NotificationService } from '@/services/notificationService';
-import { SyncEngine } from '@/services/syncEngine';
-import { isBackgroundSyncRegistered } from '@/services/backgroundSync';
+} from "@/services/dailyDigest";
+import { EventRepository } from "@/services/eventRepository";
+import { NotificationService } from "@/services/notificationService";
+import { SyncEngine } from "@/services/syncEngine";
+import { isBackgroundSyncRegistered } from "@/services/backgroundSync";
+import packageJson from "../../../package.json";
 
-const THEME_OPTIONS: ThemePreference[] = ['system', 'light', 'dark'];
-const LOCALE_OPTIONS: LocalePreference[] = ['system', 'en', 'fr'];
+const THEME_OPTIONS: ThemePreference[] = ["system", "light", "dark"];
+const LOCALE_OPTIONS: LocalePreference[] = ["system", "en", "fr"];
 
 function timeToDate(hours: number, minutes: number): Date {
   return set(new Date(), {
@@ -53,7 +54,7 @@ function timeToDate(hours: number, minutes: number): Date {
 }
 
 export default function SettingsScreen() {
-  const { t, i18n } = useTranslation(['settings', 'calendar', 'common']);
+  const { t, i18n } = useTranslation(["settings", "calendar", "common"]);
   const {
     localePreference,
     changeLocale,
@@ -115,7 +116,7 @@ export default function SettingsScreen() {
 
   const persistDigestEnabled = async (next: boolean) => {
     setDigestEnabled(next);
-    await setSetting(DAILY_DIGEST_ENABLED_KEY, next ? 'true' : 'false');
+    await setSetting(DAILY_DIGEST_ENABLED_KEY, next ? "true" : "false");
     if (next) {
       await NotificationService.requestPermissions();
     }
@@ -131,7 +132,7 @@ export default function SettingsScreen() {
 
   const persistTomorrowDigestEnabled = async (next: boolean) => {
     setTomorrowDigestEnabled(next);
-    await setSetting(TOMORROW_DIGEST_ENABLED_KEY, next ? 'true' : 'false');
+    await setSetting(TOMORROW_DIGEST_ENABLED_KEY, next ? "true" : "false");
     if (next) {
       await NotificationService.requestPermissions();
     }
@@ -145,12 +146,9 @@ export default function SettingsScreen() {
     await NotificationService.syncTomorrowDigest();
   };
 
-  const onAndroidTimeChange = (
-    event: DateTimePickerEvent,
-    selected?: Date,
-  ) => {
+  const onAndroidTimeChange = (event: DateTimePickerEvent, selected?: Date) => {
     setShowTimePicker(false);
-    if (event.type === 'dismissed' || !selected) return;
+    if (event.type === "dismissed" || !selected) return;
     void persistDigestTime(selected.getHours(), selected.getMinutes());
   };
 
@@ -159,7 +157,7 @@ export default function SettingsScreen() {
     selected?: Date,
   ) => {
     setShowTomorrowTimePicker(false);
-    if (event.type === 'dismissed' || !selected) return;
+    if (event.type === "dismissed" || !selected) return;
     void persistTomorrowDigestTime(selected.getHours(), selected.getMinutes());
   };
 
@@ -183,25 +181,25 @@ export default function SettingsScreen() {
     >
       <VStack className="gap-6">
         <Text size="xl" bold>
-          {t('settings:title')}
+          {t("settings:title")}
         </Text>
 
         <VStack className="gap-2">
-          <Text bold>{t('settings:language')}</Text>
+          <Text bold>{t("settings:language")}</Text>
           <HStack className="gap-2 flex-wrap" testID="settings-locale">
             {LOCALE_OPTIONS.map((code) => (
               <Button
                 key={code}
-                variant={localePreference === code ? 'default' : 'outline'}
+                variant={localePreference === code ? "default" : "outline"}
                 onPress={() => changeLocale(code)}
                 testID={`locale-${code}`}
               >
                 <ButtonText>
-                  {code === 'system'
-                    ? t('settings:languageSystem')
-                    : code === 'en'
-                      ? t('settings:languageEn')
-                      : t('settings:languageFr')}
+                  {code === "system"
+                    ? t("settings:languageSystem")
+                    : code === "en"
+                      ? t("settings:languageEn")
+                      : t("settings:languageFr")}
                 </ButtonText>
               </Button>
             ))}
@@ -209,21 +207,21 @@ export default function SettingsScreen() {
         </VStack>
 
         <VStack className="gap-2">
-          <Text bold>{t('settings:theme')}</Text>
+          <Text bold>{t("settings:theme")}</Text>
           <HStack className="gap-2 flex-wrap" testID="settings-theme">
             {THEME_OPTIONS.map((mode) => (
               <Button
                 key={mode}
-                variant={preference === mode ? 'default' : 'outline'}
+                variant={preference === mode ? "default" : "outline"}
                 onPress={() => setPreference(mode)}
                 testID={`theme-${mode}`}
               >
                 <ButtonText>
-                  {mode === 'system'
-                    ? t('settings:themeSystem')
-                    : mode === 'light'
-                      ? t('settings:themeLight')
-                      : t('settings:themeDark')}
+                  {mode === "system"
+                    ? t("settings:themeSystem")
+                    : mode === "light"
+                      ? t("settings:themeLight")
+                      : t("settings:themeDark")}
                 </ButtonText>
               </Button>
             ))}
@@ -233,9 +231,9 @@ export default function SettingsScreen() {
         <VStack className="gap-2" testID="settings-daily-digest">
           <HStack className="items-center justify-between">
             <VStack className="flex-1 pr-3 gap-1">
-              <Text bold>{t('settings:dailyDigest')}</Text>
+              <Text bold>{t("settings:dailyDigest")}</Text>
               <Text size="xs" className="text-muted-foreground">
-                {t('settings:dailyDigestHint')}
+                {t("settings:dailyDigestHint")}
               </Text>
             </VStack>
             <Switch
@@ -243,16 +241,16 @@ export default function SettingsScreen() {
               onValueChange={(value: boolean) => {
                 void persistDigestEnabled(value);
               }}
-              accessibilityLabel={t('settings:dailyDigest')}
+              accessibilityLabel={t("settings:dailyDigest")}
               testID="daily-digest-enabled"
             />
           </HStack>
           {digestEnabled ? (
             <VStack className="gap-1">
-              <Text>{t('settings:dailyDigestTime')}</Text>
-              {Platform.OS === 'web' ? (
+              <Text>{t("settings:dailyDigestTime")}</Text>
+              {Platform.OS === "web" ? (
                 <TextInput
-                  accessibilityLabel={t('settings:dailyDigestTime')}
+                  accessibilityLabel={t("settings:dailyDigestTime")}
                   className="min-h-9 w-32 rounded-md border border-border px-3 py-1 text-sm text-foreground"
                   // @ts-expect-error web-only input type
                   type="time"
@@ -264,7 +262,7 @@ export default function SettingsScreen() {
                   }}
                   testID="daily-digest-time"
                 />
-              ) : Platform.OS === 'ios' ? (
+              ) : Platform.OS === "ios" ? (
                 <DateTimePicker
                   value={digestDate}
                   mode="time"
@@ -306,9 +304,9 @@ export default function SettingsScreen() {
         <VStack className="gap-2" testID="settings-tomorrow-digest">
           <HStack className="items-center justify-between">
             <VStack className="flex-1 pr-3 gap-1">
-              <Text bold>{t('settings:tomorrowDigest')}</Text>
+              <Text bold>{t("settings:tomorrowDigest")}</Text>
               <Text size="xs" className="text-muted-foreground">
-                {t('settings:tomorrowDigestHint')}
+                {t("settings:tomorrowDigestHint")}
               </Text>
             </VStack>
             <Switch
@@ -316,16 +314,16 @@ export default function SettingsScreen() {
               onValueChange={(value: boolean) => {
                 void persistTomorrowDigestEnabled(value);
               }}
-              accessibilityLabel={t('settings:tomorrowDigest')}
+              accessibilityLabel={t("settings:tomorrowDigest")}
               testID="tomorrow-digest-enabled"
             />
           </HStack>
           {tomorrowDigestEnabled ? (
             <VStack className="gap-1">
-              <Text>{t('settings:tomorrowDigestTime')}</Text>
-              {Platform.OS === 'web' ? (
+              <Text>{t("settings:tomorrowDigestTime")}</Text>
+              {Platform.OS === "web" ? (
                 <TextInput
-                  accessibilityLabel={t('settings:tomorrowDigestTime')}
+                  accessibilityLabel={t("settings:tomorrowDigestTime")}
                   className="min-h-9 w-32 rounded-md border border-border px-3 py-1 text-sm text-foreground"
                   // @ts-expect-error web-only input type
                   type="time"
@@ -340,7 +338,7 @@ export default function SettingsScreen() {
                   }}
                   testID="tomorrow-digest-time"
                 />
-              ) : Platform.OS === 'ios' ? (
+              ) : Platform.OS === "ios" ? (
                 <DateTimePicker
                   value={tomorrowDigestDate}
                   mode="time"
@@ -380,10 +378,10 @@ export default function SettingsScreen() {
         </VStack>
 
         <VStack className="gap-2">
-          <Text bold>{t('settings:permissions')}</Text>
+          <Text bold>{t("settings:permissions")}</Text>
           <Text>
-            {t('settings:calendarPermission')}:{' '}
-            {isLocalOnly ? t('settings:denied') : t('settings:granted')}
+            {t("settings:calendarPermission")}:{" "}
+            {isLocalOnly ? t("settings:denied") : t("settings:granted")}
           </Text>
           <Button
             variant="outline"
@@ -394,20 +392,20 @@ export default function SettingsScreen() {
               setBgSyncActive(await isBackgroundSyncRegistered());
             }}
           >
-            <ButtonText>{t('settings:permissions')}</ButtonText>
+            <ButtonText>{t("settings:permissions")}</ButtonText>
           </Button>
         </VStack>
 
         <VStack className="gap-2">
-          <Text bold>{t('settings:sync')}</Text>
+          <Text bold>{t("settings:sync")}</Text>
           <Text size="sm" className="text-muted-foreground">
-            {t('settings:backgroundSync')}:{' '}
+            {t("settings:backgroundSync")}:{" "}
             {bgSyncActive
-              ? t('settings:backgroundSyncAvailable')
-              : t('settings:backgroundSyncRestricted')}
+              ? t("settings:backgroundSyncAvailable")
+              : t("settings:backgroundSyncRestricted")}
           </Text>
           <Text size="xs" className="text-muted-foreground">
-            {t('settings:backgroundSyncHint')}
+            {t("settings:backgroundSyncHint")}
           </Text>
           <Button
             onPress={async () => {
@@ -418,12 +416,12 @@ export default function SettingsScreen() {
             }}
             testID="btn-sync-now"
           >
-            <ButtonText>{t('calendar:syncNow')}</ButtonText>
+            <ButtonText>{t("calendar:syncNow")}</ButtonText>
           </Button>
         </VStack>
 
         <VStack className="gap-2" testID="calendar-list">
-          <Text bold>{t('calendar:calendars')}</Text>
+          <Text bold>{t("calendar:calendars")}</Text>
           {calendars.map((item) => (
             <HStack
               key={item.id}
@@ -438,17 +436,20 @@ export default function SettingsScreen() {
                   <Text>{item.title}</Text>
                   <Text size="xs" className="text-muted-foreground">
                     {item.source}
-                    {!item.allowsModifications ? ' · read-only' : ''}
+                    {!item.allowsModifications ? " · read-only" : ""}
                   </Text>
                 </VStack>
               </HStack>
               <Switch
                 value={item.isVisible}
-                accessibilityLabel={t('calendar:toggleCalendarVisibility', {
+                accessibilityLabel={t("calendar:toggleCalendarVisibility", {
                   title: item.title,
                 })}
                 onValueChange={async (value: boolean) => {
-                  await EventRepository.updateCalendarVisibility(item.id, value);
+                  await EventRepository.updateCalendarVisibility(
+                    item.id,
+                    value,
+                  );
                   await loadCalendars();
                   await refresh();
                   await NotificationService.syncDailyDigest();
@@ -458,6 +459,14 @@ export default function SettingsScreen() {
             </HStack>
           ))}
         </VStack>
+
+        <Text
+          size="xs"
+          className="text-center text-muted-foreground pt-2"
+          testID="settings-version"
+        >
+          {t("settings:version", { version: packageJson.version })}
+        </Text>
       </VStack>
     </ScrollView>
   );

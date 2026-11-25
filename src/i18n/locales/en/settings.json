@@ -23,5 +23,6 @@
   "backgroundSyncAvailable": "Active",
   "backgroundSyncRestricted": "Inactive or restricted",
   "granted": "Granted",
-  "denied": "Denied"
+  "denied": "Denied",
+  "version": "Version {{version}}"
 }
